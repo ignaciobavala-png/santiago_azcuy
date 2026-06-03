@@ -1,6 +1,7 @@
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import { getExposiciones } from "@/lib/supabase/queries"
+import { createClient } from "@/lib/supabase/server"
 
 export const metadata = {
   title: "Sobre el artista — Santiago Azcuy",
@@ -13,7 +14,12 @@ function formatFecha(fecha: string | null): string {
 }
 
 export default async function SobrePage() {
-  const exposiciones = await getExposiciones()
+  const supabase = await createClient()
+  const [exposiciones, { data: bio }] = await Promise.all([
+    getExposiciones(),
+    supabase.from("biografia").select("texto").eq("id", 1).single(),
+  ])
+  const textosBio = (bio?.texto ?? "").split("\n").filter(Boolean)
 
   const individuales = exposiciones.filter((e) => e.tipo === "individual")
   const colectivas = exposiciones.filter((e) => e.tipo === "colectiva")
@@ -33,20 +39,11 @@ export default async function SobrePage() {
           </h1>
 
           <div className="space-y-6 font-[family-name:var(--font-cormorant)] text-xl leading-relaxed text-[var(--color-text)]/80">
-            <p>
-              Santiago Azcuy es un artista plástico argentino radicado en Buenos Aires.
-              Su obra explora el espacio interior y la memoria a través del óleo, el acrílico
-              y la técnica mixta sobre tela y papel.
-            </p>
-            <p>
-              Cada obra es un diálogo entre la materia y el tiempo: capas de pigmento que
-              acumulan gestos, borraduras y reescrituras, suspendiendo al espectador en una
-              tensión sin resolución definitiva.
-            </p>
-            <p>
-              Ha expuesto en galerías y espacios culturales de Argentina y el exterior,
-              participando en muestras individuales y colectivas desde 2015.
-            </p>
+            {textosBio.length > 0 ? (
+              textosBio.map((parrafo, i) => <p key={i}>{parrafo}</p>)
+            ) : (
+              <p className="text-[var(--color-muted)] text-base">Texto biográfico próximamente.</p>
+            )}
           </div>
         </section>
 
