@@ -44,7 +44,7 @@ export async function getObras(filtros?: FiltrosObras): Promise<ObraCard[]> {
   }
 
   const { data, error } = await query
-  if (error) throw new Error(error.message)
+  if (error) return []
   return data ?? []
 }
 
@@ -73,7 +73,7 @@ export async function getObrasDestacadas(): Promise<ObraCard[]> {
     .order("orden", { ascending: true, nullsFirst: false })
     .limit(6)
 
-  if (error) throw new Error(error.message)
+  if (error) return []
   return data ?? []
 }
 
@@ -86,7 +86,7 @@ export async function getSeries(): Promise<Serie[]> {
     .order("orden", { ascending: true, nullsFirst: false })
     .order("año_inicio", { ascending: false })
 
-  if (error) throw new Error(error.message)
+  if (error) return []
   return data ?? []
 }
 
@@ -153,6 +153,6 @@ export async function getExposiciones(): Promise<Exposicion[]> {
     .select("*")
     .order("fecha_inicio", { ascending: false })
 
-  if (error) throw new Error(error.message)
+  if (error) return []
   return data ?? []
 }

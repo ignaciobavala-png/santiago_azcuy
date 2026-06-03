@@ -1,6 +1,7 @@
 "use server"
 
 import sharp from "sharp"
+import { revalidatePath } from "next/cache"
 import { createAdminClient } from "@/lib/supabase/server"
 
 export interface UploadImageResult {
@@ -15,14 +16,12 @@ export async function uploadObraImage(formData: FormData): Promise<UploadImageRe
   const buffer = Buffer.from(await file.arrayBuffer())
   const id = crypto.randomUUID()
 
-  // Convertir a WebP, máx 2400px de ancho, calidad 85 — suficiente para zoom de galería
   const webp = await sharp(buffer)
-    .rotate() // respeta el EXIF de orientación
+    .rotate()
     .resize({ width: 2400, height: 2400, fit: "inside", withoutEnlargement: true })
     .webp({ quality: 85 })
     .toBuffer()
 
-  // Thumbnail 10×10 base64 para blur placeholder
   const thumbBuffer = await sharp(buffer)
     .rotate()
     .resize(10, 10, { fit: "cover" })
@@ -71,7 +70,6 @@ export async function crearObra(formData: FormData) {
       ? `${dimensiones_alto} × ${dimensiones_ancho} cm`
       : null
 
-  // Verificar que el slug sea único
   const { data: existing } = await supabase
     .from("obras")
     .select("id")
@@ -91,7 +89,7 @@ export async function crearObra(formData: FormData) {
     descripcion: (formData.get("descripcion") as string) || null,
     serie_id: serie_id || null,
     disponible: formData.get("disponible") === "true",
-    publicada: false,
+    publicada: true,
     precio,
     tipo_venta: (formData.get("tipo_venta") as string) || null,
     imagen_url: imagen_url || null,
@@ -99,4 +97,25 @@ export async function crearObra(formData: FormData) {
   })
 
   if (error) throw new Error(error.message)
+  revalidatePath("/obras")
+  revalidatePath("/")
+}
+
+export async function togglePublicada(id: string, publicada: boolean) {
+  const supabase = await createAdminClient()
+  const { error } = await supabase
+    .from("obras")
+    .update({ publicada })
+    .eq("id", id)
+  if (error) throw new Error(error.message)
+  revalidatePath("/obras")
+  revalidatePath("/")
+}
+
+export async function eliminarObra(id: string) {
+  const supabase = await createAdminClient()
+  const { error } = await supabase.from("obras").delete().eq("id", id)
+  if (error) throw new Error(error.message)
+  revalidatePath("/obras")
+  revalidatePath("/")
 }

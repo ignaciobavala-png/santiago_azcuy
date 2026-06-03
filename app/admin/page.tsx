@@ -1,19 +1,37 @@
-import Link from "next/link";
+import Link from "next/link"
+import { createAdminClient } from "@/lib/supabase/server"
 
-const STATS = [
-  { label: "Colecciones", value: "3", href: "/admin/colecciones" },
-  { label: "Obras totales", value: "35", href: "/admin/obras/nueva" },
-  { label: "Disponibles", value: "12", href: "/admin/obras/nueva" },
-];
+export const dynamic = "force-dynamic"
 
 const ACCIONES = [
   { label: "Nueva colección", href: "/admin/colecciones/nueva", desc: "Crear un nuevo agrupamiento de obras" },
   { label: "Subir obra", href: "/admin/obras/nueva", desc: "Agregar una nueva pieza al catálogo" },
-  { label: "Editar biografía", href: "/admin/biografia", desc: "Actualizar el texto del artista" },
-  { label: "Datos de contacto", href: "/admin/contacto", desc: "Email, redes, información de contacto" },
-];
+  { label: "Editar biografía", href: "/admin/biografia", desc: "Actualizar texto y exposiciones del artista" },
+  { label: "Ver obras", href: "/admin/obras", desc: "Gestionar y publicar/ocultar obras" },
+]
 
-export default function AdminDashboard() {
+export default async function AdminDashboard() {
+  const supabase = await createAdminClient()
+
+  const [
+    { count: totalObras },
+    { count: publicadas },
+    { count: disponibles },
+    { count: totalSeries },
+  ] = await Promise.all([
+    supabase.from("obras").select("*", { count: "exact", head: true }),
+    supabase.from("obras").select("*", { count: "exact", head: true }).eq("publicada", true),
+    supabase.from("obras").select("*", { count: "exact", head: true }).eq("disponible", true),
+    supabase.from("series").select("*", { count: "exact", head: true }),
+  ])
+
+  const stats = [
+    { label: "Colecciones", value: String(totalSeries ?? 0), href: "/admin/colecciones" },
+    { label: "Obras totales", value: String(totalObras ?? 0), href: "/admin/obras" },
+    { label: "Publicadas", value: String(publicadas ?? 0), href: "/admin/obras" },
+    { label: "Disponibles", value: String(disponibles ?? 0), href: "/admin/obras" },
+  ]
+
   return (
     <div className="p-10 max-w-4xl">
       <div className="mb-10">
@@ -25,9 +43,8 @@ export default function AdminDashboard() {
         </p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-12">
-        {STATS.map(({ label, value, href }) => (
+      <div className="grid grid-cols-4 gap-4 mb-12">
+        {stats.map(({ label, value, href }) => (
           <Link
             key={label}
             href={href}
@@ -43,7 +60,6 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Acciones rápidas */}
       <p className="text-xs tracking-[0.3em] uppercase text-[var(--color-muted)] mb-4">
         Acciones rápidas
       </p>
@@ -62,5 +78,5 @@ export default function AdminDashboard() {
         ))}
       </div>
     </div>
-  );
+  )
 }

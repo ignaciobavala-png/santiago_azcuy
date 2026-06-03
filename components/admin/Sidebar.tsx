@@ -25,7 +25,7 @@ const NAV = [
   },
   {
     label: "Obras",
-    href: "/admin/obras/nueva",
+    href: "/admin/obras",
     icon: (
       <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
         <rect x="3" y="3" width="18" height="18" rx="2" />
