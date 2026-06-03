@@ -1,66 +1,33 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import { notFound } from "next/navigation"
+import Link from "next/link"
+import Image from "next/image"
+import Header from "@/components/layout/Header"
+import Footer from "@/components/layout/Footer"
+import { getObra, getObras } from "@/lib/supabase/queries"
 
-// Mock data — reemplazar con query a Supabase
-const OBRAS: Record<string, {
-  slug: string;
-  titulo: string;
-  año: number;
-  tecnica: string;
-  soporte: string;
-  dimensiones: string;
-  serie: string;
-  descripcion: string;
-  disponible: boolean;
-  precio: number | null;
-  imagenUrl: string | null;
-}> = {
-  "sin-titulo-i": {
-    slug: "sin-titulo-i",
-    titulo: "Sin título I",
-    año: 2023,
-    tecnica: "Óleo",
-    soporte: "Tela de lino",
-    dimensiones: "120 × 90 cm",
-    serie: "Introspecciones",
-    descripcion:
-      "Una exploración del vacío como presencia. La superficie acumula capas de materia que se niegan a resolverse en forma definitiva, suspendiendo al espectador entre lo que fue y lo que podría ser. El gesto pictórico aparece y desaparece bajo veladuras sucesivas.",
-    disponible: true,
-    precio: 1800,
-    imagenUrl: null,
-  },
-  "fragmento": {
-    slug: "fragmento",
-    titulo: "Fragmento",
-    año: 2022,
-    tecnica: "Acrílico",
-    soporte: "Tela de algodón",
-    dimensiones: "100 × 80 cm",
-    serie: "Materia y tiempo",
-    descripcion:
-      "La obra interroga la noción de integridad. Un fragmento que, lejos de sugerir incompletitud, propone una totalidad propia. La textura cruda del soporte dialoga con la densidad del pigmento en una tensión que no busca resolución.",
-    disponible: false,
-    precio: null,
-    imagenUrl: null,
-  },
-};
+export const dynamic = "force-dynamic"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const obra = OBRAS[slug];
-  if (!obra) return {};
+  const { slug } = await params
+  const obra = await getObra(slug)
+  if (!obra) return {}
   return {
     title: `${obra.titulo} — Santiago Azcuy`,
-    description: obra.descripcion.slice(0, 160),
-  };
+    description: obra.descripcion?.slice(0, 160) ?? undefined,
+  }
 }
 
 export default async function ObraPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const obra = OBRAS[slug];
-  if (!obra) notFound();
+  const { slug } = await params
+  const obra = await getObra(slug)
+  if (!obra) notFound()
+
+  const ficha = [
+    { label: "Técnica", value: obra.tecnica },
+    { label: "Dimensiones", value: obra.dimensiones },
+    { label: "Año", value: obra.año ? String(obra.año) : null },
+    { label: "Serie", value: obra.series?.nombre ?? null },
+  ].filter((f) => f.value)
 
   return (
     <>
@@ -77,75 +44,76 @@ export default async function ObraPage({ params }: { params: Promise<{ slug: str
             <span className="text-[var(--color-text)]">{obra.titulo}</span>
           </nav>
 
-          {/* Layout: imagen izq + info der */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20 items-start">
 
-            {/* ── IMAGEN ─────────────────────────────────────── */}
+            {/* ── IMAGEN ──────────────────────────────────────── */}
             <div className="sticky top-28">
-              <div
-                className="w-full bg-[var(--color-surface)] flex items-center justify-center"
-                style={{ aspectRatio: "3/4" }}
-              >
-                {obra.imagenUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={obra.imagenUrl}
+              <div className="relative w-full bg-[var(--color-surface)]" style={{ aspectRatio: "3/4" }}>
+                {obra.imagen_url ? (
+                  <Image
+                    src={obra.imagen_url}
                     alt={obra.titulo}
-                    className="w-full h-full object-contain"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-contain"
+                    placeholder={obra.blur_data_url ? "blur" : "empty"}
+                    blurDataURL={obra.blur_data_url ?? undefined}
+                    priority
                   />
                 ) : (
-                  <span className="text-xs tracking-[0.2em] uppercase text-[var(--color-border)]">
-                    Imagen próximamente
-                  </span>
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="text-xs tracking-[0.2em] uppercase text-[var(--color-border)]">
+                      Imagen próximamente
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
 
-            {/* ── INFO ───────────────────────────────────────── */}
+            {/* ── INFO ────────────────────────────────────────── */}
             <div className="flex flex-col gap-10 pt-2">
 
-              {/* Título y año */}
               <div>
-                <p className="text-xs tracking-[0.3em] uppercase text-[var(--color-accent)] mb-3">
-                  {obra.serie}
-                </p>
+                {obra.series && (
+                  <Link
+                    href={`/series/${obra.series.slug}`}
+                    className="text-xs tracking-[0.3em] uppercase text-[var(--color-accent)] mb-3 block hover:opacity-70 transition-opacity"
+                  >
+                    {obra.series.nombre}
+                  </Link>
+                )}
                 <h1 className="font-[family-name:var(--font-cormorant)] font-light text-5xl md:text-6xl leading-tight text-[var(--color-text)]">
                   {obra.titulo}
                 </h1>
-                <p className="text-[var(--color-muted)] mt-2 text-sm">{obra.año}</p>
+                {obra.año && (
+                  <p className="text-[var(--color-muted)] mt-2 text-sm">{obra.año}</p>
+                )}
               </div>
 
-              {/* Descripción */}
-              <div>
-                <p className="font-[family-name:var(--font-cormorant)] text-lg leading-relaxed text-[var(--color-text)]/80">
+              {obra.descripcion && (
+                <p className="font-[family-name:var(--font-cormorant)] text-xl leading-relaxed text-[var(--color-text)]/80">
                   {obra.descripcion}
                 </p>
-              </div>
+              )}
 
-              {/* Ficha técnica */}
-              <div className="border-t border-[var(--color-border)] pt-8">
-                <p className="text-xs tracking-[0.3em] uppercase text-[var(--color-muted)] mb-5">
-                  Ficha técnica
-                </p>
-                <dl className="flex flex-col gap-3">
-                  {[
-                    { label: "Técnica", value: obra.tecnica },
-                    { label: "Soporte", value: obra.soporte },
-                    { label: "Dimensiones", value: obra.dimensiones },
-                    { label: "Año", value: String(obra.año) },
-                    { label: "Serie", value: obra.serie },
-                  ].map(({ label, value }) => (
-                    <div key={label} className="flex items-baseline gap-4">
-                      <dt className="text-xs tracking-[0.15em] uppercase text-[var(--color-muted)] w-28 shrink-0">
-                        {label}
-                      </dt>
-                      <dd className="text-sm text-[var(--color-text)]">{value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
+              {ficha.length > 0 && (
+                <div className="border-t border-[var(--color-border)] pt-8">
+                  <p className="text-xs tracking-[0.3em] uppercase text-[var(--color-muted)] mb-5">
+                    Ficha técnica
+                  </p>
+                  <dl className="flex flex-col gap-3">
+                    {ficha.map(({ label, value }) => (
+                      <div key={label} className="flex items-baseline gap-4">
+                        <dt className="text-xs tracking-[0.15em] uppercase text-[var(--color-muted)] w-28 shrink-0">
+                          {label}
+                        </dt>
+                        <dd className="text-sm text-[var(--color-text)]">{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              )}
 
-              {/* Precio y CTA */}
               <div className="border-t border-[var(--color-border)] pt-8">
                 {obra.disponible ? (
                   <div className="flex flex-col gap-5">
@@ -157,7 +125,7 @@ export default async function ObraPage({ params }: { params: Promise<{ slug: str
                     </div>
                     {obra.precio && (
                       <p className="font-[family-name:var(--font-cormorant)] text-4xl text-[var(--color-text)]">
-                        USD {obra.precio.toLocaleString()}
+                        USD {Number(obra.precio).toLocaleString("es-AR")}
                       </p>
                     )}
                     <Link
@@ -191,5 +159,5 @@ export default async function ObraPage({ params }: { params: Promise<{ slug: str
       </main>
       <Footer />
     </>
-  );
+  )
 }

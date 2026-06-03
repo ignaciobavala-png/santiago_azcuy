@@ -1,41 +1,18 @@
-import Link from "next/link";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import ObraCard from "@/components/gallery/ObraCard";
+import Link from "next/link"
+import Header from "@/components/layout/Header"
+import Footer from "@/components/layout/Footer"
+import ObraCard from "@/components/gallery/ObraCard"
+import { getSeriesConObras } from "@/lib/supabase/queries"
 
-// Mock — reemplazar con query a Supabase
-const COLECCIONES = [
-  {
-    slug: "introspecciones",
-    nombre: "Introspecciones",
-    año: "2022–2023",
-    descripcion: "Exploración del espacio interior y la memoria.",
-    obras: [
-      { slug: "sin-titulo-i", titulo: "Sin título I", año: 2023, tecnica: "Óleo", dimensiones: "120 × 90 cm", disponible: true },
-      { slug: "sin-titulo-ii", titulo: "Sin título II", año: 2023, tecnica: "Óleo", dimensiones: "90 × 70 cm", disponible: false },
-      { slug: "latencia", titulo: "Latencia", año: 2022, tecnica: "Técnica mixta", dimensiones: "150 × 110 cm", disponible: true },
-    ],
-  },
-  {
-    slug: "materia-y-tiempo",
-    nombre: "Materia y tiempo",
-    año: "2021",
-    descripcion: "Diálogo entre el soporte físico y la temporalidad.",
-    obras: [
-      { slug: "fragmento", titulo: "Fragmento", año: 2021, tecnica: "Acrílico", dimensiones: "100 × 80 cm", disponible: false },
-      { slug: "estrato", titulo: "Estrato", año: 2021, tecnica: "Óleo", dimensiones: "80 × 60 cm", disponible: true },
-      { slug: "umbral", titulo: "Umbral", año: 2021, tecnica: "Técnica mixta", dimensiones: "120 × 100 cm", disponible: false },
-    ],
-  },
-];
+export default async function HomePage() {
+  const series = await getSeriesConObras(3, 3)
 
-export default function HomePage() {
   return (
     <>
       <Header />
       <main className="flex-1 flex flex-col">
 
-        {/* ── HERO ───────────────────────────────────────────── */}
+        {/* ── HERO ────────────────────────────────────────────── */}
         <section className="relative flex flex-col items-center justify-center min-h-screen px-8 text-center">
           <p className="font-[family-name:var(--font-cormorant)] text-xs tracking-[0.5em] uppercase text-[var(--color-accent)] mb-6">
             Artista
@@ -58,43 +35,59 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── OBRA POR COLECCIÓN ─────────────────────────────── */}
-        {COLECCIONES.map((col, idx) => (
-          <section
-            key={col.slug}
-            className={`px-8 py-24 max-w-7xl mx-auto w-full ${idx > 0 ? "border-t border-[var(--color-border)]" : ""}`}
-          >
-            {/* Encabezado de colección */}
-            <div className="flex items-end justify-between mb-10">
-              <div>
-                <p className="text-xs tracking-[0.3em] uppercase text-[var(--color-accent)] mb-2">
-                  Colección · {col.año}
-                </p>
-                <h2 className="font-[family-name:var(--font-cormorant)] font-light text-4xl md:text-5xl text-[var(--color-text)]">
-                  {col.nombre}
-                </h2>
-                {col.descripcion && (
-                  <p className="text-sm text-[var(--color-muted)] mt-2 max-w-md">{col.descripcion}</p>
-                )}
+        {/* ── OBRA POR SERIE ──────────────────────────────────── */}
+        {series.length > 0 ? (
+          series.map((serie, idx) => (
+            <section
+              key={serie.id}
+              className={`px-8 py-24 max-w-7xl mx-auto w-full ${idx > 0 ? "border-t border-[var(--color-border)]" : ""}`}
+            >
+              <div className="flex items-end justify-between mb-10">
+                <div>
+                  {(serie.año_inicio || serie.año_fin) && (
+                    <p className="text-xs tracking-[0.3em] uppercase text-[var(--color-accent)] mb-2">
+                      Colección · {serie.año_inicio}
+                      {serie.año_fin && serie.año_fin !== serie.año_inicio ? `–${serie.año_fin}` : ""}
+                    </p>
+                  )}
+                  <h2 className="font-[family-name:var(--font-cormorant)] font-light text-4xl md:text-5xl text-[var(--color-text)]">
+                    {serie.nombre}
+                  </h2>
+                  {serie.descripcion && (
+                    <p className="text-sm text-[var(--color-muted)] mt-2 max-w-md">{serie.descripcion}</p>
+                  )}
+                </div>
+                <Link
+                  href={`/series/${serie.slug}`}
+                  className="hidden md:inline-flex text-xs tracking-[0.2em] uppercase text-[var(--color-muted)] hover:text-[var(--color-text)] transition-colors border-b border-[var(--color-border)] pb-0.5 hover:border-[var(--color-text)]"
+                >
+                  Ver serie
+                </Link>
               </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                {serie.obras.map((obra) => (
+                  <ObraCard key={obra.id} {...obra} />
+                ))}
+              </div>
+            </section>
+          ))
+        ) : (
+          /* Estado vacío — cuando no hay obras en BD todavía */
+          <section className="px-8 py-24 max-w-7xl mx-auto w-full">
+            <div className="flex flex-col items-center gap-6 py-16 text-center">
+              <div className="w-8 h-px bg-[var(--color-border)]" />
               <Link
-                href={`/obras?coleccion=${col.slug}`}
-                className="hidden md:inline-flex text-xs tracking-[0.2em] uppercase text-[var(--color-muted)] hover:text-[var(--color-text)] transition-colors border-b border-[var(--color-border)] pb-0.5 hover:border-[var(--color-text)]"
+                href="/obras"
+                className="text-xs tracking-[0.2em] uppercase text-[var(--color-muted)] hover:text-[var(--color-text)] transition-colors"
               >
-                Ver colección
+                Ver obras
               </Link>
             </div>
-
-            {/* Grid de obras */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-              {col.obras.map((obra) => (
-                <ObraCard key={obra.slug} {...obra} />
-              ))}
-            </div>
           </section>
-        ))}
+        )}
 
-        {/* ── STATEMENT ──────────────────────────────────────── */}
+        {/* ── STATEMENT ───────────────────────────────────────── */}
         <section className="px-8 py-24 bg-[var(--color-surface)] border-t border-[var(--color-border)]">
           <div className="max-w-2xl mx-auto text-center">
             <p className="font-[family-name:var(--font-cormorant)] font-light text-2xl md:text-3xl leading-relaxed text-[var(--color-text)] italic">
@@ -114,5 +107,5 @@ export default function HomePage() {
       </main>
       <Footer />
     </>
-  );
+  )
 }

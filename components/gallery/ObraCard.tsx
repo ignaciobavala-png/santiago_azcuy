@@ -1,14 +1,6 @@
-import Link from "next/link";
-
-interface ObraCardProps {
-  slug: string;
-  titulo: string;
-  año: number;
-  tecnica: string;
-  dimensiones?: string;
-  imagenUrl?: string;
-  disponible?: boolean;
-}
+import Link from "next/link"
+import Image from "next/image"
+import type { ObraCard as ObraCardType } from "@/lib/supabase/queries"
 
 export default function ObraCard({
   slug,
@@ -16,19 +8,22 @@ export default function ObraCard({
   año,
   tecnica,
   dimensiones,
-  imagenUrl,
+  imagen_url,
+  blur_data_url,
   disponible,
-}: ObraCardProps) {
+}: ObraCardType) {
   return (
     <Link href={`/obras/${slug}`} className="group block">
-      {/* Image */}
       <div className="relative overflow-hidden bg-[var(--color-surface)] aspect-[3/4]">
-        {imagenUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={imagenUrl}
+        {imagen_url ? (
+          <Image
+            src={imagen_url}
             alt={titulo}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            fill
+            sizes="(max-width: 768px) 50vw, 33vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            placeholder={blur_data_url ? "blur" : "empty"}
+            blurDataURL={blur_data_url ?? undefined}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
@@ -38,11 +33,12 @@ export default function ObraCard({
           </div>
         )}
 
-        {/* Overlay on hover */}
         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-5">
-          <p className="text-xs tracking-[0.2em] uppercase text-[var(--color-accent)] mb-1">
-            {tecnica}
-          </p>
+          {tecnica && (
+            <p className="text-xs tracking-[0.2em] uppercase text-[var(--color-accent)] mb-1">
+              {tecnica}
+            </p>
+          )}
           {dimensiones && (
             <p className="text-xs text-[var(--color-muted)]">{dimensiones}</p>
           )}
@@ -54,18 +50,17 @@ export default function ObraCard({
         </div>
       </div>
 
-      {/* Info */}
       <div className="mt-3 flex items-start justify-between gap-2">
         <div>
           <p className="font-[family-name:var(--font-cormorant)] text-lg leading-tight text-[var(--color-text)] group-hover:text-[var(--color-accent)] transition-colors">
             {titulo}
           </p>
-          <p className="text-xs text-[var(--color-muted)] mt-0.5">{año}</p>
+          {año && <p className="text-xs text-[var(--color-muted)] mt-0.5">{año}</p>}
         </div>
         {disponible && (
           <span className="mt-1 shrink-0 w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
         )}
       </div>
     </Link>
-  );
+  )
 }
