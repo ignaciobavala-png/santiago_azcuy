@@ -150,7 +150,62 @@ pnpm supabase db push             # Aplicar migraciones a remoto
 
 ## Estado actual del proyecto
 
-Ver `plan.md` sección 9 (Fases de desarrollo) para el checklist actualizado.
+### ✅ Completado
+
+- **Fase 1 — Fundación**
+  - Schema BD: `obras`, `series`, `exposiciones`, `consultas`, `biografia`
+  - Storage bucket `obras` (público, 20MB, WebP/JPG/PNG/TIFF)
+  - RLS habilitado con políticas de lectura pública
+  - Clientes Supabase SSR (`client.ts`, `server.ts` con `createAdminClient`)
+  - Tipos TypeScript generados desde schema real (`types/database.ts`)
+  - Sistema de diseño: tokens `@theme`, fuentes Cormorant + DM Sans
+  - Layout global con Header y Footer
+  - `vercel.json` con cron keep-alive cada 3 días (`/api/keepalive`)
+
+- **Fase 2 — Galería pública**
+  - `/obras` — galería con filtros por serie/técnica/disponibilidad (nuqs)
+  - `/obras/[slug]` — detalle con `next/image`, blur placeholder, CTA de compra
+  - `/series` y `/series/[slug]` — series conectadas a BD
+  - `/sobre` — bio desde BD + exposiciones reales (individuales/colectivas)
+  - `ObraCard` con `next/image` y blur placeholder
+  - `lib/supabase/queries.ts` — helpers tipados para todas las queries públicas
+  - Home conectada a BD via `getSeriesConObras`, fallback para BD vacía
+  - Logo `new_logo.png` en hero (blanco, doble tamaño)
+
+- **Admin — parcial**
+  - `/admin/obras/nueva` — upload real con `sharp` (WebP 2400px, calidad 85, blur_data_url)
+  - `/admin/biografia` — bio y exposiciones editables, guardado real en Supabase
+
+---
+
+### 🔄 Pendiente para próxima sesión
+
+#### Variables de entorno (URGENTE antes de deploy)
+- [ ] Agregar `SUPABASE_SERVICE_ROLE_KEY` en `.env.local` (sin esto el admin no funciona)
+- [ ] Agregar `CRON_SECRET` en `.env.local` (valor ya generado: `26e54abfe9fa894ea7d82d3fd2b152ba1e524b492ba07f51397666d235e25229`)
+
+#### Deploy Vercel
+- [ ] Crear proyecto en Vercel vinculado al repo `ignaciobavala-png/santiago_azcuy`
+- [ ] Cargar las 5 variables de entorno en Vercel (URL, ANON_KEY, SERVICE_ROLE, CRON_SECRET, SITE_URL)
+- [ ] Actualizar `NEXT_PUBLIC_SITE_URL` con la URL de Vercel después del primer deploy
+
+#### Admin panel — pendiente de conectar
+- [ ] `/admin` (dashboard) — lista de obras con acciones publicar/despublicar
+- [ ] `/admin/obras` — listado real desde BD (actualmente stub)
+- [ ] `/admin/colecciones` — CRUD de series conectado a Supabase (actualmente mock)
+- [ ] `/admin/colecciones/nueva` — formulario de nueva serie con imagen cover
+- [ ] `/admin/contacto` — bandeja de consultas recibidas (actualmente stub)
+
+#### Fase 3 — Contacto y venta
+- [ ] `/contacto` — formulario real (react-hook-form + zod), pre-completado con `?obra=slug`
+- [ ] `app/api/contact/route.ts` — guarda en `consultas` + email con Resend al artista
+- [ ] OG images dinámicas (`app/api/og/route.ts`) para obras y series
+
+#### Fase 5 — Pulido
+- [ ] Animaciones Framer Motion (reveal al scroll, transiciones de página)
+- [ ] `generateMetadata` completo en todas las rutas con OG image dinámica
+- [ ] `sitemap.xml` generado dinámicamente desde Supabase
+- [ ] Dominio custom en Vercel
 
 ---
 
