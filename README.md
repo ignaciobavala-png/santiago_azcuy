@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Santiago Azcuy — Plataforma artística
 
-## Getting Started
+Sitio web para el artista plástico argentino **Santiago Azcuy**. Galería de exposición, consulta de obra y panel de administración.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+| Capa | Tecnología |
+|------|-----------|
+| Framework | Next.js 16 (App Router) |
+| UI | React 19 + Tailwind CSS v4 + Framer Motion v12 |
+| DB + Auth | Supabase (PostgreSQL + Storage + RLS) |
+| Deploy | Vercel |
+| Package manager | pnpm |
+| Lenguaje | TypeScript strict |
+
+## Estructura de rutas
+
+```
+/                   → Home con series y obras destacadas
+/obras              → Galería completa con filtros (serie, técnica, disponibilidad)
+/obras/[slug]       → Detalle de obra — imagen, ficha técnica, consulta de compra
+/series             → Listado de series / colecciones
+/series/[slug]      → Serie con todas sus obras
+/sobre              → Bio del artista + historial de exposiciones
+/contacto           → Formulario de contacto y consulta de compra
+/admin/*            → Panel de administración (acceso sin auth en período de prueba)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Variables de entorno
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Crear `.env.local` en la raíz:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+RESEND_API_KEY=
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
 
-## Learn More
+## Desarrollo
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm install
+pnpm dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Base de datos
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Las migraciones están en `supabase/migrations/`. Para aplicar en un proyecto nuevo:
 
-## Deploy on Vercel
+```bash
+# Aplicar migraciones via Supabase CLI
+pnpm supabase db push
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Regenerar tipos TypeScript
+pnpm supabase gen types --local > types/database.ts
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Estado del proyecto
+
+| Fase | Descripción | Estado |
+|------|-------------|--------|
+| 1 — Fundación | Setup Next.js, Supabase schema, Storage bucket, RLS | ✅ Completa |
+| 2 — Galería pública | Obras, series, sobre el artista, filtros | ✅ Completa |
+| 3 — Contacto y venta | Formulario de consulta, email (Resend), OG images | 🔄 En progreso |
+| 4 — Admin panel | CRUD de obras, series, exposiciones, bandeja de consultas | ⏳ Pendiente |
+| 5 — Pulido y deploy | Animaciones Framer Motion, SEO completo, deploy Vercel | ⏳ Pendiente |
