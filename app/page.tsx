@@ -20,7 +20,7 @@ export default async function HomePage() {
             alt="Santiago Azcuy"
             width={480}
             height={160}
-            className="w-64 md:w-96 h-auto object-contain brightness-0 invert"
+            className="w-[32rem] md:w-[48rem] h-auto object-contain brightness-0 invert"
             priority
           />
           <div className="mt-8 w-12 h-px bg-[var(--color-accent)] mx-auto" />
