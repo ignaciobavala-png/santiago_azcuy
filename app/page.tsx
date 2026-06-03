@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import ObraCard from "@/components/gallery/ObraCard"
@@ -14,17 +15,14 @@ export default async function HomePage() {
 
         {/* ── HERO ────────────────────────────────────────────── */}
         <section className="relative flex flex-col items-center justify-center min-h-screen px-8 text-center">
-          <p className="font-[family-name:var(--font-cormorant)] text-xs tracking-[0.5em] uppercase text-[var(--color-accent)] mb-6">
-            Artista
-          </p>
-          <h1
-            className="font-[family-name:var(--font-cormorant)] font-light leading-none tracking-tight text-[var(--color-text)]"
-            style={{ fontSize: "clamp(3.5rem, 10vw, 9rem)" }}
-          >
-            Santiago
-            <br />
-            Azcuy
-          </h1>
+          <Image
+            src="/azcuy_logo.png"
+            alt="Santiago Azcuy"
+            width={480}
+            height={160}
+            className="w-64 md:w-96 h-auto object-contain"
+            priority
+          />
           <div className="mt-8 w-12 h-px bg-[var(--color-accent)] mx-auto" />
           <p className="mt-8 text-xs tracking-[0.25em] uppercase text-[var(--color-muted)]">
             Buenos Aires · Argentina
