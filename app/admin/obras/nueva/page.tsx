@@ -6,24 +6,55 @@ import Image from "next/image"
 import { getSignedUploadUrl, crearObra } from "../actions"
 import { createClient } from "@/lib/supabase/client"
 
-// Genera blur_data_url 10×10 en el browser con Canvas API — sin dependencias
-async function generateBlurDataUrl(file: File): Promise<string | null> {
-  return new Promise((resolve) => {
+const MAX_PX = 2400      // px máximos por lado — suficiente para imprimir A2
+const WEBP_QUALITY = 0.88 // ~85% equivalente en WebP
+
+// Comprime y redimensiona via Canvas. Devuelve [blob optimizado, blur_data_url]
+// TIFF no es soportado por Canvas en la mayoría de browsers → se sube sin comprimir
+async function processImageClient(
+  file: File
+): Promise<{ blob: Blob; mimeType: string; blurDataUrl: string | null }> {
+  const isTiff = file.type === "image/tiff"
+
+  if (isTiff) {
+    // TIFF: Canvas no lo soporta — subir original sin comprimir
+    return { blob: file, mimeType: file.type, blurDataUrl: null }
+  }
+
+  return new Promise((resolve, reject) => {
     const img = new window.Image()
     img.onload = () => {
-      try {
-        const canvas = document.createElement("canvas")
-        canvas.width = 10
-        canvas.height = 10
-        const ctx = canvas.getContext("2d")
-        if (!ctx) { resolve(null); return }
-        ctx.drawImage(img, 0, 0, 10, 10)
-        resolve(canvas.toDataURL("image/webp", 0.5))
-      } catch {
-        resolve(null)
-      }
+      const { naturalWidth: w, naturalHeight: h } = img
+
+      // Escalar proporcional para no superar MAX_PX
+      const scale = Math.min(1, MAX_PX / Math.max(w, h))
+      const dw = Math.round(w * scale)
+      const dh = Math.round(h * scale)
+
+      // Canvas principal
+      const canvas = document.createElement("canvas")
+      canvas.width = dw
+      canvas.height = dh
+      const ctx = canvas.getContext("2d")!
+      ctx.drawImage(img, 0, 0, dw, dh)
+
+      // Blur canvas 10×10
+      const blurCanvas = document.createElement("canvas")
+      blurCanvas.width = 10
+      blurCanvas.height = 10
+      blurCanvas.getContext("2d")!.drawImage(img, 0, 0, 10, 10)
+      const blurDataUrl = blurCanvas.toDataURL("image/webp", 0.5)
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { reject(new Error("Canvas toBlob falló")); return }
+          resolve({ blob, mimeType: "image/webp", blurDataUrl })
+        },
+        "image/webp",
+        WEBP_QUALITY
+      )
     }
-    img.onerror = () => resolve(null)
+    img.onerror = reject
     img.src = URL.createObjectURL(file)
   })
 }
@@ -63,9 +94,8 @@ export default function NuevaObraPage() {
     if (!file) return
     setError(null)
     setUploadProgress(0)
-    setFileInfo(`${file.name} · ${formatBytes(file.size)}`)
 
-    const MAX = 100 * 1024 * 1024 // 100MB — límite del bucket
+    const MAX = 100 * 1024 * 1024
     if (file.size > MAX) {
       setError(`El archivo pesa ${formatBytes(file.size)}. El máximo es 100 MB.`)
       return
@@ -75,14 +105,23 @@ export default function NuevaObraPage() {
     setUploading(true)
 
     try {
-      // 1. Blur data url en el browser (sin pasar por servidor)
-      const blur = await generateBlurDataUrl(file)
-      setBlurDataUrl(blur)
+      // 1. Comprimir + redimensionar en browser (2400px max, WebP) y generar blur
+      const { blob, mimeType, blurDataUrl } = await processImageClient(file)
+      setBlurDataUrl(blurDataUrl)
 
-      // 2. URL firmada generada en servidor (request pequeño, no el archivo)
+      const isTiff = file.type === "image/tiff"
+      const originalSize = formatBytes(file.size)
+      const compressedSize = formatBytes(blob.size)
+      setFileInfo(
+        isTiff
+          ? `${file.name} · ${originalSize} (TIFF — subido sin comprimir)`
+          : `${file.name} · ${originalSize} → ${compressedSize} comprimido`
+      )
+
+      // 2. URL firmada (request liviano al servidor)
       const { signedUrl, publicUrl } = await getSignedUploadUrl()
 
-      // 3. Subida directa a Supabase Storage — no pasa por Vercel
+      // 3. Subida directa a Supabase — no pasa por Vercel
       const xhr = new XMLHttpRequest()
       await new Promise<void>((resolve, reject) => {
         xhr.upload.onprogress = (e) => {
@@ -91,8 +130,8 @@ export default function NuevaObraPage() {
         xhr.onload = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(`HTTP ${xhr.status}`)))
         xhr.onerror = () => reject(new Error("Error de red"))
         xhr.open("PUT", signedUrl)
-        xhr.setRequestHeader("Content-Type", file.type)
-        xhr.send(file)
+        xhr.setRequestHeader("Content-Type", mimeType)
+        xhr.send(blob)
       })
 
       setImagenUrl(publicUrl)
