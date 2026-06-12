@@ -3,10 +3,15 @@ import Image from "next/image"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import ObraCard from "@/components/gallery/ObraCard"
-import { getSeriesConObras } from "@/lib/supabase/queries"
+import HeroVideo from "@/components/layout/HeroVideo"
+import { getSeriesConObras, getHeroBanner } from "@/lib/supabase/queries"
 
 export default async function HomePage() {
-  const series = await getSeriesConObras(3, 3)
+  const [series, hero] = await Promise.all([
+    getSeriesConObras(3, 3),
+    getHeroBanner(),
+  ])
+  const heroVideoUrl = hero?.activo && hero.video_url ? hero.video_url : null
 
   return (
     <>
@@ -14,20 +19,26 @@ export default async function HomePage() {
       <main className="flex-1 flex flex-col">
 
         {/* ── HERO ────────────────────────────────────────────── */}
-        <section className="relative flex flex-col items-center justify-center min-h-screen px-8 text-center">
-          <Image
-            src="/logo-altacalidad.png"
-            alt="Santiago Azcuy"
-            width={480}
-            height={160}
-            className="w-[32rem] md:w-[48rem] h-auto object-contain brightness-0 invert"
-            priority
-          />
-          <div className="mt-8 w-12 h-px bg-[var(--color-accent)] mx-auto" />
-          <p className="mt-8 text-xs tracking-[0.25em] uppercase text-[var(--color-muted)]">
-            Buenos Aires · Argentina
-          </p>
-          <div className="absolute bottom-10 flex flex-col items-center gap-2 opacity-40">
+        <section className="relative flex flex-col items-center justify-center min-h-screen px-8 text-center overflow-hidden">
+          {heroVideoUrl && <HeroVideo src={heroVideoUrl} />}
+          {heroVideoUrl && <div className="absolute inset-0 bg-black/50" />}
+
+          <div className="relative z-10 flex flex-col items-center">
+            <Image
+              src="/logo-altacalidad.png"
+              alt="Santiago Azcuy"
+              width={480}
+              height={160}
+              className="w-[32rem] md:w-[48rem] h-auto object-contain brightness-0 invert"
+              priority
+            />
+            <div className="mt-8 w-12 h-px bg-[var(--color-accent)] mx-auto" />
+            <p className="mt-8 text-xs tracking-[0.25em] uppercase text-[var(--color-muted)]">
+              Buenos Aires · Argentina
+            </p>
+          </div>
+
+          <div className="absolute bottom-10 z-10 flex flex-col items-center gap-2 opacity-40">
             <span className="text-[10px] tracking-[0.3em] uppercase text-[var(--color-muted)]">Explorar</span>
             <div className="w-px h-8 bg-[var(--color-muted)]" />
           </div>

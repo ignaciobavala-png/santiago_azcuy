@@ -145,6 +145,16 @@ export async function getSeriesConObras(maxSeries = 3, obrasPerSerie = 3): Promi
   return results.filter((s) => s.obras.length > 0)
 }
 
+export async function getHeroBanner(): Promise<{ video_url: string | null; activo: boolean } | null> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("hero_banner")
+    .select("video_url, activo")
+    .eq("id", 1)
+    .single()
+  return data
+}
+
 export async function getExposiciones(): Promise<Exposicion[]> {
   const supabase = await createClient()
 

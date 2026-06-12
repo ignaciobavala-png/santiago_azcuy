@@ -16,6 +16,15 @@ const NAV = [
     ),
   },
   {
+    label: "Hero",
+    href: "/admin/hero",
+    icon: (
+      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" />
+      </svg>
+    ),
+  },
+  {
     label: "Colecciones",
     href: "/admin/colecciones",
     icon: (
