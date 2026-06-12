@@ -3,14 +3,15 @@
 import { revalidatePath } from "next/cache"
 import { createAdminClient } from "@/lib/supabase/server"
 
-export async function guardarBiografia(texto: string) {
+export async function guardarBiografia(texto: string, frase?: string) {
   const supabase = await createAdminClient()
   const { error } = await supabase
     .from("biografia")
-    .update({ texto, updated_at: new Date().toISOString() })
+    .update({ texto, frase: frase ?? null, updated_at: new Date().toISOString() })
     .eq("id", 1)
   if (error) throw new Error(error.message)
   revalidatePath("/sobre")
+  revalidatePath("/")
 }
 
 export async function crearExposicion(formData: FormData) {

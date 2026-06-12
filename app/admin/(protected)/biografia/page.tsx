@@ -7,7 +7,7 @@ export default async function BiografiaAdminPage() {
   const supabase = await createAdminClient()
 
   const [{ data: bio }, { data: exposiciones }] = await Promise.all([
-    supabase.from("biografia").select("texto").eq("id", 1).single(),
+    supabase.from("biografia").select("texto, frase").eq("id", 1).single(),
     supabase
       .from("exposiciones")
       .select("*")
@@ -27,6 +27,7 @@ export default async function BiografiaAdminPage() {
 
       <BiografiaForm
         textoInicial={bio?.texto ?? ""}
+        fraseInicial={bio?.frase ?? ""}
         exposiciones={exposiciones ?? []}
       />
     </div>
