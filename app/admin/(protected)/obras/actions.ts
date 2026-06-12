@@ -1,48 +1,29 @@
 "use server"
 
-import sharp from "sharp"
 import { revalidatePath } from "next/cache"
 import { createAdminClient } from "@/lib/supabase/server"
 
-export interface UploadImageResult {
-  imagen_url: string
-  blur_data_url: string
+export interface SignedUploadResult {
+  signedUrl: string
+  path: string
+  publicUrl: string
 }
 
-export async function uploadObraImage(formData: FormData): Promise<UploadImageResult> {
-  const file = formData.get("imagen") as File
-  if (!file || file.size === 0) throw new Error("No se recibió imagen")
-
-  const buffer = Buffer.from(await file.arrayBuffer())
-  const id = crypto.randomUUID()
-
-  const webp = await sharp(buffer)
-    .rotate()
-    .resize({ width: 2400, height: 2400, fit: "inside", withoutEnlargement: true })
-    .webp({ quality: 85 })
-    .toBuffer()
-
-  const thumbBuffer = await sharp(buffer)
-    .rotate()
-    .resize(10, 10, { fit: "cover" })
-    .webp({ quality: 60 })
-    .toBuffer()
-  const blur_data_url = `data:image/webp;base64,${thumbBuffer.toString("base64")}`
-
+// Genera una URL firmada para que el browser suba directo a Supabase Storage
+// El archivo nunca pasa por Vercel — evita el límite de 4.5MB de funciones serverless
+export async function getSignedUploadUrl(): Promise<SignedUploadResult> {
   const supabase = await createAdminClient()
+  const path = `${crypto.randomUUID()}/original`
 
-  const { error } = await supabase.storage
+  const { data, error } = await supabase.storage
     .from("obras")
-    .upload(`${id}/original.webp`, webp, {
-      contentType: "image/webp",
-      upsert: false,
-    })
+    .createSignedUploadUrl(path)
 
-  if (error) throw new Error(error.message)
+  if (error || !data) throw new Error(error?.message ?? "Error al crear URL de subida")
 
-  const { data } = supabase.storage.from("obras").getPublicUrl(`${id}/original.webp`)
+  const { data: urlData } = supabase.storage.from("obras").getPublicUrl(path)
 
-  return { imagen_url: data.publicUrl, blur_data_url }
+  return { signedUrl: data.signedUrl, path, publicUrl: urlData.publicUrl }
 }
 
 export async function crearObra(formData: FormData) {

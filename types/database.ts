@@ -7,6 +7,8 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
@@ -14,16 +16,19 @@ export type Database = {
     Tables: {
       biografia: {
         Row: {
+          frase: string | null
           id: number
           texto: string | null
           updated_at: string | null
         }
         Insert: {
+          frase?: string | null
           id?: number
           texto?: string | null
           updated_at?: string | null
         }
         Update: {
+          frase?: string | null
           id?: number
           texto?: string | null
           updated_at?: string | null
@@ -110,6 +115,30 @@ export type Database = {
           tipo?: string | null
           titulo?: string
           url?: string | null
+        }
+        Relationships: []
+      }
+      hero_banner: {
+        Row: {
+          activo: boolean
+          id: number
+          poster_url: string | null
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          activo?: boolean
+          id?: number
+          poster_url?: string | null
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          activo?: boolean
+          id?: number
+          poster_url?: string | null
+          updated_at?: string
+          video_url?: string | null
         }
         Relationships: []
       }
@@ -252,6 +281,7 @@ export type Database = {
 }
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
 type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
@@ -348,6 +378,23 @@ export type Enums<
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {

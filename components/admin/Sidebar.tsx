@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "@/app/admin/login/actions";
 
 const NAV = [
   {
@@ -11,6 +12,15 @@ const NAV = [
       <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
         <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
         <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
+      </svg>
+    ),
+  },
+  {
+    label: "Hero",
+    href: "/admin/hero",
+    icon: (
+      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" />
       </svg>
     ),
   },
@@ -90,8 +100,8 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Ver sitio */}
-      <div className="px-6 py-5 border-t border-[var(--color-border)]">
+      {/* Footer: ver sitio + cerrar sesión */}
+      <div className="px-6 py-5 border-t border-[var(--color-border)] flex flex-col gap-3">
         <Link
           href="/"
           target="_blank"
@@ -103,6 +113,19 @@ export default function Sidebar() {
           </svg>
           Ver sitio
         </Link>
+        <form action={signOut}>
+          <button
+            type="submit"
+            className="flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-[var(--color-muted)] hover:text-[var(--color-danger)] transition-colors"
+          >
+            <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            Cerrar sesión
+          </button>
+        </form>
       </div>
     </aside>
   );

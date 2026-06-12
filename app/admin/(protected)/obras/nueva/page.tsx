@@ -3,8 +3,66 @@
 import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { uploadObraImage, crearObra } from "../actions"
+import { getSignedUploadUrl, crearObra } from "../actions"
 import { createClient } from "@/lib/supabase/client"
+
+const MAX_PX = 2400      // px máximos por lado — suficiente para imprimir A2
+const WEBP_QUALITY = 0.88 // ~85% equivalente en WebP
+
+// Comprime y redimensiona via Canvas. Devuelve [blob optimizado, blur_data_url]
+// TIFF no es soportado por Canvas en la mayoría de browsers → se sube sin comprimir
+async function processImageClient(
+  file: File
+): Promise<{ blob: Blob; mimeType: string; blurDataUrl: string | null }> {
+  const isTiff = file.type === "image/tiff"
+
+  if (isTiff) {
+    // TIFF: Canvas no lo soporta — subir original sin comprimir
+    return { blob: file, mimeType: file.type, blurDataUrl: null }
+  }
+
+  return new Promise((resolve, reject) => {
+    const img = new window.Image()
+    img.onload = () => {
+      const { naturalWidth: w, naturalHeight: h } = img
+
+      // Escalar proporcional para no superar MAX_PX
+      const scale = Math.min(1, MAX_PX / Math.max(w, h))
+      const dw = Math.round(w * scale)
+      const dh = Math.round(h * scale)
+
+      // Canvas principal
+      const canvas = document.createElement("canvas")
+      canvas.width = dw
+      canvas.height = dh
+      const ctx = canvas.getContext("2d")!
+      ctx.drawImage(img, 0, 0, dw, dh)
+
+      // Blur canvas 10×10
+      const blurCanvas = document.createElement("canvas")
+      blurCanvas.width = 10
+      blurCanvas.height = 10
+      blurCanvas.getContext("2d")!.drawImage(img, 0, 0, 10, 10)
+      const blurDataUrl = blurCanvas.toDataURL("image/webp", 0.5)
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { reject(new Error("Canvas toBlob falló")); return }
+          resolve({ blob, mimeType: "image/webp", blurDataUrl })
+        },
+        "image/webp",
+        WEBP_QUALITY
+      )
+    }
+    img.onerror = reject
+    img.src = URL.createObjectURL(file)
+  })
+}
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`
+}
 
 export default function NuevaObraPage() {
   const router = useRouter()
@@ -13,14 +71,15 @@ export default function NuevaObraPage() {
   const [preview, setPreview] = useState<string | null>(null)
   const [imagenUrl, setImagenUrl] = useState<string | null>(null)
   const [blurDataUrl, setBlurDataUrl] = useState<string | null>(null)
+  const [uploadProgress, setUploadProgress] = useState<number>(0)
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fileInfo, setFileInfo] = useState<string | null>(null)
   const [disponible, setDisponible] = useState(false)
   const [series, setSeries] = useState<{ id: string; nombre: string }[]>([])
   const [seriesLoaded, setSeriesLoaded] = useState(false)
 
-  // Carga series al montar
   useState(() => {
     const load = async () => {
       const supabase = createClient()
@@ -34,15 +93,48 @@ export default function NuevaObraPage() {
   const handleFile = async (file: File) => {
     if (!file) return
     setError(null)
+    setUploadProgress(0)
+
+    const MAX = 100 * 1024 * 1024
+    if (file.size > MAX) {
+      setError(`El archivo pesa ${formatBytes(file.size)}. El máximo es 100 MB.`)
+      return
+    }
+
     setPreview(URL.createObjectURL(file))
     setUploading(true)
 
     try {
-      const fd = new FormData()
-      fd.append("imagen", file)
-      const result = await uploadObraImage(fd)
-      setImagenUrl(result.imagen_url)
-      setBlurDataUrl(result.blur_data_url)
+      // 1. Comprimir + redimensionar en browser (2400px max, WebP) y generar blur
+      const { blob, mimeType, blurDataUrl } = await processImageClient(file)
+      setBlurDataUrl(blurDataUrl)
+
+      const isTiff = file.type === "image/tiff"
+      const originalSize = formatBytes(file.size)
+      const compressedSize = formatBytes(blob.size)
+      setFileInfo(
+        isTiff
+          ? `${file.name} · ${originalSize} (TIFF — subido sin comprimir)`
+          : `${file.name} · ${originalSize} → ${compressedSize} comprimido`
+      )
+
+      // 2. URL firmada (request liviano al servidor)
+      const { signedUrl, publicUrl } = await getSignedUploadUrl()
+
+      // 3. Subida directa a Supabase — no pasa por Vercel
+      const xhr = new XMLHttpRequest()
+      await new Promise<void>((resolve, reject) => {
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) setUploadProgress(Math.round((e.loaded / e.total) * 100))
+        }
+        xhr.onload = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(`HTTP ${xhr.status}`)))
+        xhr.onerror = () => reject(new Error("Error de red"))
+        xhr.open("PUT", signedUrl)
+        xhr.setRequestHeader("Content-Type", mimeType)
+        xhr.send(blob)
+      })
+
+      setImagenUrl(publicUrl)
     } catch (e) {
       setError(`Error al subir imagen: ${String(e)}`)
       setPreview(null)
@@ -106,10 +198,16 @@ export default function NuevaObraPage() {
               <>
                 <Image src={preview} alt="Preview" fill className="object-contain" unoptimized />
                 {uploading && (
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center gap-3">
                     <p className="text-xs tracking-[0.2em] uppercase text-[var(--color-text)]">
-                      Procesando…
+                      Subiendo… {uploadProgress}%
                     </p>
+                    <div className="w-32 h-px bg-[var(--color-border)] relative overflow-hidden">
+                      <div
+                        className="absolute inset-y-0 left-0 bg-[var(--color-accent)] transition-all duration-200"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
                   </div>
                 )}
               </>
@@ -121,13 +219,18 @@ export default function NuevaObraPage() {
                   <path d="m21 15-5-5L5 21" />
                 </svg>
                 <p className="text-xs tracking-[0.15em] uppercase text-[var(--color-muted)]">Subir imagen</p>
-                <p className="text-[10px] text-[var(--color-muted)]">JPG · PNG · WebP · TIFF — máx. 20MB</p>
-                <p className="text-[10px] text-[var(--color-muted)]">Se convierte a WebP 2400px automáticamente</p>
+                <p className="text-[10px] text-[var(--color-muted)]">JPG · PNG · WebP · TIFF — máx. 100 MB</p>
               </>
             )}
           </button>
+
           {imagenUrl && !uploading && (
-            <p className="text-[10px] text-[var(--color-accent)]">✓ Imagen subida correctamente</p>
+            <p className="text-[10px] text-[var(--color-accent)]">
+              ✓ {fileInfo ?? "Imagen subida correctamente"}
+            </p>
+          )}
+          {fileInfo && uploading && (
+            <p className="text-[10px] text-[var(--color-muted)]">{fileInfo}</p>
           )}
         </Field>
 

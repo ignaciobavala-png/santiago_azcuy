@@ -8,11 +8,13 @@ type Exposicion = Tables<"exposiciones">
 
 interface Props {
   textoInicial: string
+  fraseInicial: string
   exposiciones: Exposicion[]
 }
 
-export default function BiografiaForm({ textoInicial, exposiciones: inicial }: Props) {
+export default function BiografiaForm({ textoInicial, fraseInicial, exposiciones: inicial }: Props) {
   const [texto, setTexto] = useState(textoInicial)
+  const [frase, setFrase] = useState(fraseInicial)
   const [expos, setExpos] = useState(inicial)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -23,7 +25,7 @@ export default function BiografiaForm({ textoInicial, exposiciones: inicial }: P
     setError(null)
     startTransition(async () => {
       try {
-        await guardarBiografia(texto)
+        await guardarBiografia(texto, frase)
         setSaved(true)
         setTimeout(() => setSaved(false), 2500)
       } catch (e) {
@@ -82,6 +84,23 @@ export default function BiografiaForm({ textoInicial, exposiciones: inicial }: P
         </div>
       )}
 
+      {/* Frase destacada */}
+      <div className="flex flex-col gap-2">
+        <label className="text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">
+          Frase destacada
+        </label>
+        <p className="text-[10px] text-[var(--color-muted)]">
+          Aparece en la sección principal del sitio, antes del pie de página.
+        </p>
+        <textarea
+          value={frase}
+          onChange={(e) => setFrase(e.target.value)}
+          rows={3}
+          className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] px-4 py-3 text-sm text-[var(--color-text)] leading-relaxed italic placeholder:text-[var(--color-muted)] focus:outline-none focus:border-[var(--color-muted)] transition-colors resize-none"
+          placeholder='"La pintura es el lenguaje con el que traduzco lo que las palabras no pueden alcanzar."'
+        />
+      </div>
+
       {/* Bio text */}
       <div className="flex flex-col gap-2">
         <label className="text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">
@@ -99,7 +118,7 @@ export default function BiografiaForm({ textoInicial, exposiciones: inicial }: P
           disabled={isPending}
           className="self-start h-10 px-8 bg-[var(--color-accent)] text-[var(--color-background)] text-xs tracking-[0.2em] uppercase hover:bg-[var(--color-text)] transition-colors disabled:opacity-50"
         >
-          {isPending ? "Guardando..." : saved ? "✓ Guardado" : "Guardar texto"}
+          {isPending ? "Guardando..." : saved ? "✓ Guardado" : "Guardar"}
         </button>
       </div>
 
