@@ -3,8 +3,35 @@
 import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { uploadObraImage, crearObra } from "../actions"
+import { getSignedUploadUrl, crearObra } from "../actions"
 import { createClient } from "@/lib/supabase/client"
+
+// Genera blur_data_url 10×10 en el browser con Canvas API — sin dependencias
+async function generateBlurDataUrl(file: File): Promise<string | null> {
+  return new Promise((resolve) => {
+    const img = new window.Image()
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas")
+        canvas.width = 10
+        canvas.height = 10
+        const ctx = canvas.getContext("2d")
+        if (!ctx) { resolve(null); return }
+        ctx.drawImage(img, 0, 0, 10, 10)
+        resolve(canvas.toDataURL("image/webp", 0.5))
+      } catch {
+        resolve(null)
+      }
+    }
+    img.onerror = () => resolve(null)
+    img.src = URL.createObjectURL(file)
+  })
+}
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`
+}
 
 export default function NuevaObraPage() {
   const router = useRouter()
@@ -13,14 +40,15 @@ export default function NuevaObraPage() {
   const [preview, setPreview] = useState<string | null>(null)
   const [imagenUrl, setImagenUrl] = useState<string | null>(null)
   const [blurDataUrl, setBlurDataUrl] = useState<string | null>(null)
+  const [uploadProgress, setUploadProgress] = useState<number>(0)
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fileInfo, setFileInfo] = useState<string | null>(null)
   const [disponible, setDisponible] = useState(false)
   const [series, setSeries] = useState<{ id: string; nombre: string }[]>([])
   const [seriesLoaded, setSeriesLoaded] = useState(false)
 
-  // Carga series al montar
   useState(() => {
     const load = async () => {
       const supabase = createClient()
@@ -34,15 +62,40 @@ export default function NuevaObraPage() {
   const handleFile = async (file: File) => {
     if (!file) return
     setError(null)
+    setUploadProgress(0)
+    setFileInfo(`${file.name} · ${formatBytes(file.size)}`)
+
+    const MAX = 100 * 1024 * 1024 // 100MB — límite del bucket
+    if (file.size > MAX) {
+      setError(`El archivo pesa ${formatBytes(file.size)}. El máximo es 100 MB.`)
+      return
+    }
+
     setPreview(URL.createObjectURL(file))
     setUploading(true)
 
     try {
-      const fd = new FormData()
-      fd.append("imagen", file)
-      const result = await uploadObraImage(fd)
-      setImagenUrl(result.imagen_url)
-      setBlurDataUrl(result.blur_data_url)
+      // 1. Blur data url en el browser (sin pasar por servidor)
+      const blur = await generateBlurDataUrl(file)
+      setBlurDataUrl(blur)
+
+      // 2. URL firmada generada en servidor (request pequeño, no el archivo)
+      const { signedUrl, publicUrl } = await getSignedUploadUrl()
+
+      // 3. Subida directa a Supabase Storage — no pasa por Vercel
+      const xhr = new XMLHttpRequest()
+      await new Promise<void>((resolve, reject) => {
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) setUploadProgress(Math.round((e.loaded / e.total) * 100))
+        }
+        xhr.onload = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(`HTTP ${xhr.status}`)))
+        xhr.onerror = () => reject(new Error("Error de red"))
+        xhr.open("PUT", signedUrl)
+        xhr.setRequestHeader("Content-Type", file.type)
+        xhr.send(file)
+      })
+
+      setImagenUrl(publicUrl)
     } catch (e) {
       setError(`Error al subir imagen: ${String(e)}`)
       setPreview(null)
@@ -106,10 +159,16 @@ export default function NuevaObraPage() {
               <>
                 <Image src={preview} alt="Preview" fill className="object-contain" unoptimized />
                 {uploading && (
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center gap-3">
                     <p className="text-xs tracking-[0.2em] uppercase text-[var(--color-text)]">
-                      Procesando…
+                      Subiendo… {uploadProgress}%
                     </p>
+                    <div className="w-32 h-px bg-[var(--color-border)] relative overflow-hidden">
+                      <div
+                        className="absolute inset-y-0 left-0 bg-[var(--color-accent)] transition-all duration-200"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
                   </div>
                 )}
               </>
@@ -121,13 +180,18 @@ export default function NuevaObraPage() {
                   <path d="m21 15-5-5L5 21" />
                 </svg>
                 <p className="text-xs tracking-[0.15em] uppercase text-[var(--color-muted)]">Subir imagen</p>
-                <p className="text-[10px] text-[var(--color-muted)]">JPG · PNG · WebP · TIFF — máx. 20MB</p>
-                <p className="text-[10px] text-[var(--color-muted)]">Se convierte a WebP 2400px automáticamente</p>
+                <p className="text-[10px] text-[var(--color-muted)]">JPG · PNG · WebP · TIFF — máx. 100 MB</p>
               </>
             )}
           </button>
+
           {imagenUrl && !uploading && (
-            <p className="text-[10px] text-[var(--color-accent)]">✓ Imagen subida correctamente</p>
+            <p className="text-[10px] text-[var(--color-accent)]">
+              ✓ {fileInfo ?? "Imagen subida correctamente"}
+            </p>
+          )}
+          {fileInfo && uploading && (
+            <p className="text-[10px] text-[var(--color-muted)]">{fileInfo}</p>
           )}
         </Field>
 
