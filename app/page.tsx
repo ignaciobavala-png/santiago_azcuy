@@ -16,7 +16,7 @@ export default async function HomePage() {
         {/* ── HERO ────────────────────────────────────────────── */}
         <section className="relative flex flex-col items-center justify-center min-h-screen px-8 text-center">
           <Image
-            src="/new_logo.png"
+            src="/logo-altacalidad.png"
             alt="Santiago Azcuy"
             width={480}
             height={160}
