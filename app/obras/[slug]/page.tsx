@@ -47,7 +47,7 @@ export default async function ObraPage({ params }: { params: Promise<{ slug: str
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20 items-start">
 
             {/* ── IMAGEN ──────────────────────────────────────── */}
-            <div className="sticky top-28">
+            <div className="lg:sticky lg:top-28">
               <div className="relative w-full bg-[var(--color-surface)]" style={{ aspectRatio: "3/4" }}>
                 {obra.imagen_url ? (
                   <Image
