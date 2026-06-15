@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import Image from "next/image"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import { getObra, getObras } from "@/lib/supabase/queries"
+import ImagenLightbox from "@/components/gallery/ImagenLightbox"
 
 export const dynamic = "force-dynamic"
 
@@ -47,27 +47,20 @@ export default async function ObraPage({ params }: { params: Promise<{ slug: str
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20 items-start">
 
             {/* ── IMAGEN ──────────────────────────────────────── */}
-            <div className="sticky top-28">
-              <div className="relative w-full bg-[var(--color-surface)]" style={{ aspectRatio: "3/4" }}>
-                {obra.imagen_url ? (
-                  <Image
-                    src={obra.imagen_url}
-                    alt={obra.titulo}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-contain"
-                    placeholder={obra.blur_data_url ? "blur" : "empty"}
-                    blurDataURL={obra.blur_data_url ?? undefined}
-                    priority
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-xs tracking-[0.2em] uppercase text-[var(--color-border)]">
-                      Imagen próximamente
-                    </span>
-                  </div>
-                )}
-              </div>
+            <div className="lg:sticky lg:top-28">
+              {obra.imagen_url ? (
+                <ImagenLightbox
+                  src={obra.imagen_url}
+                  alt={obra.titulo}
+                  blurDataURL={obra.blur_data_url ?? undefined}
+                />
+              ) : (
+                <div className="relative w-full bg-[var(--color-surface)] flex items-center justify-center" style={{ aspectRatio: "1/1" }}>
+                  <span className="text-xs tracking-[0.2em] uppercase text-[var(--color-border)]">
+                    Imagen próximamente
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* ── INFO ────────────────────────────────────────── */}
