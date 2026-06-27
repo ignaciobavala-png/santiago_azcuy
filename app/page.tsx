@@ -2,13 +2,13 @@ import Link from "next/link"
 import Image from "next/image"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
-import ObraCard from "@/components/gallery/ObraCard"
 import HeroVideo from "@/components/layout/HeroVideo"
+import GaleriaHome from "@/components/gallery/GaleriaHome"
 import { getSeriesConObras, getHeroBanner, getFrase } from "@/lib/supabase/queries"
 
 export default async function HomePage() {
   const [series, hero, bio] = await Promise.all([
-    getSeriesConObras(3, 3),
+    getSeriesConObras(20, 8),
     getHeroBanner(),
     getFrase(),
   ])
@@ -36,45 +36,10 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* ── OBRA POR SERIE ──────────────────────────────────── */}
+        {/* ── GALERÍA POR SERIES ──────────────────────────────── */}
         {series.length > 0 ? (
-          series.map((serie, idx) => (
-            <section
-              key={serie.id}
-              className={`px-8 py-14 md:py-20 max-w-7xl mx-auto w-full ${idx > 0 ? "border-t border-[var(--color-border)]" : ""}`}
-            >
-              <div className="flex items-end justify-between mb-10">
-                <div>
-                  {(serie.año_inicio || serie.año_fin) && (
-                    <p className="text-xs tracking-[0.3em] uppercase text-[var(--color-accent)] mb-2">
-                      Colección · {serie.año_inicio}
-                      {serie.año_fin && serie.año_fin !== serie.año_inicio ? `–${serie.año_fin}` : ""}
-                    </p>
-                  )}
-                  <h2 className="font-[family-name:var(--font-cormorant)] font-light text-4xl md:text-5xl text-[var(--color-text)]">
-                    {serie.nombre}
-                  </h2>
-                  {serie.descripcion && (
-                    <p className="text-sm text-[var(--color-muted)] mt-2 max-w-md">{serie.descripcion}</p>
-                  )}
-                </div>
-                <Link
-                  href={`/series/${serie.slug}`}
-                  className="hidden md:inline-flex text-xs tracking-[0.2em] uppercase text-[var(--color-muted)] hover:text-[var(--color-text)] transition-colors border-b border-[var(--color-border)] pb-0.5 hover:border-[var(--color-text)]"
-                >
-                  Ver serie
-                </Link>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-                {serie.obras.map((obra) => (
-                  <ObraCard key={obra.id} {...obra} />
-                ))}
-              </div>
-            </section>
-          ))
+          <GaleriaHome series={series} />
         ) : (
-          /* Estado vacío — cuando no hay obras en BD todavía */
           <section className="px-8 py-24 max-w-7xl mx-auto w-full">
             <div className="flex flex-col items-center gap-6 py-16 text-center">
               <div className="w-8 h-px bg-[var(--color-border)]" />

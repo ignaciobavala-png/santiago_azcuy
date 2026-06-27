@@ -7,7 +7,6 @@ export default function HeroVideo({ src }: { src: string }) {
       src={src}
       autoPlay
       muted
-      loop
       playsInline
       className="absolute inset-0 w-full h-full object-cover"
     />

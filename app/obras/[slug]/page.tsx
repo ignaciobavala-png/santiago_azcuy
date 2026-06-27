@@ -121,12 +121,14 @@ export default async function ObraPage({ params }: { params: Promise<{ slug: str
                         USD {Number(obra.precio).toLocaleString("es-AR")}
                       </p>
                     )}
-                    <Link
-                      href={`/contacto?obra=${obra.slug}`}
+                    <a
+                      href={`https://wa.me/541151832983?text=${encodeURIComponent(`Hola, estoy interesado en esta obra: ${obra.titulo}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="inline-flex items-center justify-center h-12 px-8 bg-[var(--color-accent)] text-[var(--color-background)] text-xs tracking-[0.2em] uppercase hover:bg-[var(--color-text)] transition-colors duration-300"
                     >
-                      Consultar adquisición
-                    </Link>
+                      Consultar galería
+                    </a>
                     <p className="text-xs text-[var(--color-muted)]">
                       Incluye certificado de autenticidad. Envío a consultar.
                     </p>
@@ -136,12 +138,14 @@ export default async function ObraPage({ params }: { params: Promise<{ slug: str
                     <p className="text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">
                       No disponible
                     </p>
-                    <Link
-                      href="/contacto"
+                    <a
+                      href={`https://wa.me/541151832983?text=${encodeURIComponent(`Hola, estoy interesado en esta obra: ${obra.titulo}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="inline-flex items-center justify-center h-12 px-8 border border-[var(--color-border)] text-[var(--color-muted)] text-xs tracking-[0.2em] uppercase hover:border-[var(--color-text)] hover:text-[var(--color-text)] transition-colors duration-300"
                     >
-                      Consultar al artista
-                    </Link>
+                      Consultar galería
+                    </a>
                   </div>
                 )}
               </div>
