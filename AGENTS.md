@@ -1,23 +1,32 @@
-# AGENTS.md — Santiago Azcuy Art Platform
+# AGENTS.md — Santiago Azcuy
 
-> Instrucciones para el agente de IA que trabaja en este proyecto.
-> Leer este archivo al inicio de **cada sesión**.
+> Generado automáticamente por brain-agents-inject desde brain-data.
+> No editar manualmente — se sobreescribe al abrir Claude Code.
 
----
+## Proyecto
 
-## Contexto del proyecto
+| Campo | Valor |
+|-------|-------|
+| Nombre | Santiago Azcuy |
+| Tipo | Web + Admin |
+| Cliente | Santiago Azcuy |
+| Stack | Next.js 16.2.7 + React 19.2.4 + Supabase + Tailwind v4 + Framer Motion + Zustand |
+| Estado | activo |
+| Último commit | 2026-06-26 |
 
-Plataforma web para el artista plástico argentino **Santiago Azcuy**.
-- Galería de exposición de obra pictórica (óleos, acrílicos, técnicas mixtas)
-- Tienda / consulta de compra (obras originales + prints)
-- Admin panel para gestión de obras
-- Estética: **oscura, editorial, galería de arte contemporánea**
+## Perfil del desarrollador
 
-Ver `plan.md` para arquitectura completa, modelo de datos y fases.
+# SKILL — perfil-desarrollador
 
----
+## Descripción
+Perfil técnico del desarrollador Ignacio Bavala. Define el stack tecnológico, convenciones y preferencias para cualquier proyecto nuevo.
 
-## Stack y convenciones
+## Cuándo usarla
+- Al iniciar un proyecto nuevo
+- Cuando necesites saber qué stack usar por defecto
+- Para mantener consistencia tecnológica entre proyectos
+
+## Stack por defecto para nuevos proyectos
 
 ```
 Framework:    Next.js 16 (App Router)
@@ -30,189 +39,65 @@ Linting:      ESLint 9 (flat config)
 Lenguaje:     TypeScript strict
 ```
 
-### Convenciones obligatorias
+## Convenciones
 
-- **Server Components por defecto** — `"use client"` solo cuando hay hooks de estado/efecto o eventos del DOM
-- **Path alias `@/*`** apunta a la raíz del proyecto (o `./src/*` si existe `src/`)
-- **Tailwind v4**: tokens vía `@theme {}` en el CSS global, no `tailwind.config.*`
-- **Animaciones**: Framer Motion v12, nunca CSS `transition` para elementos de UI principales
-- **Forms**: react-hook-form + zod, nunca estado local manual para formularios
-- **No Context API** para estado global — usar Zustand v5
-- **Imágenes**: siempre `next/image` con `sizes` y `placeholder="blur"`
-- **Migraciones**: archivos `.sql` en `supabase/migrations/`, nunca modificar tablas por dashboard
+- Server Components por defecto, Client Components solo cuando hay interactividad
+- State global con Zustand v5 (no Context a menos que sea trivial)
+- Animaciones con Framer Motion v12
+- Estilos con Tailwind v4, configuración vía CSS `@theme` tokens
+- Migraciones SQL como archivos `.sql` planos
+- `vercel.json` con crons para keep-alive de Supabase
+- Cada proyecto necesita su `AGENTS.md`
+- **Next.js 16**: `middleware.ts` fue renombrado a `proxy.ts`; exportar `export function proxy(request)` en vez de `middleware`. Runtime Node.js por defecto. Codemod: `npx @next/codemod@canary middleware-to-proxy .`
+- Sin testing, sin Docker
+- Sin CSS-in-JS más allá de Tailwind
+- `@/*` como path alias (apunta a `./*` o `./src/*`)
 
-### Estructura de carpetas esperada
+## ESLint
 
-```
-app/
-  (public)/           # Rutas públicas sin auth
-  (admin)/            # Rutas admin con auth guard
-  api/                # Route Handlers
-components/
-  ui/                 # Átomos reutilizables (Button, Input, etc.)
-  gallery/            # GalleryGrid, ObraCard, ObraViewer, HeroCarousel
-  layout/             # Header, Footer, SectionReveal
-  admin/              # Formularios y tablas del panel admin
-lib/
-  supabase/           # createClient (browser + server), tipos generados
-  utils.ts
-supabase/
-  migrations/         # Archivos SQL planos
-types/
-  database.ts         # Tipos generados por Supabase CLI
+Usar flat config (`eslint.config.mjs`):
+```js
+import { dirname } from "path"
+import { fileURLToPath } from "url"
+import { FlatCompat } from "@eslint/eslintrc"
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const compat = new FlatCompat({ baseDirectory: __dirname })
+const eslintConfig = [...compat.extends("next/core-web-vitals", "next/typescript")]
+export default eslintConfig
 ```
 
----
+## Skills relevantes para este proyecto
 
-## Sistema de diseño
+Leer el archivo completo solo si la tarea actual lo requiere — esta lista es solo un índice.
 
-### Paleta (tokens `@theme`)
-
-```css
---color-background: #0a0a0a;
---color-surface:    #141414;
---color-border:     #2a2a2a;
---color-text:       #e8e4dc;
---color-muted:      #6b6560;
---color-accent:     #c9a87c;
---color-danger:     #a05040;
-```
-
-### Tipografía
-
-- **Display / títulos**: `Cormorant Garamond` (Google Fonts vía `next/font`)
-- **UI / cuerpo**: `DM Sans` (Google Fonts vía `next/font`)
-
----
-
-## Base de datos
-
-### Tablas principales
-
-- `obras` — obra pictórica (slug, titulo, año, tecnica, dimensiones, imagen_url, disponible, precio, serie_id)
-- `series` — colecciones de obras
-- `exposiciones` — historial expositivo del artista
-- `consultas` — mensajes de contacto / consultas de compra
-
-Ver `plan.md` sección 4 para esquema completo.
-
-### RLS
-
-- **Configurar RLS en Fase 3**, no en setup inicial — evita bloqueos de queries en desarrollo
-- Lectura pública: `obras` (donde `publicada = true`), `series`, `exposiciones`
-- Escritura: solo autenticado con rol `admin`
-- `consultas`: insert público, select/update solo admin
-- **`SUPABASE_SERVICE_ROLE_KEY`** solo en Server Actions y Route Handlers. Nunca en `"use client"` ni en `NEXT_PUBLIC_*`.
-
-### Storage
-
-- Bucket: `obras` (público para lecturas)
-- Path: `{obra_id}/original.webp` y `{obra_id}/thumb.webp`
-- **Pipeline de upload**: Server Action → `sharp` (resize + conversión WebP + generación de base64 10x10 para `blur_data_url`) → Supabase Storage
-- Límite de upload: 20MB. Imágenes originales pueden ser TIF/JPG escaneados.
-
----
-
-## Librerías multimedia
-
-| Librería | Propósito |
-|---------|-----------|
-| `embla-carousel-react` | Hero carousel, slideshow de series |
-| `react-medium-image-zoom` | Zoom in obra en detalle |
-| `framer-motion` v12 | Animaciones de página, reveal, transiciones |
-| `@vercel/og` | OG images dinámicas |
-
----
-
-## Reglas de calidad
-
-1. **No hay tests** en este proyecto — verificar funcionalidad corriendo el dev server
-2. **No Docker** — usar Supabase cloud en desarrollo y producción
-3. No escribir comentarios obvios en el código — solo si el WHY no es obvio
-4. Cada ruta pública debe tener `generateMetadata` con OG image
-5. Toda imagen en Storage debe cargarse con `next/image`, nunca con `<img>`
-6. Los Server Actions van en archivos `actions.ts` dentro de cada feature folder
-7. Los tipos de la DB se generan con `pnpm supabase gen types` y nunca se editan a mano
-
----
-
-## Comandos frecuentes
-
-```bash
-pnpm dev                          # Dev server
-pnpm build                        # Build de producción
-pnpm supabase start               # Supabase local (si se usa local)
-pnpm supabase gen types --local > types/database.ts   # Regenerar tipos
-pnpm supabase db push             # Aplicar migraciones a remoto
-```
-
----
-
-## Estado actual del proyecto
-
-### ✅ Completado
-
-- **Fase 1 — Fundación**
-  - Schema BD: `obras`, `series`, `exposiciones`, `consultas`, `biografia`
-  - Storage bucket `obras` (público, 20MB, WebP/JPG/PNG/TIFF)
-  - RLS habilitado con políticas de lectura pública
-  - Clientes Supabase SSR (`client.ts`, `server.ts` con `createAdminClient`)
-  - Tipos TypeScript generados desde schema real (`types/database.ts`)
-  - Sistema de diseño: tokens `@theme`, fuentes Cormorant + DM Sans
-  - Layout global con Header y Footer
-  - `vercel.json` con cron keep-alive cada 3 días (`/api/keepalive`)
-
-- **Fase 2 — Galería pública**
-  - `/obras` — galería con filtros por serie/técnica/disponibilidad (nuqs)
-  - `/obras/[slug]` — detalle con `next/image`, blur placeholder, CTA de compra
-  - `/series` y `/series/[slug]` — series conectadas a BD
-  - `/sobre` — bio desde BD + exposiciones reales (individuales/colectivas)
-  - `ObraCard` con `next/image` y blur placeholder
-  - `lib/supabase/queries.ts` — helpers tipados para todas las queries públicas
-  - Home conectada a BD via `getSeriesConObras`, fallback para BD vacía
-  - Logo `new_logo.png` en hero (blanco, doble tamaño)
-
-- **Admin — parcial**
-  - `/admin/obras/nueva` — upload real con `sharp` (WebP 2400px, calidad 85, blur_data_url)
-  - `/admin/biografia` — bio y exposiciones editables, guardado real en Supabase
-
----
-
-### 🔄 Pendiente para próxima sesión
-
-#### Variables de entorno (URGENTE antes de deploy)
-- [ ] Agregar `SUPABASE_SERVICE_ROLE_KEY` en `.env.local` (sin esto el admin no funciona)
-- [ ] Agregar `CRON_SECRET` en `.env.local` (valor ya generado: `26e54abfe9fa894ea7d82d3fd2b152ba1e524b492ba07f51397666d235e25229`)
-
-#### Deploy Vercel
-- [ ] Crear proyecto en Vercel vinculado al repo `ignaciobavala-png/santiago_azcuy`
-- [ ] Cargar las 5 variables de entorno en Vercel (URL, ANON_KEY, SERVICE_ROLE, CRON_SECRET, SITE_URL)
-- [ ] Actualizar `NEXT_PUBLIC_SITE_URL` con la URL de Vercel después del primer deploy
-
-#### Admin panel — pendiente de conectar
-- [ ] `/admin` (dashboard) — lista de obras con acciones publicar/despublicar
-- [ ] `/admin/obras` — listado real desde BD (actualmente stub)
-- [ ] `/admin/colecciones` — CRUD de series conectado a Supabase (actualmente mock)
-- [ ] `/admin/colecciones/nueva` — formulario de nueva serie con imagen cover
-- [ ] `/admin/contacto` — bandeja de consultas recibidas (actualmente stub)
-
-#### Fase 3 — Contacto y venta
-- [ ] `/contacto` — formulario real (react-hook-form + zod), pre-completado con `?obra=slug`
-- [ ] `app/api/contact/route.ts` — guarda en `consultas` + email con Resend al artista
-- [ ] OG images dinámicas (`app/api/og/route.ts`) para obras y series
-
-#### Fase 5 — Pulido
-- [ ] Animaciones Framer Motion (reveal al scroll, transiciones de página)
-- [ ] `generateMetadata` completo en todas las rutas con OG image dinámica
-- [ ] `sitemap.xml` generado dinámicamente desde Supabase
-- [ ] Dominio custom en Vercel
-
----
-
-## Skills de referencia (brain-data)
-
-- `nextjs-app-router-patterns` — patrones de App Router, Server Components
-- `supabase-postgres-best-practices` — schema, RLS, queries optimizadas
-- `supabase-oauth-nextjs` — si se añade OAuth en el futuro
-- `tailwindcss-mobile-first` — Tailwind v4, tokens, responsive
-- `vercel-react-best-practices` — performance, optimización Vercel
+- **Tiquetera Vite + Supabase — bugs silenciosos y patrones seguros** (`/home/nch/Escritorio/brain-data/skills/tiquetera-vite-supabase/SKILL.md`)
+  Al trabajar en cualquier sistema de tickets/entradas con: localStorage como caché de tickets en el cliente Supabase como fuente de verdad Escaneo de QR con confirmación de ingreso Registro de asistentes por email
+- **Google OAuth con Supabase SSR en Next.js 16** (`/home/nch/Escritorio/brain-data/skills/supabase-oauth-nextjs/SKILL.md`)
+  Guía completa para instalar Google OAuth en Next.js 16 (App Router) con `@supabase/ssr`. Incluye los bugs conocidos que rompen el login silenciosamente.  ## 1. Google Cloud Console 1. Crear proyecto en https://console.cl…
+- **Enviopack en Next.js — integración completa de cotización de envíos** (`/home/nch/Escritorio/brain-data/skills/enviopack-nextjs/SKILL.md`)
+  Cuando un proyecto argentino necesite cotización de envíos a domicilio. Enviopack agrega múltiples transportistas (OCA, Andreani, etc.) bajo una sola API.
+- **Next.js 16 — App Router patterns y convenciones** (`/home/nch/Escritorio/brain-data/skills/nextjs-app-router-patterns/SKILL.md`)
+  Al iniciar o trabajar en cualquier proyecto Next.js: estructura de rutas, data fetching, Server Actions, proxy (middleware), metadata, layouts.
+- **TypeScript strict — tipos útiles en el stack Next.js + Supabase** (`/home/nch/Escritorio/brain-data/skills/typescript-advanced-types/SKILL.md`)
+  Al definir tipos para API responses, props de componentes, Server Actions, datos de Supabase, o cuando TS emite un error de tipos que no se entiende.
+- **Supabase + Postgres — esquemas, RLS y queries eficientes** (`/home/nch/Escritorio/brain-data/skills/supabase-postgres-best-practices/SKILL.md`)
+  Al diseñar tablas, escribir políticas RLS, optimizar queries, o integrar Supabase con Next.js 16.
+- **Supabase Storage — egress, límites y buenas prácticas** (`/home/nch/Escritorio/brain-data/skills/supabase-storage-egress/SKILL.md`)
+  Al subir archivos a Supabase Storage, especialmente videos o imágenes pesadas que se sirven públicamente. También al diseñar el hero de un sitio o cualquier sección con media grande.
+- **Testing E2E con Playwright — ecommerce Next.js + Supabase** (`/home/nch/Escritorio/brain-data/skills/playwright-ecommerce/SKILL.md`)
+  Cuando haya un proyecto Next.js + Supabase con autenticación por roles y flujos de compra que necesiten cobertura de regresión antes del lanzamiento.
+- **Tailwind CSS v4 — configuración y patrones mobile-first** (`/home/nch/Escritorio/brain-data/skills/tailwindcss-mobile-first/SKILL.md`)
+  Al configurar Tailwind v4 en un proyecto nuevo, definir tokens de diseño, o implementar layouts responsivos.
+- **Vercel + React — performance y patrones críticos** (`/home/nch/Escritorio/brain-data/skills/vercel-react-best-practices/SKILL.md`)
+  Al optimizar una página lenta, reducir el bundle, revisar re-renders, o hacer deploy en Vercel.
+- **Comprimir imágenes client-side antes de subir al storage** (`/home/nch/Escritorio/brain-data/skills/client-side-image-compress/SKILL.md`)
+  Siempre que se implemente un uploader de imágenes (flyers, avatares, fondos, productos, etc.). Sin compresión, los usuarios pueden subir archivos de 10–25 MB que se sirven a cada visitante, generando egress masivo en Sup…
+- **Contenido dual público/comunidad con columna visibilidad** (`/home/nch/Escritorio/brain-data/skills/contenido-dual-visibilidad/SKILL.md`)
+  Cuando un sitio tiene usuarios con diferentes niveles de acceso (público, registrado, miembro) y querés extender las páginas existentes con contenido exclusivo **sin crear rutas nuevas**. El sitio es el mismo en esencia…
+- **Conectar Supabase CLI con PAT** (`/home/nch/Escritorio/brain-data/skills/supabase-conexion-cli/SKILL.md`)
+  El PAT de Supabase es **por cuenta**, no por proyecto. Un solo token sirve para todos los proyectos de la organización. ### Generar token 1. Ir a https://supabase.com/dashboard/account/tokens 2. Crear nuevo token 3. Copi…
+- **Supabase MCP Multiproyecto** (`/home/nch/Escritorio/brain-data/skills/supabase-mcp-multiproyecto/SKILL.md`)
+  Siempre. Esta skill es un guard automático: cada vez que se use cualquier herramienta MCP de Supabase, se debe verificar que el proyecto destino coincide con el proyecto activo del directorio de trabajo. No se debe deleg…
+- **Lenis smooth scroll — bugs silenciosos con drawers y overlays** (`/home/nch/Escritorio/brain-data/skills/lenis-smooth-scroll/SKILL.md`)
+  Cuando un proyecto usa Lenis para smooth scroll y hay drawers, modales o cualquier contenedor con `overflow-y-auto` que no responde al trackpad.
