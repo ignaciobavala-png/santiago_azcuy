@@ -25,12 +25,12 @@ export default async function SobrePage() {
 
   return (
     <div className="pt-16 pb-24">
-      <div className="px-8 max-w-3xl mx-auto">
+      <div className="px-5 md:px-8 max-w-3xl mx-auto">
         <SectionTitle eyebrow="Artista plástico" title="Santiago Azcuy" />
       </div>
 
         {/* Bio */}
-        <section className="px-8 max-w-3xl mx-auto mb-24">
+        <section className="px-5 md:px-8 max-w-3xl mx-auto mb-24">
           <div className="space-y-6 font-[family-name:var(--font-cormorant)] text-xl leading-relaxed text-[var(--color-text)]/80">
             {textosBio.length > 0 ? (
               textosBio.map((parrafo, i) => <p key={i}>{parrafo}</p>)
@@ -42,7 +42,7 @@ export default async function SobrePage() {
 
         {/* Exposiciones */}
         {exposiciones.length > 0 && (
-          <section className="px-8 max-w-3xl mx-auto border-t border-[var(--color-border)] pt-16">
+          <section className="px-5 md:px-8 max-w-3xl mx-auto border-t border-[var(--color-border)] pt-16">
             <h2 className="font-[family-name:var(--font-cormorant)] font-light text-3xl text-[var(--color-text)] mb-12">
               Exposiciones
             </h2>

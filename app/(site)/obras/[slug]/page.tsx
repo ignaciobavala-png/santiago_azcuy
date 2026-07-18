@@ -30,7 +30,7 @@ export default async function ObraPage({ params }: { params: Promise<{ slug: str
   return (
     <>
       <div className="pt-24 min-h-screen">
-        <div className="max-w-7xl mx-auto px-8 py-12">
+        <div className="max-w-7xl mx-auto px-5 md:px-8 py-12">
 
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-xs tracking-[0.15em] uppercase text-[var(--color-muted)] mb-10">
@@ -72,7 +72,7 @@ export default async function ObraPage({ params }: { params: Promise<{ slug: str
                     {obra.series.nombre}
                   </Link>
                 )}
-                <h1 className="font-[family-name:var(--font-cormorant)] font-light text-5xl md:text-6xl leading-tight text-[var(--color-text)]">
+                <h1 className="font-[family-name:var(--font-cormorant)] font-light text-4xl sm:text-5xl md:text-6xl leading-tight text-[var(--color-text)]">
                   {obra.titulo}
                 </h1>
                 {obra.año && (

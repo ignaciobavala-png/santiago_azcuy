@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-[var(--color-border)] px-8 py-12 mt-24">
+    <footer className="border-t border-[var(--color-border)] px-5 md:px-8 py-12 mt-24">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
         <div>
           <p className="font-[family-name:var(--font-cormorant)] text-xl text-[var(--color-text)]">

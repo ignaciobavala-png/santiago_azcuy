@@ -24,7 +24,7 @@ export default async function ObrasPage({ searchParams }: Props) {
   ])
 
   return (
-    <div className="pt-16 pb-24 px-8 max-w-7xl mx-auto w-full">
+    <div className="pt-16 pb-24 px-5 md:px-8 max-w-7xl mx-auto w-full">
       <SectionTitle eyebrow="Catálogo" title="Pinturas" />
       <Suspense>
           <FiltrosObras

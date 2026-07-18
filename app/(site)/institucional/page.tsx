@@ -187,13 +187,13 @@ function Titulo({ children }: { children: React.ReactNode }) {
 export default function InstitucionalPage() {
   return (
     <div className="pt-16 pb-28">
-      <div className="px-8 max-w-3xl mx-auto">
+      <div className="px-5 md:px-8 max-w-3xl mx-auto">
         <SectionTitle eyebrow="Trayectoria y desarrollo" title="Institucional" />
       </div>
 
       <div>
         {/* ── Semblanza ─────────────────────────────────────── */}
-        <section className="section-cool px-8 py-20 md:py-28 border-b border-[var(--color-border)]">
+        <section className="section-cool px-5 md:px-8 py-20 md:py-28 border-b border-[var(--color-border)]">
           <div className="max-w-3xl mx-auto flex flex-col gap-6">
             <Eyebrow>Perfil profesional</Eyebrow>
             <p className="font-[family-name:var(--font-cormorant)] text-2xl md:text-3xl font-light leading-snug text-[var(--color-text)]">
@@ -213,7 +213,7 @@ export default function InstitucionalPage() {
         </section>
 
         {/* ── Síntesis ──────────────────────────────────────── */}
-        <section className="px-8 py-16 md:py-20 border-b border-[var(--color-border)]">
+        <section className="px-5 md:px-8 py-16 md:py-20 border-b border-[var(--color-border)]">
           <div className="max-w-5xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
             {SINTESIS.map(({ valor, detalle }) => (
               <div key={valor} className="flex flex-col gap-2">
@@ -229,7 +229,7 @@ export default function InstitucionalPage() {
         </section>
 
         {/* ── Distinciones ──────────────────────────────────── */}
-        <section id="distinciones" data-subsection className="px-8 py-16 md:py-20 border-b border-[var(--color-border)] scroll-mt-32">
+        <section id="distinciones" data-subsection className="px-5 md:px-8 py-16 md:py-20 border-b border-[var(--color-border)] scroll-mt-32">
           <div className="max-w-3xl mx-auto flex flex-col gap-6">
             <Eyebrow>Distinciones y premios</Eyebrow>
             <div className="flex items-start gap-5">
@@ -246,7 +246,7 @@ export default function InstitucionalPage() {
         </section>
 
         {/* ── Cronología / trayectoria ──────────────────────── */}
-        <section id="trayectoria" data-subsection className="px-8 py-16 md:py-24 border-b border-[var(--color-border)] scroll-mt-32">
+        <section id="trayectoria" data-subsection className="px-5 md:px-8 py-16 md:py-24 border-b border-[var(--color-border)] scroll-mt-32">
           <div className="max-w-4xl mx-auto">
             <div className="mb-14">
               <Eyebrow>Exposiciones y participaciones seleccionadas</Eyebrow>
@@ -294,7 +294,7 @@ export default function InstitucionalPage() {
         </section>
 
         {/* ── Formación ─────────────────────────────────────── */}
-        <section id="formacion" data-subsection className="px-8 py-16 md:py-24 border-b border-[var(--color-border)] scroll-mt-32">
+        <section id="formacion" data-subsection className="px-5 md:px-8 py-16 md:py-24 border-b border-[var(--color-border)] scroll-mt-32">
           <div className="max-w-4xl mx-auto">
             <div className="mb-12">
               <Eyebrow>Formación académica y campos de estudio</Eyebrow>
@@ -316,7 +316,7 @@ export default function InstitucionalPage() {
         </section>
 
         {/* ── Producción interdisciplinaria ─────────────────── */}
-        <section id="obra" data-subsection className="section-cool px-8 py-16 md:py-24 scroll-mt-32">
+        <section id="obra" data-subsection className="section-cool px-5 md:px-8 py-16 md:py-24 scroll-mt-32">
           <div className="max-w-4xl mx-auto">
             <div className="mb-12">
               <Eyebrow>Producción interdisciplinaria relevante</Eyebrow>

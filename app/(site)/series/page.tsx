@@ -9,12 +9,12 @@ export default async function SeriesPage() {
 
   return (
     <>
-      <div className="pt-24 pb-24 px-8 max-w-7xl mx-auto w-full">
+      <div className="pt-24 pb-24 px-5 md:px-8 max-w-7xl mx-auto w-full">
         <div className="mb-16">
           <p className="text-xs tracking-[0.3em] uppercase text-[var(--color-accent)] mb-3">
             Colecciones
           </p>
-          <h1 className="font-[family-name:var(--font-cormorant)] font-light text-5xl md:text-6xl text-[var(--color-text)]">
+          <h1 className="font-[family-name:var(--font-cormorant)] font-light text-4xl sm:text-5xl md:text-6xl text-[var(--color-text)]">
             Series
           </h1>
         </div>

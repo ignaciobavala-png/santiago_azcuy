@@ -26,7 +26,7 @@ export default async function SeriePage({ params }: { params: Promise<{ slug: st
       <div className="pt-24 pb-24">
 
         {/* Header de la serie */}
-        <div className="px-8 max-w-7xl mx-auto py-12 border-b border-[var(--color-border)]">
+        <div className="px-5 md:px-8 max-w-7xl mx-auto py-12 border-b border-[var(--color-border)]">
           <nav className="flex items-center gap-2 text-xs tracking-[0.15em] uppercase text-[var(--color-muted)] mb-10">
             <Link href="/series" className="hover:text-[var(--color-text)] transition-colors">
               Series
@@ -45,7 +45,7 @@ export default async function SeriePage({ params }: { params: Promise<{ slug: st
                     : ""}
                 </p>
               )}
-              <h1 className="font-[family-name:var(--font-cormorant)] font-light text-5xl md:text-6xl text-[var(--color-text)] leading-tight">
+              <h1 className="font-[family-name:var(--font-cormorant)] font-light text-4xl sm:text-5xl md:text-6xl text-[var(--color-text)] leading-tight">
                 {serie.nombre}
               </h1>
               {serie.descripcion && (
@@ -71,7 +71,7 @@ export default async function SeriePage({ params }: { params: Promise<{ slug: st
         </div>
 
         {/* Grid de obras */}
-        <div className="px-8 max-w-7xl mx-auto py-16">
+        <div className="px-5 md:px-8 max-w-7xl mx-auto py-16">
           {serie.obras.length === 0 ? (
             <p className="text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">
               Sin pinturas publicadas en esta serie.

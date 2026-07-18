@@ -14,7 +14,7 @@ export default function GaleriaHome({ series }: { series: SerieConObras[] }) {
   if (!serie) return null
 
   return (
-    <section className="px-8 py-14 md:py-20 max-w-7xl mx-auto w-full">
+    <section className="px-5 md:px-8 py-14 md:py-20 max-w-7xl mx-auto w-full">
 
       {/* ── TABS ────────────────────────────────────────────── */}
       <div className="flex items-end gap-8 border-b border-[var(--color-border)] overflow-x-auto mb-12 pb-0 scrollbar-none">

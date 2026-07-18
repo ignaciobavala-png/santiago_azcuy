@@ -36,12 +36,12 @@ export default async function MusicaPage() {
   const envivoItems = envivo.map((v) => ({ id: v.id, youtube_id: v.youtube_id, titulo: v.titulo }))
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-8 pt-16 pb-24">
+    <div className="w-full max-w-7xl mx-auto px-5 md:px-8 pt-16 pb-24">
       <div className="mb-16">
         <p className="text-xs tracking-[0.3em] uppercase text-[var(--color-accent)] mb-3">
           Sonido
         </p>
-        <h1 className="font-[family-name:var(--font-cormorant)] font-light text-5xl md:text-6xl text-[var(--color-text)]">
+        <h1 className="font-[family-name:var(--font-cormorant)] font-light text-4xl sm:text-5xl md:text-6xl text-[var(--color-text)]">
           Música
         </h1>
       </div>

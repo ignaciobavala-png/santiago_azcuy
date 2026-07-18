@@ -18,7 +18,7 @@ export default function SectionTitle({
           {eyebrow}
         </p>
       )}
-      <h1 className="font-[family-name:var(--font-cormorant)] font-light text-5xl md:text-6xl leading-none text-[var(--color-text)]">
+      <h1 className="font-[family-name:var(--font-cormorant)] font-light text-4xl sm:text-5xl md:text-6xl leading-none text-[var(--color-text)]">
         {title}
       </h1>
     </div>

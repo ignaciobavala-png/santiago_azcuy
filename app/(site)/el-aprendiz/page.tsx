@@ -13,7 +13,7 @@ export default function ElAprendizPage() {
   return (
     <>
       {/* ── HERO: portada + descarga ─────────────────────────── */}
-      <section id="novela" data-subsection className="section-cool pt-16 pb-20 px-8 scroll-mt-32">
+      <section id="novela" data-subsection className="section-cool pt-16 pb-20 px-5 md:px-8 scroll-mt-32">
           <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
             {/* Portada */}
             <div className="flex justify-center md:justify-end">
@@ -34,7 +34,7 @@ export default function ElAprendizPage() {
               <p className="text-[10px] tracking-[0.5em] uppercase text-[var(--color-accent)]">
                 Novela · Santiago Azcuy
               </p>
-              <h1 className="font-[family-name:var(--font-cormorant)] font-light text-5xl md:text-6xl leading-none text-[var(--color-text)]">
+              <h1 className="font-[family-name:var(--font-cormorant)] font-light text-4xl sm:text-5xl md:text-6xl leading-none text-[var(--color-text)]">
                 El Aprendiz
                 <span className="block text-2xl md:text-3xl italic text-[var(--color-muted)] mt-3">
                   Ciudad Intradorada
@@ -53,7 +53,7 @@ export default function ElAprendizPage() {
         </section>
 
         {/* ── AUDIOLIBRO ───────────────────────────────────────── */}
-        <section id="audiolibro" data-subsection className="section-warm px-8 py-20 md:py-28 border-t border-[var(--color-border)] scroll-mt-32">
+        <section id="audiolibro" data-subsection className="section-warm px-5 md:px-8 py-20 md:py-28 border-t border-[var(--color-border)] scroll-mt-32">
           <div className="max-w-3xl mx-auto flex flex-col items-center text-center gap-8">
             <p className="text-[10px] tracking-[0.5em] uppercase text-[var(--color-accent)]">
               Audiolibro
