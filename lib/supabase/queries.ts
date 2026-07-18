@@ -62,21 +62,6 @@ export async function getObra(slug: string): Promise<Obra | null> {
   return data as Obra
 }
 
-export async function getObrasDestacadas(): Promise<ObraCard[]> {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase
-    .from("obras")
-    .select("*")
-    .eq("publicada", true)
-    .eq("destacada", true)
-    .order("orden", { ascending: true, nullsFirst: false })
-    .limit(6)
-
-  if (error) return []
-  return data ?? []
-}
-
 export async function getSeries(): Promise<Serie[]> {
   const supabase = await createClient()
 
@@ -124,6 +109,18 @@ export async function getTecnicas(): Promise<string[]> {
   return unicas.sort()
 }
 
+// Fotos de las cards del home, indexadas por href de sección.
+export async function getHomeCardImages(): Promise<Record<string, string>> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("home_cards")
+    .select("href, imagen_url")
+
+  if (error || !data) return {}
+  return Object.fromEntries(
+    data.filter((c) => c.imagen_url).map((c) => [c.href, c.imagen_url as string])
+  )
+}
 
 export async function getFrase(): Promise<string | null> {
   const supabase = await createClient()

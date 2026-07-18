@@ -4,7 +4,7 @@ import DesktopBackground from "@/components/layout/DesktopBackground"
 import ConditionalFooter from "@/components/layout/ConditionalFooter"
 import JsonLd from "@/components/seo/JsonLd"
 import { personSchema, websiteSchema } from "@/lib/seo"
-import { getBanners } from "@/lib/supabase/queries"
+import { getBanners, getHomeCardImages } from "@/lib/supabase/queries"
 
 export const dynamic = "force-dynamic"
 
@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic"
  *   navegaciones; el home queda fijo y cada sección se abre encima.
  */
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const banners = await getBanners()
+  const [banners, cardImages] = await Promise.all([getBanners(), getHomeCardImages()])
 
   return (
     <>
@@ -23,7 +23,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <DesktopBackground banners={banners} />
       <div className="relative z-10 flex min-h-screen flex-col">
         <Suspense fallback={null}>
-          <SiteIndex banners={banners} />
+          <SiteIndex banners={banners} cardImages={cardImages} />
         </Suspense>
         <main id="section-content" className="flex-1">
           {children}

@@ -205,6 +205,30 @@ export type Database = {
         }
         Relationships: []
       }
+      home_cards: {
+        Row: {
+          created_at: string
+          href: string
+          id: string
+          imagen_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          href: string
+          id?: string
+          imagen_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          href?: string
+          id?: string
+          imagen_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       institucional_secciones: {
         Row: {
           datos: Json

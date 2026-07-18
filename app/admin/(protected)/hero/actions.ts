@@ -73,3 +73,42 @@ export async function getBannersAdmin() {
     .order("created_at", { ascending: true })
   return data ?? []
 }
+
+// ── Fotos de las cards del home ─────────────────────────────────────
+
+/** URL firmada para subir la foto de una card al bucket público "obras". */
+export async function getCardImageSignedUploadUrl(): Promise<BannerSignedUploadResult> {
+  const supabase = await createAdminClient()
+  const path = `home-cards/${crypto.randomUUID()}/foto`
+
+  const { data, error } = await supabase.storage
+    .from("obras")
+    .createSignedUploadUrl(path)
+
+  if (error || !data) throw new Error(error?.message ?? "Error al crear URL de subida")
+
+  const { data: urlData } = supabase.storage.from("obras").getPublicUrl(path)
+  return { signedUrl: data.signedUrl, publicUrl: urlData.publicUrl }
+}
+
+export async function setHomeCardImage(href: string, imagen_url: string | null) {
+  if (!href.startsWith("/")) throw new Error("Sección inválida")
+
+  const supabase = await createAdminClient()
+  const { error } = await supabase
+    .from("home_cards")
+    .upsert(
+      { href, imagen_url, updated_at: new Date().toISOString() },
+      { onConflict: "href" }
+    )
+  if (error) throw new Error(error.message)
+  revalidarFondo()
+}
+
+export async function getHomeCardsAdmin(): Promise<Record<string, string>> {
+  const supabase = await createAdminClient()
+  const { data } = await supabase.from("home_cards").select("href, imagen_url")
+  return Object.fromEntries(
+    (data ?? []).filter((c) => c.imagen_url).map((c) => [c.href, c.imagen_url as string])
+  )
+}

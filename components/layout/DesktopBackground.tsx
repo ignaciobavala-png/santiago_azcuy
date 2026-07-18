@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import type { Banner } from "@/lib/supabase/queries"
 
@@ -27,10 +27,16 @@ export default function DesktopBackground({ banners }: { banners: Banner[] }) {
   const pathname = usePathname()
   const isHome = pathname === "/"
 
-  // Orden aleatorio fijado al montar; como el componente es persistente,
-  // el carrusel sigue girando de forma continua entre navegaciones.
-  const orden = useMemo(() => shuffle(banners), [banners])
+  // El SSR y el primer render del cliente usan el orden original (determinista)
+  // para evitar hydration mismatch; recién montado se baraja la cola dejando el
+  // primer video en su lugar, así la reproducción no se corta.
+  const [orden, setOrden] = useState(banners)
   const [i, setI] = useState(0)
+
+  useEffect(() => {
+    setOrden(banners.length > 1 ? [banners[0], ...shuffle(banners.slice(1))] : banners)
+  }, [banners])
+
   const actual = orden.length ? orden[i % orden.length] : null
   const next = () => setI((prev) => (prev + 1) % orden.length)
 

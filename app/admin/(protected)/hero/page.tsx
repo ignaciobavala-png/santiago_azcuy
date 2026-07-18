@@ -1,12 +1,13 @@
 import Link from "next/link"
-import { getBannersAdmin } from "./actions"
+import { getBannersAdmin, getHomeCardsAdmin } from "./actions"
 import BannersPanel from "./BannersPanel"
+import HomeCardsPanel from "./HomeCardsPanel"
 
 export const dynamic = "force-dynamic"
 export const metadata = { title: "Fondo del sitio — Admin" }
 
 export default async function FondoPage() {
-  const banners = await getBannersAdmin()
+  const [banners, cardImages] = await Promise.all([getBannersAdmin(), getHomeCardsAdmin()])
 
   return (
     <div className="p-10 max-w-5xl">
@@ -28,7 +29,10 @@ export default async function FondoPage() {
         </Link>
       </div>
 
-      <BannersPanel banners={banners} />
+      <div className="flex flex-col gap-8">
+        <HomeCardsPanel images={cardImages} />
+        <BannersPanel banners={banners} />
+      </div>
     </div>
   )
 }

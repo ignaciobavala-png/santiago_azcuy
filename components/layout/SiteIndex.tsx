@@ -15,7 +15,7 @@ import type { Banner } from "@/lib/supabase/queries"
  * - Al entrar a una card : las demás se borran, la card entrada hace morph a una
  *   barra superior (breadcrumb + subsecciones). El fondo sigue vivo detrás.
  */
-export default function SiteIndex({ banners }: { banners: Banner[] }) {
+export default function SiteIndex({ banners, cardImages }: { banners: Banner[]; cardImages: Record<string, string> }) {
   const pathname = usePathname()
   const isHome = pathname === "/"
   const active = findSection(pathname)
@@ -28,12 +28,15 @@ export default function SiteIndex({ banners }: { banners: Banner[] }) {
 
   const bannerFor = (idx: number) => (banners.length ? banners[idx % banners.length] : null)
 
-  const cardInner = (idx: number) => (
-    <>
-      <CardVideoPreview banner={bannerFor(idx)} />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/5 to-transparent" />
-    </>
-  )
+  const cardInner = (idx: number) => {
+    const href = SECTION_TREE[idx]?.href
+    return (
+      <>
+        <CardVideoPreview banner={bannerFor(idx)} imagenUrl={href ? cardImages[href] ?? null : null} />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/5 to-transparent" />
+      </>
+    )
+  }
 
   return (
     <LayoutGroup>
