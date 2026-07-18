@@ -2,7 +2,12 @@ import Link from "next/link"
 import Image from "next/image"
 import { getSeries } from "@/lib/supabase/queries"
 
-export const metadata = { title: "Series — Santiago Azcuy" }
+export const metadata = {
+  title: "Series",
+  description:
+    "Series y colecciones de Santiago Azcuy: cuerpos de obra que agrupan su producción pictórica por concepto y período.",
+  alternates: { canonical: "/series" },
+}
 
 export default async function SeriesPage() {
   const series = await getSeries()

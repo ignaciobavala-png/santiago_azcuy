@@ -1,10 +1,13 @@
 import Image from "next/image"
 import DescargaNovela from "./DescargaNovela"
+import JsonLd from "@/components/seo/JsonLd"
+import { bookSchema } from "@/lib/seo"
 
 export const metadata = {
-  title: "El Aprendiz — Ciudad Intradorada · Santiago Azcuy",
+  title: "El Aprendiz · Ciudad Intradorada",
   description:
     "El Aprendiz · Ciudad Intradorada, una novela de Santiago Azcuy. Descargá el PDF gratis y escuchá el audiolibro.",
+  alternates: { canonical: "/el-aprendiz" },
 }
 
 const SPOTIFY_SHOW = "0JkEQKy6kGJk1ykfn9Jg8U"
@@ -12,6 +15,7 @@ const SPOTIFY_SHOW = "0JkEQKy6kGJk1ykfn9Jg8U"
 export default function ElAprendizPage() {
   return (
     <>
+      <JsonLd data={bookSchema()} />
       {/* ── HERO: portada + descarga ─────────────────────────── */}
       <section id="novela" data-subsection className="section-cool pt-16 pb-20 px-5 md:px-8 scroll-mt-32">
           <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">

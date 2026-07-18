@@ -4,7 +4,12 @@ import FiltrosObras from "@/components/gallery/FiltrosObras"
 import SectionTitle from "@/components/layout/SectionTitle"
 import { getObras, getSeries, getTecnicas } from "@/lib/supabase/queries"
 
-export const metadata = { title: "Obras — Santiago Azcuy" }
+export const metadata = {
+  title: "Pinturas",
+  description:
+    "Catálogo de pinturas de Santiago Azcuy: óleo, acrílico y técnica mixta. Obra simbólica y geométrica, con piezas disponibles para adquisición.",
+  alternates: { canonical: "/obras" },
+}
 
 interface Props {
   searchParams: Promise<{ serie?: string; tecnica?: string; disponible?: string }>

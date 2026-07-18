@@ -1,9 +1,10 @@
 import SectionTitle from "@/components/layout/SectionTitle"
 
 export const metadata = {
-  title: "Institucional — Santiago Azcuy",
+  title: "Institucional",
   description:
     "Trayectoria, formación, distinciones y desarrollo artístico de Santiago Azcuy. Historial de exposiciones y participaciones en espacios institucionales, museos y ferias internacionales.",
+  alternates: { canonical: "/institucional" },
 }
 
 /* ── Síntesis de trayectoria ─────────────────────────────── */

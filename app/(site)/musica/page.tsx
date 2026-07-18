@@ -3,7 +3,12 @@ import AlbumGallery from "@/components/musica/AlbumGallery"
 import StreamingLinks from "@/components/musica/StreamingLinks"
 import { getVideosMusica, getAlbumes, getPlataformas } from "@/lib/supabase/queries"
 
-export const metadata = { title: "Música — Santiago Azcuy" }
+export const metadata = {
+  title: "Música",
+  description:
+    "Música de Santiago Azcuy: videoclips, álbumes de estudio y presentaciones en vivo. Rock pop electrónico y mantras, disponibles en las plataformas de streaming.",
+  alternates: { canonical: "/musica" },
+}
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (

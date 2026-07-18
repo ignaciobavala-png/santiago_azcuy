@@ -3,8 +3,10 @@ import { getExposiciones } from "@/lib/supabase/queries"
 import { createClient } from "@/lib/supabase/server"
 
 export const metadata = {
-  title: "Sobre el artista — Santiago Azcuy",
-  description: "Artista plástico argentino. Óleo, acrílico y técnica mixta.",
+  title: "Sobre el artista",
+  description:
+    "Biografía y exposiciones de Santiago Azcuy, artista plástico argentino. Óleo, acrílico y técnica mixta, con muestras individuales y colectivas en Argentina y el exterior.",
+  alternates: { canonical: "/sobre" },
 }
 
 function formatFecha(fecha: string | null): string {

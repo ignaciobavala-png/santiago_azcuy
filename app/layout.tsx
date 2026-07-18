@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -15,8 +16,48 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Santiago Azcuy",
-  description: "Artista plástico argentino",
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: siteConfig.title,
+    template: "%s · Santiago Azcuy",
+  },
+  description: siteConfig.description,
+  applicationName: siteConfig.name,
+  authors: [{ name: "Santiago Azcuy", url: siteConfig.url }],
+  creator: "Santiago Azcuy",
+  publisher: "Santiago Azcuy",
+  keywords: [...siteConfig.keywords],
+  category: "art",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: siteConfig.locale,
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    title: siteConfig.title,
+    description: siteConfig.description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.title,
+    description: siteConfig.description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#080a12",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({

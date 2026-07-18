@@ -1,6 +1,7 @@
 export const metadata = {
-  title: "Dossier — Espiral Virtuosa · Santiago Azcuy",
+  title: "Dossier — Espiral Virtuosa",
   description: "Dossier de proceso de Espiral Virtuosa. Un tratado visual sobre la espiral virtuosa, un bucle cósmico que reinterpreta nuestra relación con la materia, la economía y el propósito.",
+  alternates: { canonical: "/dossier" },
 }
 
 const CAPITULOS = [

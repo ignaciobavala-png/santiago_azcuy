@@ -1,18 +1,40 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import ObraCard from "@/components/gallery/ObraCard"
+import JsonLd from "@/components/seo/JsonLd"
+import { breadcrumbSchema } from "@/lib/seo"
 import { getSerie, getSeries } from "@/lib/supabase/queries"
 
 export const dynamic = "force-dynamic"
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const serie = await getSerie(slug)
   if (!serie) return {}
+
+  const description =
+    serie.descripcion ||
+    `Serie «${serie.nombre}» de Santiago Azcuy, artista plástico argentino.`
+  const url = `/series/${slug}`
+
   return {
-    title: `${serie.nombre} — Santiago Azcuy`,
-    description: serie.descripcion ?? undefined,
+    title: serie.nombre,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "article",
+      title: serie.nombre,
+      description,
+      url,
+      ...(serie.imagen_cover
+        ? { images: [{ url: serie.imagen_cover, alt: serie.nombre }] }
+        : {}),
+    },
+    ...(serie.imagen_cover
+      ? { twitter: { card: "summary_large_image", images: [serie.imagen_cover] } }
+      : {}),
   }
 }
 
@@ -23,6 +45,12 @@ export default async function SeriePage({ params }: { params: Promise<{ slug: st
 
   return (
     <>
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: "Series", path: "/series" },
+          { name: serie.nombre, path: `/series/${serie.slug}` },
+        ])}
+      />
       <div className="pt-24 pb-24">
 
         {/* Header de la serie */}

@@ -1,6 +1,8 @@
 import SiteIndex from "@/components/layout/SiteIndex"
 import DesktopBackground from "@/components/layout/DesktopBackground"
 import ConditionalFooter from "@/components/layout/ConditionalFooter"
+import JsonLd from "@/components/seo/JsonLd"
+import { personSchema, websiteSchema } from "@/lib/seo"
 import { getBanners } from "@/lib/supabase/queries"
 
 export const dynamic = "force-dynamic"
@@ -16,6 +18,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
   return (
     <>
+      <JsonLd data={[personSchema(), websiteSchema()]} />
       <DesktopBackground banners={banners} />
       <div className="relative z-10 flex min-h-screen flex-col">
         <SiteIndex banners={banners} />

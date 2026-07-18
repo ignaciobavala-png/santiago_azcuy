@@ -1,17 +1,38 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { getObra, getObras } from "@/lib/supabase/queries"
 import ImagenLightbox from "@/components/gallery/ImagenLightbox"
+import JsonLd from "@/components/seo/JsonLd"
+import { artworkSchema, breadcrumbSchema } from "@/lib/seo"
 
 export const dynamic = "force-dynamic"
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const obra = await getObra(slug)
   if (!obra) return {}
+
+  const description =
+    obra.descripcion?.slice(0, 160) ||
+    [obra.tecnica, obra.dimensiones, obra.año].filter(Boolean).join(" · ") ||
+    `${obra.titulo} — obra de Santiago Azcuy.`
+  const url = `/obras/${slug}`
+
   return {
-    title: `${obra.titulo} — Santiago Azcuy`,
-    description: obra.descripcion?.slice(0, 160) ?? undefined,
+    title: obra.titulo,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "article",
+      title: obra.titulo,
+      description,
+      url,
+      ...(obra.imagen_url ? { images: [{ url: obra.imagen_url, alt: obra.titulo }] } : {}),
+    },
+    ...(obra.imagen_url
+      ? { twitter: { card: "summary_large_image", images: [obra.imagen_url] } }
+      : {}),
   }
 }
 
@@ -29,6 +50,15 @@ export default async function ObraPage({ params }: { params: Promise<{ slug: str
 
   return (
     <>
+      <JsonLd
+        data={[
+          artworkSchema(obra),
+          breadcrumbSchema([
+            { name: "Pinturas", path: "/obras" },
+            { name: obra.titulo, path: `/obras/${obra.slug}` },
+          ]),
+        ]}
+      />
       <div className="pt-24 min-h-screen">
         <div className="max-w-7xl mx-auto px-5 md:px-8 py-12">
 

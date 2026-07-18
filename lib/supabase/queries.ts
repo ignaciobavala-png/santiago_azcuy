@@ -155,16 +155,6 @@ export async function getFrase(): Promise<string | null> {
   return data?.frase ?? null
 }
 
-export async function getHeroBanner(): Promise<{ video_url: string | null; activo: boolean } | null> {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from("hero_banner")
-    .select("video_url, activo")
-    .eq("id", 1)
-    .single()
-  return data
-}
-
 export type Banner = Pick<Tables<"banners">, "id" | "video_url" | "poster_url" | "titulo">
 
 export async function getBanners(): Promise<Banner[]> {

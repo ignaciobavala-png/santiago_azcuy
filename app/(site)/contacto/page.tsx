@@ -1,6 +1,10 @@
 import SectionTitle from "@/components/layout/SectionTitle";
 
-export const metadata = { title: "Contacto — Santiago Azcuy" };
+export const metadata = {
+  title: "Contacto",
+  description: "Consultas, adquisiciones y comisiones de obra de Santiago Azcuy, artista plástico argentino.",
+  alternates: { canonical: "/contacto" },
+};
 
 export default function ContactoPage() {
   return (
