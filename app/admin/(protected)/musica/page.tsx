@@ -1,6 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/server"
 import VideosPanel from "./VideosPanel"
-import AlbumesPanel from "./AlbumesPanel"
 import PlataformasPanel from "./PlataformasPanel"
 
 export const dynamic = "force-dynamic"
@@ -8,17 +7,12 @@ export const dynamic = "force-dynamic"
 export default async function MusicaAdminPage() {
   const supabase = await createAdminClient()
 
-  const [{ data: videos }, { data: albumes }, { data: plataformas }] = await Promise.all([
+  const [{ data: videos }, { data: plataformas }] = await Promise.all([
     supabase
       .from("videos_musica")
       .select("*")
       .order("orden", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: true }),
-    supabase
-      .from("albumes")
-      .select("*")
-      .order("orden", { ascending: true, nullsFirst: false })
-      .order("año", { ascending: false, nullsFirst: false }),
     supabase
       .from("plataformas")
       .select("*")
@@ -26,6 +20,7 @@ export default async function MusicaAdminPage() {
   ])
 
   const videoclips = (videos ?? []).filter((v) => v.seccion === "videoclip")
+  const albumes = (videos ?? []).filter((v) => v.seccion === "album")
   const envivo = (videos ?? []).filter((v) => v.seccion === "vivo")
 
   return (
@@ -47,7 +42,12 @@ export default async function MusicaAdminPage() {
           videos={videoclips}
         />
 
-        <AlbumesPanel albumes={albumes ?? []} />
+        <VideosPanel
+          seccion="album"
+          titulo="Álbumes"
+          descripcion="Álbumes completos publicados en YouTube. Se muestran después de los videoclips."
+          videos={albumes}
+        />
 
         <PlataformasPanel plataformas={plataformas ?? []} />
 

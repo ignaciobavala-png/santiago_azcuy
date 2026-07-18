@@ -2,8 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { usePathname, useSearchParams, useRouter } from "next/navigation"
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion"
 import CardVideoPreview from "./CardVideoPreview"
 import { SECTION_TREE, findSection } from "./sectionTree"
@@ -21,37 +20,13 @@ export default function SiteIndex({ banners }: { banners: Banner[] }) {
   const isHome = pathname === "/"
   const active = findSection(pathname)
   const activeIdx = active ? SECTION_TREE.findIndex((s) => s.href === active.href) : -1
-  const [activeSub, setActiveSub] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const activeSub = !isHome && active && active.subs.length > 0
+    ? (searchParams.get("sub") || active.subs[0].anchor)
+    : null
 
   const bannerFor = (idx: number) => (banners.length ? banners[idx % banners.length] : null)
-
-  // Scroll-spy: marca la subsección visible (alimenta breadcrumb y chips).
-  useEffect(() => {
-    if (isHome || !active || active.subs.length === 0) {
-      setActiveSub(null)
-      return
-    }
-    const els = active.subs
-      .map((s) => document.getElementById(s.anchor))
-      .filter((el): el is HTMLElement => el !== null)
-    if (els.length === 0) return
-
-    const obs = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
-        if (visible[0]) setActiveSub(visible[0].target.id)
-      },
-      { rootMargin: "-25% 0px -65% 0px", threshold: 0 }
-    )
-    els.forEach((el) => obs.observe(el))
-    return () => obs.disconnect()
-  }, [pathname, isHome, active])
-
-  const goToSub = (anchor: string) => {
-    document.getElementById(anchor)?.scrollIntoView({ behavior: "smooth", block: "start" })
-  }
 
   const cardInner = (idx: number) => (
     <>
@@ -179,7 +154,7 @@ export default function SiteIndex({ banners }: { banners: Banner[] }) {
                         <button
                           key={s.anchor}
                           type="button"
-                          onClick={() => goToSub(s.anchor)}
+                          onClick={() => router.push(`${active!.href}?sub=${s.anchor}`, { scroll: false })}
                           className={`shrink-0 rounded-full border px-3 py-0.5 text-[10px] tracking-[0.12em] uppercase transition-colors ${
                             on
                               ? "border-[var(--color-accent-2)] text-[var(--color-accent-2)]"

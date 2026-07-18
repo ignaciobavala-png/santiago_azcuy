@@ -1,7 +1,7 @@
 import VideoGallery from "@/components/musica/VideoGallery"
-import AlbumGallery from "@/components/musica/AlbumGallery"
 import StreamingLinks from "@/components/musica/StreamingLinks"
-import { getVideosMusica, getAlbumes, getPlataformas } from "@/lib/supabase/queries"
+import SubSectionTabs from "@/components/layout/SubSectionTabs"
+import { getVideosMusica, getPlataformas } from "@/lib/supabase/queries"
 
 export const metadata = {
   title: "Música",
@@ -32,12 +32,13 @@ function Proximamente({ children }: { children: React.ReactNode }) {
 export default async function MusicaPage() {
   const [videoclips, albumes, plataformas, envivo] = await Promise.all([
     getVideosMusica("videoclip"),
-    getAlbumes(),
+    getVideosMusica("album"),
     getPlataformas(),
     getVideosMusica("vivo"),
   ])
 
   const videoclipItems = videoclips.map((v) => ({ id: v.id, youtube_id: v.youtube_id, titulo: v.titulo }))
+  const albumItems = albumes.map((v) => ({ id: v.id, youtube_id: v.youtube_id, titulo: v.titulo }))
   const envivoItems = envivo.map((v) => ({ id: v.id, youtube_id: v.youtube_id, titulo: v.titulo }))
 
   return (
@@ -51,41 +52,58 @@ export default async function MusicaPage() {
         </h1>
       </div>
 
-      {/* ── VIDEOCLIPS ───────────────────────────────────────── */}
-      <section id="videoclips" data-subsection className="mb-20 scroll-mt-32">
-        <SectionTitle>Videoclips</SectionTitle>
-        {videoclipItems.length > 0 ? (
-          <VideoGallery videos={videoclipItems} />
-        ) : (
-          <Proximamente>Videoclips próximamente</Proximamente>
-        )}
-      </section>
-
-      {/* ── ÁLBUMES ──────────────────────────────────────────── */}
-      <section id="albumes" data-subsection className="mb-20 scroll-mt-32">
-        <SectionTitle>Álbumes</SectionTitle>
-        {albumes.length > 0 ? (
-          <AlbumGallery albumes={albumes} />
-        ) : (
-          <Proximamente>Álbumes próximamente</Proximamente>
-        )}
-      </section>
-
-      {/* ── PLATAFORMAS ──────────────────────────────────────── */}
-      <section id="plataformas" data-subsection className="mb-20 scroll-mt-32">
-        <SectionTitle>Plataformas</SectionTitle>
-        <StreamingLinks plataformas={plataformas} />
-      </section>
-
-      {/* ── EN VIVO ──────────────────────────────────────────── */}
-      <section id="envivo" data-subsection className="scroll-mt-32">
-        <SectionTitle>En vivo</SectionTitle>
-        {envivoItems.length > 0 ? (
-          <VideoGallery videos={envivoItems} />
-        ) : (
-          <Proximamente>Presentaciones en vivo próximamente</Proximamente>
-        )}
-      </section>
+      <SubSectionTabs
+        tabs={[
+          {
+            anchor: "videoclips",
+            node: (
+              <div>
+                <SectionTitle>Videoclips</SectionTitle>
+                {videoclipItems.length > 0 ? (
+                  <VideoGallery videos={videoclipItems} />
+                ) : (
+                  <Proximamente>Videoclips próximamente</Proximamente>
+                )}
+              </div>
+            ),
+          },
+          {
+            anchor: "albumes",
+            node: (
+              <div>
+                <SectionTitle>Álbumes</SectionTitle>
+                {albumItems.length > 0 ? (
+                  <VideoGallery videos={albumItems} />
+                ) : (
+                  <Proximamente>Álbumes próximamente</Proximamente>
+                )}
+              </div>
+            ),
+          },
+          {
+            anchor: "plataformas",
+            node: (
+              <div>
+                <SectionTitle>Plataformas</SectionTitle>
+                <StreamingLinks plataformas={plataformas} />
+              </div>
+            ),
+          },
+          {
+            anchor: "envivo",
+            node: (
+              <div>
+                <SectionTitle>En vivo</SectionTitle>
+                {envivoItems.length > 0 ? (
+                  <VideoGallery videos={envivoItems} />
+                ) : (
+                  <Proximamente>Presentaciones en vivo próximamente</Proximamente>
+                )}
+              </div>
+            ),
+          },
+        ]}
+      />
     </div>
   )
 }

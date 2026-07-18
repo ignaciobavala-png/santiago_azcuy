@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import SiteIndex from "@/components/layout/SiteIndex"
 import DesktopBackground from "@/components/layout/DesktopBackground"
 import ConditionalFooter from "@/components/layout/ConditionalFooter"
@@ -21,7 +22,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <JsonLd data={[personSchema(), websiteSchema()]} />
       <DesktopBackground banners={banners} />
       <div className="relative z-10 flex min-h-screen flex-col">
-        <SiteIndex banners={banners} />
+        <Suspense fallback={null}>
+          <SiteIndex banners={banners} />
+        </Suspense>
         <main id="section-content" className="flex-1">
           {children}
         </main>

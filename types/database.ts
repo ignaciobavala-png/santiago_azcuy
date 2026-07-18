@@ -148,6 +148,24 @@ export type Database = {
           },
         ]
       }
+      dossier_secciones: {
+        Row: {
+          datos: Json
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          datos?: Json
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          datos?: Json
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       exposiciones: {
         Row: {
           ciudad: string | null
@@ -187,27 +205,51 @@ export type Database = {
         }
         Relationships: []
       }
-      hero_banner: {
+      institucional_secciones: {
         Row: {
-          activo: boolean
-          id: number
-          poster_url: string | null
+          datos: Json
+          slug: string
           updated_at: string
-          video_url: string | null
         }
         Insert: {
-          activo?: boolean
-          id?: number
-          poster_url?: string | null
+          datos?: Json
+          slug: string
           updated_at?: string
-          video_url?: string | null
         }
         Update: {
-          activo?: boolean
-          id?: number
-          poster_url?: string | null
+          datos?: Json
+          slug?: string
           updated_at?: string
-          video_url?: string | null
+        }
+        Relationships: []
+      }
+      novela_contenido: {
+        Row: {
+          descripcion: string | null
+          id: number
+          portada_url: string | null
+          spotify_show_id: string | null
+          subtitulo: string | null
+          titulo: string | null
+          updated_at: string
+        }
+        Insert: {
+          descripcion?: string | null
+          id?: number
+          portada_url?: string | null
+          spotify_show_id?: string | null
+          subtitulo?: string | null
+          titulo?: string | null
+          updated_at?: string
+        }
+        Update: {
+          descripcion?: string | null
+          id?: number
+          portada_url?: string | null
+          spotify_show_id?: string | null
+          subtitulo?: string | null
+          titulo?: string | null
+          updated_at?: string
         }
         Relationships: []
       }

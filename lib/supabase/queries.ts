@@ -124,26 +124,6 @@ export async function getTecnicas(): Promise<string[]> {
   return unicas.sort()
 }
 
-export async function getSeriesConObras(maxSeries = 3, obrasPerSerie = 3): Promise<(Serie & { obras: ObraCard[] })[]> {
-  const series = await getSeries()
-  const top = series.slice(0, maxSeries)
-
-  const results = await Promise.all(
-    top.map(async (serie) => {
-      const supabase = await createClient()
-      const { data: obras } = await supabase
-        .from("obras")
-        .select("*")
-        .eq("serie_id", serie.id)
-        .eq("publicada", true)
-        .order("orden", { ascending: true, nullsFirst: false })
-        .limit(obrasPerSerie)
-      return { ...serie, obras: obras ?? [] }
-    })
-  )
-
-  return results.filter((s) => s.obras.length > 0)
-}
 
 export async function getFrase(): Promise<string | null> {
   const supabase = await createClient()
@@ -186,7 +166,7 @@ export type VideoMusica = Tables<"videos_musica">
 export type Album = Tables<"albumes">
 export type Plataforma = Tables<"plataformas">
 
-export async function getVideosMusica(seccion: "videoclip" | "vivo"): Promise<VideoMusica[]> {
+export async function getVideosMusica(seccion: "videoclip" | "album" | "vivo"): Promise<VideoMusica[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("videos_musica")

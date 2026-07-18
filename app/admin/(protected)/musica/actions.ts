@@ -42,7 +42,7 @@ export async function crearVideo(formData: FormData) {
   const supabase = await createAdminClient()
 
   const seccion = formData.get("seccion") as string
-  if (seccion !== "videoclip" && seccion !== "vivo") {
+  if (seccion !== "videoclip" && seccion !== "album" && seccion !== "vivo") {
     throw new Error("Sección inválida")
   }
 

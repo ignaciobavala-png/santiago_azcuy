@@ -18,7 +18,7 @@ export default async function SobrePage() {
   const supabase = await createClient()
   const [exposiciones, { data: bio }] = await Promise.all([
     getExposiciones(),
-    supabase.from("biografia").select("texto").eq("id", 1).single(),
+    supabase.from("biografia").select("texto, frase").eq("id", 1).single(),
   ])
   const textosBio = (bio?.texto ?? "").split("\n").filter(Boolean)
 
@@ -32,7 +32,7 @@ export default async function SobrePage() {
       </div>
 
         {/* Bio */}
-        <section className="px-5 md:px-8 max-w-3xl mx-auto mb-24">
+        <section className="px-5 md:px-8 max-w-3xl mx-auto mb-16">
           <div className="space-y-6 font-[family-name:var(--font-cormorant)] text-xl leading-relaxed text-[var(--color-text)]/80">
             {textosBio.length > 0 ? (
               textosBio.map((parrafo, i) => <p key={i}>{parrafo}</p>)
@@ -41,6 +41,16 @@ export default async function SobrePage() {
             )}
           </div>
         </section>
+
+        {bio?.frase && (
+          <section className="px-5 md:px-8 max-w-3xl mx-auto mb-24">
+            <div className="border-l-2 border-[var(--color-accent)] pl-6 py-2">
+              <p className="font-[family-name:var(--font-cormorant)] text-2xl md:text-3xl italic text-[var(--color-text)] leading-relaxed">
+                &ldquo;{bio.frase}&rdquo;
+              </p>
+            </div>
+          </section>
+        )}
 
         {/* Exposiciones */}
         {exposiciones.length > 0 && (

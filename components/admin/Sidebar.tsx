@@ -53,6 +53,25 @@ const NAV = [
     ),
   },
   {
+    label: "Institucional",
+    href: "/admin/institucional",
+    icon: (
+      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+      </svg>
+    ),
+  },
+  {
+    label: "Dossier",
+    href: "/admin/dossier",
+    icon: (
+      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <rect x="2" y="3" width="20" height="14" rx="2" />
+        <line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" />
+      </svg>
+    ),
+  },
+  {
     label: "Biografía",
     href: "/admin/biografia",
     icon: (
@@ -102,7 +121,7 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-5 flex flex-col gap-1">
+      <nav className="flex-1 px-3 py-5 flex flex-col gap-1 overflow-y-auto">
         {NAV.map(({ label, href, icon }) => (
           <Link
             key={href}

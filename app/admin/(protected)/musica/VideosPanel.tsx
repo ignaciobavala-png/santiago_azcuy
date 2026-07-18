@@ -20,7 +20,7 @@ export default function VideosPanel({
   descripcion,
   videos,
 }: {
-  seccion: "videoclip" | "vivo"
+  seccion: "videoclip" | "album" | "vivo"
   titulo: string
   descripcion: string
   videos: VideoRow[]
