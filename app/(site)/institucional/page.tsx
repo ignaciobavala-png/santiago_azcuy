@@ -116,93 +116,114 @@ export default async function InstitucionalPage() {
           </div>
         </section>
 
-        <section id="distinciones" data-subsection className="px-5 md:px-8 py-16 md:py-20 border-b border-[var(--color-border)] scroll-mt-32">
-          <div className="max-w-3xl mx-auto flex flex-col gap-6">
-            <Eyebrow>Distinciones y premios</Eyebrow>
-            {distinciones.map(({ ano, texto }) => (
-              <div key={ano + texto.slice(0, 20)} className="flex items-start gap-5">
-                <span className="shrink-0 font-[family-name:var(--font-cormorant)] font-light text-3xl md:text-4xl text-[var(--color-accent)] leading-none pt-1">{ano}</span>
-                <p className="text-base md:text-lg text-[var(--color-text)]/90 leading-relaxed">{texto}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section id="trayectoria" data-subsection className="px-5 md:px-8 py-16 md:py-24 border-b border-[var(--color-border)] scroll-mt-32">
-          <div className="max-w-4xl mx-auto">
-            <div className="mb-14">
-              <Eyebrow>Exposiciones y participaciones seleccionadas</Eyebrow>
-              <Titulo>Trayectoria</Titulo>
-            </div>
-            <ol className="flex flex-col">
-              {trayectoria.map(({ anio, nota, eventos }) => (
-                <li key={anio} className="grid grid-cols-1 md:grid-cols-[7rem_1fr] gap-4 md:gap-8 py-8 border-t border-[var(--color-border)] first:border-t-0">
-                  <div className="md:sticky md:top-24 md:self-start">
-                    <span className="font-[family-name:var(--font-cormorant)] font-light text-4xl md:text-5xl text-[var(--color-accent)] leading-none">{anio}</span>
-                    {nota && <span className="block mt-2 text-[10px] tracking-[0.2em] uppercase text-[var(--color-accent-2)]">{nota}</span>}
-                  </div>
-                  <ul className="flex flex-col gap-4">
-                    {eventos.map(({ titulo, lugar, pais }, i) => (
-                      <li key={i} className="flex flex-col gap-0.5">
-                        <span className="font-[family-name:var(--font-cormorant)] text-xl text-[var(--color-text)] leading-snug">{titulo}</span>
-                        <span className="text-sm text-[var(--color-muted)]">{lugar}{pais && <span className="text-[var(--color-muted)]/70"> · {pais}</span>}</span>
-                      </li>
+        <SubSectionTabs
+          tabs={[
+            {
+              anchor: "distinciones",
+              node: (
+                <div className="px-5 md:px-8 py-16 md:py-20 border-b border-[var(--color-border)]">
+                  <div className="max-w-3xl mx-auto flex flex-col gap-6">
+                    <Eyebrow>Distinciones y premios</Eyebrow>
+                    {distinciones.map(({ ano, texto }) => (
+                      <div key={ano + texto.slice(0, 20)} className="flex items-start gap-5">
+                        <span className="shrink-0 font-[family-name:var(--font-cormorant)] font-light text-3xl md:text-4xl text-[var(--color-accent)] leading-none pt-1">{ano}</span>
+                        <p className="text-base md:text-lg text-[var(--color-text)]/90 leading-relaxed">{texto}</p>
+                      </div>
                     ))}
-                  </ul>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        <section id="formacion" data-subsection className="px-5 md:px-8 py-16 md:py-24 border-b border-[var(--color-border)] scroll-mt-32">
-          <div className="max-w-4xl mx-auto">
-            <div className="mb-12">
-              <Eyebrow>Formación académica y campos de estudio</Eyebrow>
-              <Titulo>Formación</Titulo>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
-              {formacion.map(({ titulo, detalle }) => (
-                <div key={titulo} className="flex flex-col gap-2 border-l border-[var(--color-border)] pl-5">
-                  <h3 className="font-[family-name:var(--font-cormorant)] text-2xl text-[var(--color-text)]">{titulo}</h3>
-                  <p className="text-sm text-[var(--color-muted)] leading-relaxed">{detalle}</p>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="obra" data-subsection className="section-cool px-5 md:px-8 py-16 md:py-24 scroll-mt-32">
-          <div className="max-w-4xl mx-auto">
-            <div className="mb-12">
-              <Eyebrow>Producción interdisciplinaria relevante</Eyebrow>
-              <Titulo>Obra y colección</Titulo>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
-              <div className="flex flex-col gap-2">
-                <h3 className="text-xs tracking-[0.25em] uppercase text-[var(--color-accent)]">Producción literaria</h3>
-                <p className="text-base text-[var(--color-text)]/90 leading-relaxed">
-                  Autor de la novela de fantasía y misticismo <em>«El Aprendiz: Ciudad Intradorada»</em>, presentada institucionalmente en la Feria Internacional del Libro de Buenos Aires.
-                </p>
-              </div>
-              <div className="flex flex-col gap-2">
-                <h3 className="text-xs tracking-[0.25em] uppercase text-[var(--color-accent)]">Producción musical</h3>
-                <p className="text-base text-[var(--color-text)]/90 leading-relaxed">
-                  Compositor, arreglista y productor de ocho álbumes de estudio distribuidos globalmente: seis de Rock Pop Electrónico y dos de mantras y música meditativa.
-                </p>
-              </div>
-            </div>
-            <h3 className="text-xs tracking-[0.25em] uppercase text-[var(--color-accent)] mb-6">Obras clave · colección privada</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
-              {obrasClave.map(({ titulo, ficha }) => (
-                <div key={titulo} className="flex flex-col gap-1 border-t border-[var(--color-border)] pt-4">
-                  <span className="font-[family-name:var(--font-cormorant)] text-2xl text-[var(--color-text)]">«{titulo}»</span>
-                  <span className="text-xs text-[var(--color-muted)] leading-relaxed">{ficha}</span>
+              ),
+            },
+            {
+              anchor: "trayectoria",
+              node: (
+                <div className="px-5 md:px-8 py-16 md:py-24 border-b border-[var(--color-border)]">
+                  <div className="max-w-4xl mx-auto">
+                    <div className="mb-14">
+                      <Eyebrow>Exposiciones y participaciones seleccionadas</Eyebrow>
+                      <Titulo>Trayectoria</Titulo>
+                    </div>
+                    <ol className="flex flex-col">
+                      {trayectoria.map(({ anio, nota, eventos }) => (
+                        <li key={anio} className="grid grid-cols-1 md:grid-cols-[7rem_1fr] gap-4 md:gap-8 py-8 border-t border-[var(--color-border)] first:border-t-0">
+                          <div className="md:sticky md:top-24 md:self-start">
+                            <span className="font-[family-name:var(--font-cormorant)] font-light text-4xl md:text-5xl text-[var(--color-accent)] leading-none">{anio}</span>
+                            {nota && <span className="block mt-2 text-[10px] tracking-[0.2em] uppercase text-[var(--color-accent-2)]">{nota}</span>}
+                          </div>
+                          <ul className="flex flex-col gap-4">
+                            {eventos.map(({ titulo, lugar, pais }, i) => (
+                              <li key={i} className="flex flex-col gap-0.5">
+                                <span className="font-[family-name:var(--font-cormorant)] text-xl text-[var(--color-text)] leading-snug">{titulo}</span>
+                                <span className="text-sm text-[var(--color-muted)]">{lugar}{pais && <span className="text-[var(--color-muted)]/70"> · {pais}</span>}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
+              ),
+            },
+            {
+              anchor: "formacion",
+              node: (
+                <div className="px-5 md:px-8 py-16 md:py-24 border-b border-[var(--color-border)]">
+                  <div className="max-w-4xl mx-auto">
+                    <div className="mb-12">
+                      <Eyebrow>Formación académica y campos de estudio</Eyebrow>
+                      <Titulo>Formación</Titulo>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+                      {formacion.map(({ titulo, detalle }) => (
+                        <div key={titulo} className="flex flex-col gap-2 border-l border-[var(--color-border)] pl-5">
+                          <h3 className="font-[family-name:var(--font-cormorant)] text-2xl text-[var(--color-text)]">{titulo}</h3>
+                          <p className="text-sm text-[var(--color-muted)] leading-relaxed">{detalle}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              anchor: "obra",
+              node: (
+                <div className="section-cool px-5 md:px-8 py-16 md:py-24">
+                  <div className="max-w-4xl mx-auto">
+                    <div className="mb-12">
+                      <Eyebrow>Producción interdisciplinaria relevante</Eyebrow>
+                      <Titulo>Obra y colección</Titulo>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
+                      <div className="flex flex-col gap-2">
+                        <h3 className="text-xs tracking-[0.25em] uppercase text-[var(--color-accent)]">Producción literaria</h3>
+                        <p className="text-base text-[var(--color-text)]/90 leading-relaxed">
+                          Autor de la novela de fantasía y misticismo <em>«El Aprendiz: Ciudad Intradorada»</em>, presentada institucionalmente en la Feria Internacional del Libro de Buenos Aires.
+                        </p>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <h3 className="text-xs tracking-[0.25em] uppercase text-[var(--color-accent)]">Producción musical</h3>
+                        <p className="text-base text-[var(--color-text)]/90 leading-relaxed">
+                          Compositor, arreglista y productor de ocho álbumes de estudio distribuidos globalmente: seis de Rock Pop Electrónico y dos de mantras y música meditativa.
+                        </p>
+                      </div>
+                    </div>
+                    <h3 className="text-xs tracking-[0.25em] uppercase text-[var(--color-accent)] mb-6">Obras clave · colección privada</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
+                      {obrasClave.map(({ titulo, ficha }) => (
+                        <div key={titulo} className="flex flex-col gap-1 border-t border-[var(--color-border)] pt-4">
+                          <span className="font-[family-name:var(--font-cormorant)] text-2xl text-[var(--color-text)]">«{titulo}»</span>
+                          <span className="text-xs text-[var(--color-muted)] leading-relaxed">{ficha}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ),
+            },
+          ]}
+        />
       </div>
     </div>
   )
