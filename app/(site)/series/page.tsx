@@ -1,7 +1,5 @@
 import Link from "next/link"
 import Image from "next/image"
-import Header from "@/components/layout/Header"
-import Footer from "@/components/layout/Footer"
 import { getSeries } from "@/lib/supabase/queries"
 
 export const metadata = { title: "Series — Santiago Azcuy" }
@@ -11,8 +9,7 @@ export default async function SeriesPage() {
 
   return (
     <>
-      <Header />
-      <main className="flex-1 pt-32 pb-24 px-8 max-w-7xl mx-auto w-full">
+      <div className="pt-24 pb-24 px-8 max-w-7xl mx-auto w-full">
         <div className="mb-16">
           <p className="text-xs tracking-[0.3em] uppercase text-[var(--color-accent)] mb-3">
             Colecciones
@@ -81,8 +78,7 @@ export default async function SeriesPage() {
             ))}
           </div>
         )}
-      </main>
-      <Footer />
+      </div>
     </>
   )
 }

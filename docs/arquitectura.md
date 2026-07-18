@@ -35,41 +35,47 @@
 santi-art/
 ├── app/
 │   ├── layout.tsx                 # Root layout — fuentes, NuqsAdapter
-│   ├── page.tsx                   # Home — hero + series con obras
 │   ├── globals.css                # Tailwind v4 + @theme tokens
 │   ├── favicon.ico
-│   ├── obras/                     # Pública: galería y detalle
-│   │   ├── page.tsx
-│   │   └── [slug]/page.tsx
-│   ├── series/                    # Pública: listado y detalle
-│   │   ├── page.tsx
-│   │   └── [slug]/page.tsx
-│   ├── sobre/page.tsx             # Pública: bio + exposiciones
-│   ├── contacto/page.tsx          # Pública: formulario (stub)
-│   ├── admin/                     # Admin panel
-│   │   ├── layout.tsx             # Layout con Sidebar
-│   │   ├── page.tsx               # Dashboard con stats
-│   │   ├── obras/
-│   │   │   ├── page.tsx           # Listado
-│   │   │   ├── ObrasAdminClient.tsx
-│   │   │   ├── actions.ts         # Server Actions
-│   │   │   └── nueva/page.tsx     # Upload form
-│   │   ├── colecciones/
+│   ├── (site)/                    # Route group público — layout persistente (nav no se desmonta)
+│   │   ├── layout.tsx             # DesktopBackground + SiteIndex + <main> + ConditionalFooter
+│   │   ├── page.tsx               # Home = Escritorio (grid de cards sobre el banner)
+│   │   ├── obras/                 # Pinturas: galería y detalle
 │   │   │   ├── page.tsx
-│   │   │   ├── ColeccionesClient.tsx
-│   │   │   ├── actions.ts
-│   │   │   └── nueva/page.tsx
-│   │   ├── biografia/
+│   │   │   └── [slug]/page.tsx
+│   │   ├── series/                # Listado y detalle de series
 │   │   │   ├── page.tsx
-│   │   │   ├── BiografiaForm.tsx
-│   │   │   └── actions.ts
-│   │   └── contacto/page.tsx      # Stub
+│   │   │   └── [slug]/page.tsx
+│   │   ├── musica/page.tsx        # Música: Videoclips · Álbumes · Plataformas · En vivo
+│   │   ├── institucional/page.tsx # Trayectoria editorial (de cara a instituciones)
+│   │   ├── el-aprendiz/page.tsx   # Novela + audiolibro
+│   │   ├── dossier/page.tsx
+│   │   ├── sobre/page.tsx         # Bio + exposiciones
+│   │   └── contacto/page.tsx
+│   ├── admin/                     # Admin panel (fuera del route group público)
+│   │   ├── login/page.tsx
+│   │   └── (protected)/           # Route group con auth gate en su layout
+│   │       ├── layout.tsx         # getUser() + redirect + Sidebar
+│   │       ├── page.tsx           # Dashboard con stats
+│   │       ├── obras/  colecciones/  biografia/  contacto/
+│   │       ├── musica/            # CRUD videos_musica / albumes / plataformas
+│   │       │   ├── page.tsx
+│   │       │   ├── VideosPanel.tsx  AlbumesPanel.tsx  PlataformasPanel.tsx
+│   │       │   └── actions.ts
+│   │       └── novela/            # CRUD de leads/capítulos de El Aprendiz
 │   └── api/
 │       └── keepalive/route.ts     # Cron endpoint
 ├── components/
 │   ├── layout/
-│   │   ├── Header.tsx             # Nav fijo + menú mobile
+│   │   ├── SiteIndex.tsx          # File explorer: escritorio ⇄ barra de sección (framer-motion)
+│   │   ├── DesktopBackground.tsx  # Banner persistente en carousel (fondo fijo)
+│   │   ├── CardVideoPreview.tsx   # Preview de video dentro de cada card
+│   │   ├── sectionTree.ts         # Fuente única: secciones + subsecciones (anclas)
+│   │   ├── SectionTitle.tsx       # Encabezado de sección (reemplaza al viejo SectionHero)
+│   │   ├── ConditionalFooter.tsx  # Footer oculto en el home (Escritorio)
 │   │   └── Footer.tsx
+│   ├── musica/
+│   │   └── VideoGallery.tsx  AlbumGallery.tsx  StreamingLinks.tsx
 │   ├── gallery/
 │   │   ├── ObraCard.tsx           # Card de obra con hover
 │   │   └── FiltrosObras.tsx       # Filtros con nuqs
@@ -90,6 +96,33 @@ santi-art/
 ├── vercel.json                    # Cron keep-alive
 └── package.json
 ```
+
+## Concepto de navegación: Escritorio + File Explorer
+
+El sitio público no se navega como páginas separadas sino como **un mismo espacio que muta** —
+la sensación de hipervínculos dinámicos de las redes: nunca "entrás" ni "salís" del todo.
+Se apoya en dos metáforas:
+
+- **Escritorio (desktop)** — el banner dinámico ocupa toda la pantalla como fondo fijo y
+  **persistente**, con un carousel de videos que rota de forma continua (`DesktopBackground`,
+  montado en `app/(site)/layout.tsx`, nunca se desmonta al navegar).
+- **File Explorer** — en el home, las secciones son **cards** sobre el escritorio (`SiteIndex`).
+  Al "ingresar" a una card, las demás **se borran** y la card entrada hace **morph**
+  (framer-motion `layoutId`) hacia una barra superior sticky con:
+  - un **breadcrumb** `⌂ Escritorio / Sección / Subsección`,
+  - **chips de subsección** que hacen scroll suave al ancla correspondiente,
+  - **scroll-spy** (IntersectionObserver) que marca la subsección visible.
+
+La ventana de contenido es **transparente**: el escritorio (banner) sigue vivo detrás con un
+scrim translúcido. Para cambiar de sección se vuelve al Escritorio (firma o breadcrumb).
+
+**Fuente única de navegación:** `components/layout/sectionTree.ts` define el árbol
+(secciones → subsecciones como anclas). Cada página expone sus subsecciones con
+`id="..." data-subsection scroll-mt-32` para que el breadcrump y el scroll-spy las detecten.
+
+> El route group `app/(site)/` existe precisamente para que este layout de navegación sea
+> **persistente**: React mantiene montados `DesktopBackground` y `SiteIndex` entre navegaciones,
+> logrando que el fondo y el morph de cards sean continuos (no hay flash ni remonta).
 
 ## Flujo de datos
 
@@ -126,16 +159,18 @@ Cliente selecciona archivo (JPG/PNG/WebP/TIFF, máx 20MB)
     → revalidatePath("/obras", "/")
 ```
 
-### Auth middleware
+### Auth (doble capa)
 
-El archivo `proxy.ts` (no `middleware.ts`) protege todas las rutas bajo `/admin/*`:
+La protección de `/admin/*` es en **dos capas** (no se depende solo del proxy — mitigación de
+CVE-2025-29927):
 
-1. Verifica si hay sesión de Supabase Auth vía `getUser()`
-2. Si no hay sesión y no está en `/admin/login`, redirige a login
-3. Si hay sesión y está en `/admin/login`, redirige a dashboard
-4. Usa `createServerClient` con cookies del request para mantener la sesión SSR-safe
+1. **`proxy.ts`** (edge): verifica sesión vía `getUser()` y redirige a `/admin/login` si no hay.
+2. **`app/admin/(protected)/layout.tsx`** (server component): repite `getUser()` y hace
+   `redirect("/admin/login")` si no hay usuario. Esta capa es la que garantiza el acceso incluso
+   si el proxy fuera evadido.
 
-**Nota:** Actualmente el middleware está comentado/deshabilitado para permitir desarrollo sin auth. Las rutas admin son accesibles sin login en este momento.
+**Auth activo** — las rutas admin requieren login. El route group `(protected)` agrupa todo lo
+que pasa por el gate; `/admin/login` queda fuera.
 
 ## Patrones y convenciones
 

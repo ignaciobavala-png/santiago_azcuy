@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import Header from "@/components/layout/Header"
-import Footer from "@/components/layout/Footer"
 import ObraCard from "@/components/gallery/ObraCard"
 import { getSerie, getSeries } from "@/lib/supabase/queries"
 
@@ -25,8 +23,7 @@ export default async function SeriePage({ params }: { params: Promise<{ slug: st
 
   return (
     <>
-      <Header />
-      <main className="flex-1 pt-24 pb-24">
+      <div className="pt-24 pb-24">
 
         {/* Header de la serie */}
         <div className="px-8 max-w-7xl mx-auto py-12 border-b border-[var(--color-border)]">
@@ -77,7 +74,7 @@ export default async function SeriePage({ params }: { params: Promise<{ slug: st
         <div className="px-8 max-w-7xl mx-auto py-16">
           {serie.obras.length === 0 ? (
             <p className="text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">
-              Sin obras publicadas en esta serie.
+              Sin pinturas publicadas en esta serie.
             </p>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
@@ -88,8 +85,7 @@ export default async function SeriePage({ params }: { params: Promise<{ slug: st
           )}
         </div>
 
-      </main>
-      <Footer />
+      </div>
     </>
   )
 }

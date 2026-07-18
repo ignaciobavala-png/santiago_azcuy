@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      albumes: {
+        Row: {
+          activo: boolean
+          año: number | null
+          apple_music_url: string | null
+          created_at: string
+          id: string
+          orden: number | null
+          portada_url: string | null
+          spotify_url: string | null
+          titulo: string
+          youtube_music_url: string | null
+        }
+        Insert: {
+          activo?: boolean
+          año?: number | null
+          apple_music_url?: string | null
+          created_at?: string
+          id?: string
+          orden?: number | null
+          portada_url?: string | null
+          spotify_url?: string | null
+          titulo: string
+          youtube_music_url?: string | null
+        }
+        Update: {
+          activo?: boolean
+          año?: number | null
+          apple_music_url?: string | null
+          created_at?: string
+          id?: string
+          orden?: number | null
+          portada_url?: string | null
+          spotify_url?: string | null
+          titulo?: string
+          youtube_music_url?: string | null
+        }
+        Relationships: []
+      }
+      banners: {
+        Row: {
+          activo: boolean
+          created_at: string
+          id: string
+          orden: number | null
+          poster_url: string | null
+          titulo: string | null
+          video_url: string
+        }
+        Insert: {
+          activo?: boolean
+          created_at?: string
+          id?: string
+          orden?: number | null
+          poster_url?: string | null
+          titulo?: string | null
+          video_url: string
+        }
+        Update: {
+          activo?: boolean
+          created_at?: string
+          id?: string
+          orden?: number | null
+          poster_url?: string | null
+          titulo?: string | null
+          video_url?: string
+        }
+        Relationships: []
+      }
       biografia: {
         Row: {
           frase: string | null
@@ -142,6 +211,24 @@ export type Database = {
         }
         Relationships: []
       }
+      novela_leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
       obras: {
         Row: {
           año: number | null
@@ -228,6 +315,33 @@ export type Database = {
           },
         ]
       }
+      plataformas: {
+        Row: {
+          activo: boolean
+          created_at: string
+          id: string
+          nombre: string
+          orden: number | null
+          url: string | null
+        }
+        Insert: {
+          activo?: boolean
+          created_at?: string
+          id?: string
+          nombre: string
+          orden?: number | null
+          url?: string | null
+        }
+        Update: {
+          activo?: boolean
+          created_at?: string
+          id?: string
+          nombre?: string
+          orden?: number | null
+          url?: string | null
+        }
+        Relationships: []
+      }
       series: {
         Row: {
           año_fin: number | null
@@ -261,6 +375,36 @@ export type Database = {
           nombre?: string
           orden?: number | null
           slug?: string
+        }
+        Relationships: []
+      }
+      videos_musica: {
+        Row: {
+          activo: boolean
+          created_at: string
+          id: string
+          orden: number | null
+          seccion: string
+          titulo: string | null
+          youtube_id: string
+        }
+        Insert: {
+          activo?: boolean
+          created_at?: string
+          id?: string
+          orden?: number | null
+          seccion: string
+          titulo?: string | null
+          youtube_id: string
+        }
+        Update: {
+          activo?: boolean
+          created_at?: string
+          id?: string
+          orden?: number | null
+          seccion?: string
+          titulo?: string | null
+          youtube_id?: string
         }
         Relationships: []
       }

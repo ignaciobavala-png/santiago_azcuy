@@ -1,7 +1,5 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import Header from "@/components/layout/Header"
-import Footer from "@/components/layout/Footer"
 import { getObra, getObras } from "@/lib/supabase/queries"
 import ImagenLightbox from "@/components/gallery/ImagenLightbox"
 
@@ -31,14 +29,13 @@ export default async function ObraPage({ params }: { params: Promise<{ slug: str
 
   return (
     <>
-      <Header />
-      <main className="flex-1 pt-24 min-h-screen">
+      <div className="pt-24 min-h-screen">
         <div className="max-w-7xl mx-auto px-8 py-12">
 
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-xs tracking-[0.15em] uppercase text-[var(--color-muted)] mb-10">
             <Link href="/obras" className="hover:text-[var(--color-text)] transition-colors">
-              Obras
+              Pinturas
             </Link>
             <span>/</span>
             <span className="text-[var(--color-text)]">{obra.titulo}</span>
@@ -47,7 +44,7 @@ export default async function ObraPage({ params }: { params: Promise<{ slug: str
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20 items-start">
 
             {/* ── IMAGEN ──────────────────────────────────────── */}
-            <div className="lg:sticky lg:top-28">
+            <div className="lg:sticky lg:top-24">
               {obra.imagen_url ? (
                 <ImagenLightbox
                   src={obra.imagen_url}
@@ -153,8 +150,7 @@ export default async function ObraPage({ params }: { params: Promise<{ slug: str
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
+      </div>
     </>
   )
 }

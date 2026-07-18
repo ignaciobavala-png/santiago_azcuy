@@ -1,5 +1,4 @@
-import Header from "@/components/layout/Header"
-import Footer from "@/components/layout/Footer"
+import SectionTitle from "@/components/layout/SectionTitle"
 import { getExposiciones } from "@/lib/supabase/queries"
 import { createClient } from "@/lib/supabase/server"
 
@@ -25,19 +24,13 @@ export default async function SobrePage() {
   const colectivas = exposiciones.filter((e) => e.tipo === "colectiva")
 
   return (
-    <>
-      <Header />
-      <main className="flex-1 pt-32 pb-24">
+    <div className="pt-16 pb-24">
+      <div className="px-8 max-w-3xl mx-auto">
+        <SectionTitle eyebrow="Artista plástico" title="Santiago Azcuy" />
+      </div>
 
         {/* Bio */}
         <section className="px-8 max-w-3xl mx-auto mb-24">
-          <p className="text-xs tracking-[0.3em] uppercase text-[var(--color-accent)] mb-4">
-            Artista plástico
-          </p>
-          <h1 className="font-[family-name:var(--font-cormorant)] font-light text-5xl md:text-6xl text-[var(--color-text)] mb-10">
-            Santiago Azcuy
-          </h1>
-
           <div className="space-y-6 font-[family-name:var(--font-cormorant)] text-xl leading-relaxed text-[var(--color-text)]/80">
             {textosBio.length > 0 ? (
               textosBio.map((parrafo, i) => <p key={i}>{parrafo}</p>)
@@ -110,8 +103,6 @@ export default async function SobrePage() {
           </section>
         )}
 
-      </main>
-      <Footer />
-    </>
+    </div>
   )
 }

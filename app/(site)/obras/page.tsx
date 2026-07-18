@@ -1,8 +1,7 @@
 import { Suspense } from "react"
-import Header from "@/components/layout/Header"
-import Footer from "@/components/layout/Footer"
 import ObraCard from "@/components/gallery/ObraCard"
 import FiltrosObras from "@/components/gallery/FiltrosObras"
+import SectionTitle from "@/components/layout/SectionTitle"
 import { getObras, getSeries, getTecnicas } from "@/lib/supabase/queries"
 
 export const metadata = { title: "Obras — Santiago Azcuy" }
@@ -25,19 +24,9 @@ export default async function ObrasPage({ searchParams }: Props) {
   ])
 
   return (
-    <>
-      <Header />
-      <main className="flex-1 pt-32 pb-24 px-8 max-w-7xl mx-auto w-full">
-        <div className="mb-14">
-          <p className="text-xs tracking-[0.3em] uppercase text-[var(--color-accent)] mb-3">
-            Catálogo
-          </p>
-          <h1 className="font-[family-name:var(--font-cormorant)] font-light text-5xl md:text-6xl text-[var(--color-text)]">
-            Obras
-          </h1>
-        </div>
-
-        <Suspense>
+    <div className="pt-16 pb-24 px-8 max-w-7xl mx-auto w-full">
+      <SectionTitle eyebrow="Catálogo" title="Pinturas" />
+      <Suspense>
           <FiltrosObras
             series={series.map((s) => ({ slug: s.slug, nombre: s.nombre }))}
             tecnicas={tecnicas}
@@ -47,7 +36,7 @@ export default async function ObrasPage({ searchParams }: Props) {
         {obras.length === 0 ? (
           <div className="py-32 text-center">
             <p className="text-xs tracking-[0.2em] uppercase text-[var(--color-muted)]">
-              No hay obras publicadas{params.serie || params.tecnica || params.disponible ? " con estos filtros" : ""}.
+              No hay pinturas publicadas{params.serie || params.tecnica || params.disponible ? " con estos filtros" : ""}.
             </p>
           </div>
         ) : (
@@ -57,8 +46,6 @@ export default async function ObrasPage({ searchParams }: Props) {
             ))}
           </div>
         )}
-      </main>
-      <Footer />
-    </>
+    </div>
   )
 }

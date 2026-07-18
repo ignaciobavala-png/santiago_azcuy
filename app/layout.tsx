@@ -26,7 +26,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${cormorant.variable} ${dmSans.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-background text-text">
+      <body className="min-h-full flex flex-col text-text">
+        <div className="starfield" aria-hidden />
         <NuqsAdapter>{children}</NuqsAdapter>
       </body>
     </html>

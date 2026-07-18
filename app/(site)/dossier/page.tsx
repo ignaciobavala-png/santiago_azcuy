@@ -1,6 +1,3 @@
-import Header from "@/components/layout/Header"
-import Footer from "@/components/layout/Footer"
-
 export const metadata = {
   title: "Dossier — Espiral Virtuosa · Santiago Azcuy",
   description: "Dossier de proceso de Espiral Virtuosa. Un tratado visual sobre la espiral virtuosa, un bucle cósmico que reinterpreta nuestra relación con la materia, la economía y el propósito.",
@@ -21,10 +18,7 @@ const CAPITULOS = [
 export default function DossierPage() {
   return (
     <>
-      <Header />
-      <main className="flex-1 bg-[var(--color-background)]">
-
-        {/* ── PORTADA ─────────────────────────────────────────── */}
+      {/* ── PORTADA ─────────────────────────────────────────── */}
         <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-8 border-b border-[var(--color-border)]">
           <div className="flex flex-col items-center gap-6 max-w-2xl">
             <p className="text-[10px] tracking-[0.5em] uppercase text-[var(--color-muted)]">
@@ -49,7 +43,7 @@ export default function DossierPage() {
         </section>
 
         {/* ── TEXTO CONCEPTUAL ────────────────────────────────── */}
-        <section className="relative px-8 py-24 md:py-32 border-b border-[var(--color-border)]">
+        <section className="section-cool relative px-8 py-24 md:py-32 border-b border-[var(--color-border)]">
           <div className="max-w-3xl mx-auto">
 
             <p className="text-[10px] tracking-[0.5em] uppercase text-[var(--color-accent)] mb-12">
@@ -91,10 +85,10 @@ export default function DossierPage() {
         </section>
 
         {/* ── CAPÍTULOS CON PLACEHOLDER DE IMAGEN ─────────────── */}
-        {CAPITULOS.map((cap) => (
+        {CAPITULOS.map((cap, i) => (
           <section
             key={cap.numero}
-            className="relative px-8 py-20 md:py-28 border-b border-[var(--color-border)]"
+            className={`${i % 2 === 0 ? "section-warm" : "section-cool"} relative px-8 py-20 md:py-28 border-b border-[var(--color-border)]`}
           >
             <div className="max-w-5xl mx-auto">
               <p className="text-[10px] tracking-[0.5em] uppercase text-[var(--color-accent)] mb-6">
@@ -124,7 +118,7 @@ export default function DossierPage() {
         ))}
 
         {/* ── CITA FINAL ──────────────────────────────────────── */}
-        <section className="relative px-8 py-32 md:py-40">
+        <section className="section-warm relative px-8 py-32 md:py-40">
           <div className="max-w-3xl mx-auto text-center flex flex-col items-center gap-10">
             <div className="w-8 h-px bg-[var(--color-accent)]" />
             <blockquote className="font-[family-name:var(--font-cormorant)] font-light text-2xl md:text-3xl leading-relaxed text-[var(--color-text)] italic">
@@ -141,9 +135,6 @@ export default function DossierPage() {
             12
           </span>
         </section>
-
-      </main>
-      <Footer />
     </>
   )
 }

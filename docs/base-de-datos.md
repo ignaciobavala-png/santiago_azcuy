@@ -100,6 +100,44 @@ Texto biográfico del artista. Diseño de **una sola fila** (id = 1).
 Constraint: `UNIQUE(id)` — garantiza que solo exista una fila.
 La fila se inserta vacía al crear la tabla (`ON CONFLICT DO NOTHING`).
 
+### Tablas de Música
+
+Backing de la sección `/musica` (administrable desde `/admin/musica`). Las tres siguen el mismo
+patrón de RLS: lectura pública solo donde `activo = true`, escritura solo `service_role`.
+
+**`videos_musica`** — videos de YouTube (subsecciones Videoclips y En vivo).
+
+| Columna | Tipo | Descripción |
+|---------|------|-------------|
+| `id` | `uuid` PK | — |
+| `seccion` | `text` | `videoclip` \| `vivo` |
+| `youtube_id` | `text` | ID de 11 chars del video |
+| `titulo` | `text` | Título (opcional) |
+| `orden` | `integer` | Orden de display |
+| `activo` | `boolean` | Visibilidad pública |
+
+**`albumes`** — discos con portada y links a plataformas.
+
+| Columna | Tipo | Descripción |
+|---------|------|-------------|
+| `id` | `uuid` PK | — |
+| `titulo` | `text NOT NULL` | Nombre del álbum |
+| `año` | `integer` | Año |
+| `portada_url` | `text` | Portada (bucket `obras`, WebP) |
+| `spotify_url` / `youtube_music_url` / `apple_music_url` | `text` | Links por plataforma |
+| `orden` | `integer` | Orden de display |
+| `activo` | `boolean` | Visibilidad pública |
+
+**`plataformas`** — links de streaming (subsección Plataformas).
+
+| Columna | Tipo | Descripción |
+|---------|------|-------------|
+| `id` | `uuid` PK | — |
+| `nombre` | `text NOT NULL` | Spotify / YouTube Music / Apple Music / … |
+| `url` | `text` | Link (null hasta que se cargue → muestra "próximamente") |
+| `orden` | `integer` | Orden de display |
+| `activo` | `boolean` | Visibilidad pública |
+
 ## Relaciones
 
 ```
@@ -122,6 +160,9 @@ Todas las tablas tienen RLS habilitado. Las políticas se definen en la migraci�
 | `obras` | ✅ Solo donde `publicada = true` | ❌ Solo service_role |
 | `consultas` | ❌ Solo service_role | ✅ Insert público (anon + authenticated) |
 | `biografia` | ✅ Todos | ❌ Solo service_role |
+| `videos_musica` | ✅ Solo donde `activo = true` | ❌ Solo service_role |
+| `albumes` | ✅ Solo donde `activo = true` | ❌ Solo service_role |
+| `plataformas` | ✅ Solo donde `activo = true` | ❌ Solo service_role |
 
 El cliente `createAdminClient()` usa `SUPABASE_SERVICE_ROLE_KEY` para bypass de RLS en:
 - Server Actions (crear, actualizar, eliminar)

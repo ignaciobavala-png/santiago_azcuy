@@ -4,29 +4,61 @@
 
 ## Componentes de layout
 
-### `<Header>`
+> La navegación pública sigue el concepto **Escritorio + File Explorer**
+> (ver `arquitectura.md`). Los componentes viven en `app/(site)/layout.tsx` y **persisten**
+> entre navegaciones. El viejo `<Header>` fijo fue reemplazado por este sistema.
 
-**Archivo:** `components/layout/Header.tsx`
+### `<SiteIndex>`
+
+**Archivo:** `components/layout/SiteIndex.tsx`
 **Tipo:** Client Component (`"use client"`)
 
-Header fijo con navegación y menú mobile.
+Índice de navegación persistente (file explorer). Vive en el layout, no se desmonta al navegar.
 
-**Estado interno:**
-- `open: boolean` — controla la visibilidad del menú mobile overlay
+**Props:** `{ banners: Banner[] }`
+
+**Dos estados (framer-motion `LayoutGroup` + `AnimatePresence`):**
+- **Home (`/`) = Escritorio:** grid de cards de sección sobre el banner. Cada card usa
+  `layoutId={card-${href}}` + `<CardVideoPreview>`.
+- **Sección (`≠ /`):** las cards del escritorio salen (fade) y la card activa hace **morph**
+  a una barra superior sticky con firma, breadcrumb `⌂ Escritorio / Sección / Subsección`
+  y **chips de subsección**.
+
+**Comportamiento clave:**
+- `findSection(pathname)` (de `sectionTree.ts`) determina la sección activa.
+- **Scroll-spy** con `IntersectionObserver` (`rootMargin: "-25% 0px -65% 0px"`) marca la
+  subsección visible → alimenta breadcrumb y chips.
+- Los chips hacen `scrollIntoView({ behavior: "smooth" })` al ancla.
+- Para cambiar de sección se vuelve al Escritorio (firma o breadcrumb "⌂ Escritorio").
+
+---
+
+### `<DesktopBackground>`
+
+**Archivo:** `components/layout/DesktopBackground.tsx`
+**Tipo:** Client Component (`"use client"`)
+
+Banner de fondo fijo y persistente (el "escritorio"). `fixed inset-0 z-0`.
+
+**Props:** `{ banners: Banner[] }`
 
 **Comportamiento:**
-- Fixed al top con backdrop blur (`backdrop-blur-sm bg-[var(--color-background)]/80`)
-- Desktop: links de navegación horizontales (`Obras`, `Sobre`, `Contacto`)
-- Mobile: hamburger button → animación de 3 barras a X → overlay fullscreen con links en Cormorant 4xl
-- Logo "Santiago Azcuy" linkea a `/`
+- **Carousel continuo:** reproduce un video a la vez (orden aleatorio, Fisher-Yates); al terminar
+  (`onEnded`) avanza al siguiente. Sigue girando entre navegaciones (el componente no se remonta).
+- Scrim encima: `bg-black/40` en el home, `bg-[var(--color-background)]/68 backdrop-blur` en secciones
+  (ventana transparente — el fondo se ve a través del contenido).
+- Fallback `sky-glow` si no hay banners.
 
-**Links de navegación:**
+---
 
-| Label | Href |
-|-------|------|
-| Obras | `/obras` |
-| Sobre | `/sobre` |
-| Contacto | `/contacto` |
+### `<CardVideoPreview>` · `<ConditionalFooter>` · `sectionTree.ts` · `<SectionTitle>`
+
+| Archivo | Tipo | Rol |
+|---------|------|-----|
+| `CardVideoPreview.tsx` | Client | Preview de video (banner) dentro de cada card del escritorio |
+| `ConditionalFooter.tsx` | Client | Renderiza `<Footer>` salvo en el home (Escritorio no lleva footer) |
+| `sectionTree.ts` | — | **Fuente única** de navegación: `SECTION_TREE` (secciones → subsecciones como anclas) + `findSection(pathname)` |
+| `SectionTitle.tsx` | Server | Encabezado de sección (eyebrow + título). Reemplaza al viejo `SectionHero` que traía su propio banner |
 
 ---
 
@@ -130,6 +162,7 @@ Barra lateral fija para navegación del panel admin.
 | Panel | `/admin` | Grid 2×2 |
 | Colecciones | `/admin/colecciones` | 3 líneas horizontales |
 | Obras | `/admin/obras` | Imagen placeholder |
+| Música | `/admin/musica` | Nota musical |
 | Biografía | `/admin/biografia` | Persona |
 | Contacto | `/admin/contacto` | Sobre de email |
 

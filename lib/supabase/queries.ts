@@ -165,6 +165,20 @@ export async function getHeroBanner(): Promise<{ video_url: string | null; activ
   return data
 }
 
+export type Banner = Pick<Tables<"banners">, "id" | "video_url" | "poster_url" | "titulo">
+
+export async function getBanners(): Promise<Banner[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("banners")
+    .select("id, video_url, poster_url, titulo")
+    .eq("activo", true)
+    .order("orden", { ascending: true, nullsFirst: false })
+
+  if (error) return []
+  return data ?? []
+}
+
 export async function getExposiciones(): Promise<Exposicion[]> {
   const supabase = await createClient()
 
@@ -172,6 +186,50 @@ export async function getExposiciones(): Promise<Exposicion[]> {
     .from("exposiciones")
     .select("*")
     .order("fecha_inicio", { ascending: false })
+
+  if (error) return []
+  return data ?? []
+}
+
+// ── Música ──────────────────────────────────────────────────────────
+export type VideoMusica = Tables<"videos_musica">
+export type Album = Tables<"albumes">
+export type Plataforma = Tables<"plataformas">
+
+export async function getVideosMusica(seccion: "videoclip" | "vivo"): Promise<VideoMusica[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("videos_musica")
+    .select("*")
+    .eq("seccion", seccion)
+    .eq("activo", true)
+    .order("orden", { ascending: true, nullsFirst: false })
+    .order("created_at", { ascending: true })
+
+  if (error) return []
+  return data ?? []
+}
+
+export async function getAlbumes(): Promise<Album[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("albumes")
+    .select("*")
+    .eq("activo", true)
+    .order("orden", { ascending: true, nullsFirst: false })
+    .order("año", { ascending: false, nullsFirst: false })
+
+  if (error) return []
+  return data ?? []
+}
+
+export async function getPlataformas(): Promise<Plataforma[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("plataformas")
+    .select("*")
+    .eq("activo", true)
+    .order("orden", { ascending: true, nullsFirst: false })
 
   if (error) return []
   return data ?? []

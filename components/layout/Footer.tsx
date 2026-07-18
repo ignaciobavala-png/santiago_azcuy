@@ -15,7 +15,10 @@ export default function Footer() {
 
         <nav className="flex flex-wrap gap-6">
           {[
-            { label: "Obras", href: "/obras" },
+            { label: "Pinturas", href: "/obras" },
+            { label: "El Aprendiz", href: "/el-aprendiz" },
+            { label: "Música", href: "/musica" },
+            { label: "Institucional", href: "/institucional" },
             { label: "Sobre", href: "/sobre" },
             { label: "Contacto", href: "/contacto" },
           ].map(({ label, href }) => (

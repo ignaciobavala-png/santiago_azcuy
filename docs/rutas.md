@@ -4,15 +4,23 @@
 
 ## Rutas públicas
 
+> Todas viven bajo el route group `app/(site)/` con un **layout persistente** (banner de fondo +
+> navegación file-explorer que no se desmonta al navegar). Ver "Concepto de navegación" en
+> `arquitectura.md`. El route group no afecta la URL (`(site)` no aparece en el path).
+
 | Ruta | Archivo | Tipo | Descripción |
 |------|---------|------|-------------|
-| `/` | `app/page.tsx` | Server Component (async) | Home: hero con logo, secciones por serie, statement, footer |
-| `/obras` | `app/obras/page.tsx` | Server Component (async) | Galería con grid de obras. Filtros por serie, técnica y disponibilidad vía `nuqs` |
-| `/obras/[slug]` | `app/obras/[slug]/page.tsx` | Server Component (async) | Detalle: imagen full, ficha técnica, CTA de compra, breadcrumb |
-| `/series` | `app/series/page.tsx` | Server Component (async) | Listado de series/colecciones con imagen cover |
-| `/series/[slug]` | `app/series/[slug]/page.tsx` | Server Component (async) | Detalle de serie: header + grid de obras de esa serie |
-| `/sobre` | `app/sobre/page.tsx` | Server Component (async) | Bio del artista + exposiciones (individuales/colectivas) |
-| `/contacto` | `app/contacto/page.tsx` | Server Component (sync) | Página de contacto (stub: "Proximamente") |
+| `/` | `app/(site)/page.tsx` | Server Component (async) | Home = **Escritorio**: grid de cards de sección sobre el banner |
+| `/obras` | `app/(site)/obras/page.tsx` | Server Component (async) | Pinturas: grid de obras. Filtros por serie, técnica y disponibilidad vía `nuqs` |
+| `/obras/[slug]` | `app/(site)/obras/[slug]/page.tsx` | Server Component (async) | Detalle: imagen, ficha técnica, CTA de compra, breadcrumb |
+| `/series` | `app/(site)/series/page.tsx` | Server Component (async) | Listado de series/colecciones con imagen cover |
+| `/series/[slug]` | `app/(site)/series/[slug]/page.tsx` | Server Component (async) | Detalle de serie: header + grid de obras |
+| `/musica` | `app/(site)/musica/page.tsx` | Server Component (async) | Subsecciones: Videoclips · Álbumes · Plataformas · En vivo (anclas `data-subsection`) |
+| `/institucional` | `app/(site)/institucional/page.tsx` | Server Component (sync) | Trayectoria editorial de cara a instituciones. Subsecciones: Trayectoria · Formación · Distinciones · Obra. **Omite datos personales** (DNI/domicilio/teléfono) por ser página pública |
+| `/el-aprendiz` | `app/(site)/el-aprendiz/page.tsx` | Server Component (sync) | Novela (descarga PDF) + Audiolibro (embed Spotify). Subsecciones: Novela · Audiolibro |
+| `/dossier` | `app/(site)/dossier/page.tsx` | Server Component | Dossier del artista |
+| `/sobre` | `app/(site)/sobre/page.tsx` | Server Component (async) | Bio del artista + exposiciones |
+| `/contacto` | `app/(site)/contacto/page.tsx` | Server Component | Página de contacto |
 
 ### Parámetros de búsqueda (search params)
 
@@ -44,17 +52,21 @@ Todas bajo prefijo `/admin`. Layout compartido con `Sidebar`.
 | `/admin/obras/nueva` | `app/admin/obras/nueva/page.tsx` | Client Component | Formulario de upload: imagen → process → guardar obra |
 | `/admin/colecciones` | `app/admin/colecciones/page.tsx` | Server Component (async) | Listado de series con conteo de obras y eliminar |
 | `/admin/colecciones/nueva` | `app/admin/colecciones/nueva/page.tsx` | Client Component | Formulario de nueva colección |
-| `/admin/biografia` | `app/admin/biografia/page.tsx` | Server Component (async) | Editor de bio + CRUD de exposiciones |
-| `/admin/contacto` | `app/admin/contacto/page.tsx` | Client Component | Configuración de contacto (stub: mock, no conectado a BD) |
+| `/admin/biografia` | `app/admin/(protected)/biografia/page.tsx` | Server Component (async) | Editor de bio + CRUD de exposiciones |
+| `/admin/contacto` | `app/admin/(protected)/contacto/page.tsx` | Client Component | Configuración de contacto |
+| `/admin/musica` | `app/admin/(protected)/musica/page.tsx` | Server Component (async) | CRUD de Música: `VideosPanel` (videoclip + vivo), `AlbumesPanel`, `PlataformasPanel` |
+| `/admin/novela` | `app/admin/(protected)/novela/page.tsx` | Server Component (async) | Gestión de El Aprendiz (leads / capítulos) |
 
-### Auth middleware
+> Las páginas del admin (salvo `/admin/login`) viven bajo el route group `app/admin/(protected)/`.
 
-El archivo `proxy.ts` protege `/admin/*`:
-- Redirige a `/admin/login` si no hay sesión
-- Redirige a `/admin` si ya hay sesión y está en login
-- Usa `getUser()` de Supabase para validar JWT
+### Auth (doble capa)
 
-**Actualmente el middleware está deshabilitado** para desarrollo. Las rutas admin son accesibles sin login.
+Protección de `/admin/*` en dos niveles (mitigación de CVE-2025-29927):
+
+1. **`proxy.ts`** (edge): redirige a `/admin/login` si no hay sesión; a `/admin` si ya hay sesión y está en login.
+2. **`app/admin/(protected)/layout.tsx`**: `getUser()` + `redirect("/admin/login")` — garantía server-side aunque se evada el proxy.
+
+**Auth activo** — las rutas admin requieren login.
 
 ## Server Actions
 
@@ -83,6 +95,17 @@ Tres archivos de Server Actions, uno por feature del admin:
 | `guardarBiografia` | `(texto: string) → Promise<void>` | Actualiza el texto biográfico (id=1) |
 | `crearExposicion` | `(FormData) → Promise<void>` | Crea exposición. Convierte año a `fecha_inicio` |
 | `eliminarExposicion` | `(id: string) → Promise<void>` | Elimina exposición |
+
+### `app/admin/(protected)/musica/actions.ts`
+
+| Acción | Signatura | Descripción |
+|--------|-----------|-------------|
+| `getSignedUploadUrl` | `() → Promise<SignedUploadResult>` | URL firmada para subir portada de álbum (bucket `obras`, path `albumes/{uuid}/portada`) |
+| `crearVideo` / `toggleVideo` / `eliminarVideo` | `(FormData)` / `(id, activo)` / `(id)` | CRUD de `videos_musica`. `crearVideo` extrae el ID de YouTube desde URL o ID pelado (`extraerYoutubeId`) |
+| `crearAlbum` / `toggleAlbum` / `eliminarAlbum` | `(FormData)` / `(id, activo)` / `(id)` | CRUD de `albumes` |
+| `crearPlataforma` / `actualizarPlataforma` / `togglePlataforma` / `eliminarPlataforma` | — | CRUD de `plataformas` (links de streaming) |
+
+Todas revalidan `/musica` y `/admin/musica`.
 
 Todas las Server Actions:
 - Usan `createAdminClient()` (service_role) para bypass de RLS
