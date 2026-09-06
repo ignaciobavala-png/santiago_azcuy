@@ -27,13 +27,10 @@ export type Serie = {
   descripcion: string | null;
 };
 
-export const ETIQUETA: Record<Categoria, string> = {
-  figurativo: "Figurativo",
-  abstracto: "Abstracto",
-  dibujo: "Dibujo",
-};
+export const CATEGORIAS: Categoria[] = ["figurativo", "abstracto", "dibujo"];
 
-/** "Acrílico · 130 × 80 cm · 2016", saltando lo que falte. */
+/** "Acrílico · 130 × 80 cm · 2016", saltando lo que falte. La tecnica la
+ *  escribio Santiago en castellano y no se traduce: es el dato, no la etiqueta. */
 export function ficha(o: Obra): string {
   const medidas =
     o.ancho_cm && o.alto_cm

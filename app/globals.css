@@ -12,7 +12,11 @@
   --color-tinta-media: #6b645d;
   --color-tinta-suave: #a09890;
   --color-linea: #e2ded6;
+
+  /* Par fijo, no conmuta: las paginas de obra van a negro en los dos temas,
+     asi que su texto no puede depender de la variable que se invierte. */
   --color-noche: #0b0a09;
+  --color-luz: #faf9f6;
 
   --font-sans: var(--fuente-sans), ui-sans-serif, system-ui, sans-serif;
 
@@ -20,9 +24,25 @@
   --text-titular: clamp(1.75rem, 4.2vw, 3.5rem);
 }
 
+/*
+  Tema oscuro. Solo se redefinen los cuatro tokens que se invierten; noche y luz
+  quedan como estan a proposito. El atributo lo pone un script inline en el
+  <head>, antes del primer pintado, para que no haya destello blanco.
+*/
+html[data-theme="dark"] {
+  --color-papel: #0e0d0c;
+  --color-papel-alt: #171512;
+  --color-tinta: #f2efe9;
+  --color-tinta-media: #a09890;
+  --color-tinta-suave: #6b645d;
+  --color-linea: #2b2723;
+  color-scheme: dark;
+}
+
 html {
   -webkit-font-smoothing: antialiased;
   scroll-behavior: smooth;
+  color-scheme: light;
 }
 
 body {
@@ -104,4 +124,47 @@ body {
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
   mask-position: center;
+}
+
+/* El cambio de tema no deberia parpadear, pero tampoco animar cada hover. */
+@media (prefers-reduced-motion: no-preference) {
+  body {
+    transition: background-color 0.35s ease, color 0.35s ease;
+  }
+}
+
+/*
+  Fachada de YouTube: la miniatura viene de i.ytimg.com y el iframe recien se
+  monta al hacer click. Treinta iframes de YouTube en una pagina son varios MB
+  de JS ajeno antes de que nadie le de play a nada.
+*/
+.yt-tapa {
+  background-size: cover;
+  background-position: center;
+}
+
+.yt-play {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+}
+
+.yt-tapa:hover .yt-play {
+  transform: scale(1.12);
+}
+
+/* Entrada escalonada de los enlaces del menu movil. */
+@keyframes entrar {
+  from { opacity: 0; transform: translateY(0.75rem); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* La mitad llena del icono de tema gira cuando el <html> pasa a oscuro. Vive
+   en CSS y no en estado de React para que el server no tenga que adivinar que
+   tema eligio el visitante. */
+.tema-mitad {
+  transform-origin: 10px 10px;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html[data-theme="dark"] .tema-mitad {
+  transform: rotate(180deg);
 }

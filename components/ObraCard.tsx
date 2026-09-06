@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { srcSet, url } from "@/lib/media";
+import { ruta, type Lang } from "@/lib/i18n";
 import { ficha, type Obra } from "@/lib/tipos";
 
 /**
@@ -9,15 +10,17 @@ import { ficha, type Obra } from "@/lib/tipos";
  */
 export function ObraCard({
   obra,
+  lang,
   sizes = "(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 92vw",
   prioridad = false,
 }: {
   obra: Obra;
+  lang: Lang;
   sizes?: string;
   prioridad?: boolean;
 }) {
   return (
-    <Link href={`/obras/${obra.slug}`} className="group block">
+    <Link href={ruta(lang, `/obras/${obra.slug}`)} className="group block">
       <figure
         className="relative overflow-hidden bg-papel-alt"
         style={{ aspectRatio: `${obra.imagen_w} / ${obra.imagen_h}` }}

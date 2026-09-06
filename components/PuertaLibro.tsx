@@ -2,9 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ruta, t, type Lang } from "@/lib/i18n";
 
-export function PuertaLibro() {
+export function PuertaLibro({ lang }: { lang: Lang }) {
   const router = useRouter();
+  const d = t(lang).libro;
   const [email, setEmail] = useState("");
   const [estado, setEstado] = useState<"listo" | "enviando" | "error">("listo");
   const [mensaje, setMensaje] = useState("");
@@ -15,10 +17,10 @@ export function PuertaLibro() {
     const r = await fetch("/api/libro", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, lang }),
     });
     if (r.ok) {
-      router.push("/libro/leer");
+      router.push(ruta(lang, "/libro/leer"));
       router.refresh();
     } else {
       const { error } = await r.json().catch(() => ({ error: "No se pudo enviar." }));
@@ -30,7 +32,7 @@ export function PuertaLibro() {
   return (
     <form onSubmit={enviar} className="max-w-md">
       <label htmlFor="email" className="etiqueta text-tinta-suave">
-        Dejá tu mail y leelo completo
+        {d.puertaLabel}
       </label>
       <div className="mt-3 flex border-b border-tinta">
         <input
@@ -47,12 +49,12 @@ export function PuertaLibro() {
           disabled={estado === "enviando"}
           className="etiqueta shrink-0 px-4 hover:opacity-55 disabled:opacity-40"
         >
-          {estado === "enviando" ? "…" : "Leer →"}
+          {estado === "enviando" ? "…" : d.puertaBoton}
         </button>
       </div>
       {estado === "error" && <p className="mt-2 text-sm text-tinta-media">{mensaje}</p>}
       <p className="mt-3 text-[0.8125rem] leading-relaxed text-tinta-media">
-        Se guarda solo para avisarte de novedades. Nada más.
+        {d.puertaNota}
       </p>
     </form>
   );

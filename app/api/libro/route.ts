@@ -3,16 +3,22 @@ import { registrarLead } from "@/lib/libro";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
 
+const INVALIDO = {
+  es: "Escribí un mail válido.",
+  en: "Please enter a valid email.",
+} as const;
+
 /**
  * Registra el mail y devuelve la cookie que habilita /libro/leer. El texto
  * viaja recien en esa pagina, renderizada en el server: nunca se manda la
  * novela entera a alguien que no paso por aca.
  */
 export async function POST(req: Request) {
-  const { email } = await req.json().catch(() => ({ email: "" }));
+  const { email, lang } = await req.json().catch(() => ({ email: "", lang: "es" }));
+  const idioma = lang === "en" ? "en" : "es";
 
   if (typeof email !== "string" || !EMAIL.test(email.trim())) {
-    return NextResponse.json({ error: "Escribí un mail válido." }, { status: 400 });
+    return NextResponse.json({ error: INVALIDO[idioma] }, { status: 400 });
   }
 
   try {

@@ -2,24 +2,28 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { proyecto, proyectos } from "@/lib/proyectos";
 import { srcSet, url } from "@/lib/media";
+import { IDIOMAS, t, type Lang } from "@/lib/i18n";
 
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  return (await proyectos()).map((p) => ({ slug: p.slug }));
+  const lista = await proyectos();
+  return IDIOMAS.flatMap((lang) => lista.map((p) => ({ lang, slug: p.slug })));
 }
 
 export async function generateMetadata({
   params,
-}: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+}: { params: Promise<{ lang: Lang; slug: string }> }): Promise<Metadata> {
   const p = await proyecto((await params).slug);
   return p ? { title: p.titulo, description: p.descripcion?.slice(0, 160) } : {};
 }
 
 export default async function PaginaProyecto({
   params,
-}: { params: Promise<{ slug: string }> }) {
-  const p = await proyecto((await params).slug);
+}: { params: Promise<{ lang: Lang; slug: string }> }) {
+  const { lang, slug } = await params;
+  const d = t(lang).arq;
+  const p = await proyecto(slug);
   if (!p) notFound();
 
   return (
@@ -29,10 +33,10 @@ export default async function PaginaProyecto({
           <h1 className="display">{p.titulo}</h1>
         </div>
         <dl className="grid h-fit grid-cols-2 gap-x-6 gap-y-4 self-end md:col-span-4 md:col-start-9">
-          {p.ubicacion && <Dato t="Ubicación" v={p.ubicacion} />}
-          {p.anio && <Dato t="Año" v={String(p.anio)} />}
-          {p.estado && <Dato t="Estado" v={p.estado} />}
-          <Dato t="Láminas" v={String(p.laminas.length)} />
+          {p.ubicacion && <Dato t={d.ubicacion} v={p.ubicacion} />}
+          {p.anio && <Dato t={d.anio} v={String(p.anio)} />}
+          {p.estado && <Dato t={d.estado} v={p.estado} />}
+          <Dato t={d.laminas} v={String(p.laminas.length)} />
         </dl>
       </header>
 
@@ -57,7 +61,7 @@ export default async function PaginaProyecto({
                 src={url(l.imagen, "lg")}
                 srcSet={srcSet(l.imagen)}
                 sizes="(min-width: 1024px) 90vw, 100vw"
-                alt={`${p.titulo}, lámina ${i + 1}`}
+                alt={d.lamina(p.titulo, i + 1)}
                 width={l.imagen_w}
                 height={l.imagen_h}
                 loading={i < 2 ? "eager" : "lazy"}

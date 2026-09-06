@@ -3,18 +3,22 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { capitulos } from "@/lib/libro";
+import { ruta, t, type Lang } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "El Aprendiz — leer",
-  robots: { index: false },
-};
+export async function generateMetadata({
+  params,
+}: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
+  return { title: t((await params).lang).nav.libro, robots: { index: false } };
+}
 
 /**
  * El texto se renderiza en el server y solo despues de la cookie. La novela
  * nunca sale por la API publica.
  */
-export default async function Leer() {
-  if ((await cookies()).get("libro")?.value !== "1") redirect("/libro");
+export default async function Leer({ params }: { params: Promise<{ lang: Lang }> }) {
+  const { lang } = await params;
+  const d = t(lang);
+  if ((await cookies()).get("libro")?.value !== "1") redirect(ruta(lang, "/libro"));
 
   const caps = await capitulos();
 
@@ -29,7 +33,7 @@ export default async function Leer() {
                   href={`#cap-${c.orden}`}
                   className="etiqueta whitespace-nowrap text-tinta-suave hover:text-tinta"
                 >
-                  {c.numero ?? "Pról."}
+                  {c.numero ?? "·"}
                 </a>
               </li>
             ))}
@@ -39,8 +43,8 @@ export default async function Leer() {
 
       <main className="mx-auto max-w-[38rem] px-5 py-16">
         <header className="mb-20 text-center">
-          <h1 className="titular">El Aprendiz</h1>
-          <p className="mt-3 text-tinta-media">Ciudad Intradorada</p>
+          <h1 className="titular">{d.nav.libro}</h1>
+          <p className="mt-3 text-tinta-media">{d.libro.subtitulo}</p>
           <p className="etiqueta mt-6 text-tinta-suave">Santiago Azcuy</p>
         </header>
 
@@ -60,9 +64,12 @@ export default async function Leer() {
         ))}
 
         <footer className="border-t border-linea pt-10 text-center">
-          <p className="text-tinta-media">Fin.</p>
-          <Link href="/obras" className="etiqueta mt-6 inline-block underline-offset-8 hover:underline">
-            Ver la obra plástica →
+          <p className="text-tinta-media">{d.libro.fin}</p>
+          <Link
+            href={ruta(lang, "/obras")}
+            className="etiqueta mt-6 inline-block underline-offset-8 hover:underline"
+          >
+            {d.libro.volverObras}
           </Link>
         </footer>
       </main>

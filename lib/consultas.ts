@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import type { Categoria, Obra } from "./tipos";
+import type { Lang } from "./i18n";
 
 const CAMPOS =
   "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,destacada,disponible,descripcion,imagen,imagen_w,imagen_h,blur";
@@ -33,7 +34,22 @@ export async function conteos() {
   return c;
 }
 
-export async function texto(clave: string): Promise<string> {
-  const { data } = await supabase.from("textos").select("contenido").eq("clave", clave).maybeSingle();
-  return (data as { contenido: string } | null)?.contenido ?? "";
+/**
+ * Los textos largos (bio, statement, sinopsis) viven en la tabla `textos`, con
+ * la version en ingles bajo la misma clave mas ".en". Asi el idioma no obliga a
+ * una columna nueva ni a duplicar filas: si la traduccion todavia no se cargo,
+ * cae en el castellano en vez de dejar el bloque vacio.
+ */
+export async function texto(clave: string, lang: Lang = "es"): Promise<string> {
+  const claves = lang === "es" ? [clave] : [`${clave}.en`, clave];
+  const { data } = await supabase
+    .from("textos")
+    .select("clave,contenido")
+    .in("clave", claves);
+  const filas = (data ?? []) as { clave: string; contenido: string }[];
+  for (const c of claves) {
+    const hit = filas.find((f) => f.clave === c);
+    if (hit?.contenido) return hit.contenido;
+  }
+  return "";
 }

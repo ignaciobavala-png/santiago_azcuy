@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ObraCard } from "@/components/ObraCard";
 import { obras, conteos, texto } from "@/lib/consultas";
+import { ruta, t, type Lang } from "@/lib/i18n";
 
 export const revalidate = 3600;
 
@@ -10,11 +11,14 @@ export const revalidate = 3600;
  * de cada bloque: cinco secciones iguales en una barra dirian "hago un poco de
  * todo" y diluirian lo que el trabajo tiene de central.
  */
-export default async function Home() {
+export default async function Home({ params }: { params: Promise<{ lang: Lang }> }) {
+  const { lang } = await params;
+  const d = t(lang);
+
   const [lista, c, statement] = await Promise.all([
     obras({ limite: 13 }),
     conteos(),
-    texto("statement"),
+    texto("statement", lang),
   ]);
 
   const [apertura, ...resto] = lista;
@@ -29,57 +33,59 @@ export default async function Home() {
         </h1>
         <div className="flex flex-col justify-end gap-5 md:col-span-4">
           <p className="max-w-sm text-balance text-[1.0625rem] leading-relaxed text-tinta-media">
-            {statement ||
-              "Pintura, dibujo, música y arquitectura. Una obra atravesada por lo cósmico y lo místico."}
+            {statement || d.home.statement}
           </p>
-          <Link href="/obras" className="etiqueta underline-offset-8 hover:underline">
-            Ver las {c.total} obras →
+          <Link href={ruta(lang, "/obras")} className="etiqueta underline-offset-8 hover:underline">
+            {d.home.verObras(c.total)}
           </Link>
         </div>
       </section>
 
       {apertura && (
         <section className="revelar mb-24">
-          <ObraCard obra={apertura} sizes="100vw" prioridad />
+          <ObraCard obra={apertura} lang={lang} sizes="100vw" prioridad />
         </section>
       )}
 
       <section className="grid grid-cols-1 gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
         {resto.slice(0, 6).map((o, i) => (
           <div key={o.id} className={`revelar ${i === 1 ? "lg:mt-20" : ""}`}>
-            <ObraCard obra={o} />
+            <ObraCard obra={o} lang={lang} />
           </div>
         ))}
       </section>
 
       <Interrupcion
-        etiqueta="Música"
-        titulo="Discos, videos y shows"
-        texto="La obra sonora, embebida desde las plataformas donde ya vive."
-        href="/musica"
+        etiqueta={d.home.musicaEtiqueta}
+        titulo={d.home.musicaTitulo}
+        texto={d.home.musicaTexto}
+        href={ruta(lang, "/musica")}
+        ver={d.home.ver}
       />
 
       <section className="grid grid-cols-1 gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
         {resto.slice(6).map((o) => (
           <div key={o.id} className="revelar">
-            <ObraCard obra={o} />
+            <ObraCard obra={o} lang={lang} />
           </div>
         ))}
       </section>
 
       <div className="grid gap-px bg-linea md:grid-cols-2">
         <Interrupcion
-          etiqueta="El Aprendiz"
-          titulo="La novela"
-          texto="Ciudad Intradorada."
-          href="/libro"
+          etiqueta={d.home.libroEtiqueta}
+          titulo={d.home.libroTitulo}
+          texto={d.home.libroTexto}
+          href={ruta(lang, "/libro")}
+          ver={d.home.ver}
           compacta
         />
         <Interrupcion
-          etiqueta="Arquitectura"
-          titulo="Proyectos"
-          texto="Templo circular en Chacarita, vivienda en Chapadmalal."
-          href="/arquitectura"
+          etiqueta={d.home.arqEtiqueta}
+          titulo={d.home.arqTitulo}
+          texto={d.home.arqTexto}
+          href={ruta(lang, "/arquitectura")}
+          ver={d.home.ver}
           compacta
         />
       </div>
@@ -92,12 +98,14 @@ function Interrupcion({
   titulo,
   texto,
   href,
+  ver,
   compacta = false,
 }: {
   etiqueta: string;
   titulo: string;
   texto: string;
   href: string;
+  ver: string;
   compacta?: boolean;
 }) {
   return (
@@ -111,7 +119,7 @@ function Interrupcion({
       <h2 className="titular mt-3 max-w-3xl">{titulo}</h2>
       <p className="mt-4 max-w-md text-tinta-media">{texto}</p>
       <span className="etiqueta mt-6 inline-block underline-offset-8 group-hover:underline">
-        Ver →
+        {ver}
       </span>
     </Link>
   );

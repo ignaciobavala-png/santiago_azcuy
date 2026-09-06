@@ -2,20 +2,31 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { proyectos } from "@/lib/proyectos";
 import { srcSet, url } from "@/lib/media";
+import { ruta, t, type Lang } from "@/lib/i18n";
 
 export const revalidate = 3600;
-export const metadata: Metadata = { title: "Arquitectura" };
 
-export default async function Arquitectura() {
+export async function generateMetadata({
+  params,
+}: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
+  return { title: t((await params).lang).arq.titulo };
+}
+
+export default async function Arquitectura({ params }: { params: Promise<{ lang: Lang }> }) {
+  const { lang } = await params;
   const lista = await proyectos();
 
   return (
     <main className="mx-auto max-w-[1600px] px-5 pt-14 md:px-10 md:pt-20">
-      <h1 className="display">Arquitectura</h1>
+      <h1 className="display">{t(lang).arq.titulo}</h1>
 
       <div className="mt-16 grid gap-16 md:grid-cols-2">
         {lista.map((p) => (
-          <Link key={p.id} href={`/arquitectura/${p.slug}`} className="group block">
+          <Link
+            key={p.id}
+            href={ruta(lang, `/arquitectura/${p.slug}`)}
+            className="group block"
+          >
             <figure className="overflow-hidden bg-papel-alt">
               <img
                 src={url(`proyectos/${p.slug}/01`, "md")}
