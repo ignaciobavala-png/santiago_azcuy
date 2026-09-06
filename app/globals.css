@@ -1,24 +1,73 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+  Cascara editorial casi blanca para indices y navegacion; las paginas de obra
+  van a casi negro. El sitio respira claro -> oscuro: la estructura limpia de
+  las referencias, pero dejando entrar la oscuridad donde la obra la pide.
+*/
+@theme {
+  --color-papel: #faf9f6;
+  --color-papel-alt: #f2f0eb;
+  --color-tinta: #14110f;
+  --color-tinta-media: #6b645d;
+  --color-tinta-suave: #a09890;
+  --color-linea: #e2ded6;
+  --color-noche: #0b0a09;
+
+  --font-sans: var(--fuente-sans), ui-sans-serif, system-ui, sans-serif;
+
+  --text-display: clamp(2.75rem, 9vw, 8.5rem);
+  --text-titular: clamp(1.75rem, 4.2vw, 3.5rem);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+html {
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--color-papel);
+  color: var(--color-tinta);
+  font-family: var(--font-sans);
+}
+
+/* La tipografia grande solo funciona con el tracking cerrado. */
+.display {
+  font-size: var(--text-display);
+  line-height: 0.86;
+  letter-spacing: -0.045em;
+  font-weight: 500;
+}
+
+.titular {
+  font-size: var(--text-titular);
+  line-height: 1.02;
+  letter-spacing: -0.032em;
+  font-weight: 500;
+}
+
+.etiqueta {
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Reveal al entrar en viewport. Sin JS: si no hay soporte, se ve igual. */
+@media (prefers-reduced-motion: no-preference) {
+  .revelar {
+    animation: revelar linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 42%;
+  }
+}
+
+@keyframes revelar {
+  from { opacity: 0; transform: translateY(1.25rem); }
+  to   { opacity: 1; transform: none; }
+}
+
+::selection {
+  background: var(--color-tinta);
+  color: var(--color-papel);
 }
