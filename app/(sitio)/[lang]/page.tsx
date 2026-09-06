@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CarruselObras } from "@/components/CarruselObras";
 import { ObraCard } from "@/components/ObraCard";
 import { obras, conteos, texto } from "@/lib/consultas";
 import { ruta, t, type Lang } from "@/lib/i18n";
@@ -15,13 +16,19 @@ export default async function Home({ params }: { params: Promise<{ lang: Lang }>
   const { lang } = await params;
   const d = t(lang);
 
-  const [lista, c, statement] = await Promise.all([
-    obras({ limite: 13 }),
+  const [lista, elegidas, c, statement] = await Promise.all([
+    obras({ limite: 17 }),
+    obras({ destacadas: true, limite: 6 }),
     conteos(),
     texto("statement", lang),
   ]);
 
-  const [apertura, ...resto] = lista;
+  // Las destacadas mandan el carrusel; hasta que Santiago marque alguna desde
+  // el panel, arranca con las primeras del orden general. Asi la home nunca
+  // queda vacia por una decision que todavia no se tomo.
+  const carrusel = elegidas.length >= 2 ? elegidas : lista.slice(0, 5);
+  const usadas = new Set(carrusel.map((o) => o.id));
+  const resto = lista.filter((o) => !usadas.has(o.id));
 
   return (
     <main className="mx-auto max-w-[1600px] px-5 md:px-10">
@@ -41,11 +48,7 @@ export default async function Home({ params }: { params: Promise<{ lang: Lang }>
         </div>
       </section>
 
-      {apertura && (
-        <section className="revelar mb-24">
-          <ObraCard obra={apertura} lang={lang} sizes="100vw" prioridad />
-        </section>
-      )}
+      <CarruselObras obras={carrusel} lang={lang} />
 
       <section className="grid grid-cols-1 gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
         {resto.slice(0, 6).map((o, i) => (

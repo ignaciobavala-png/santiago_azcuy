@@ -43,6 +43,24 @@ html {
   -webkit-font-smoothing: antialiased;
   scroll-behavior: smooth;
   color-scheme: light;
+
+  /*
+    Alto total de la barra, borde incluido. Vive en una variable porque el
+    indice de capitulos del lector se pega justo debajo: con el numero copiado
+    en dos lados, cambiar el logo dejaba el indice tapado o flotando.
+
+    Va sobre `html` y no sobre `:root`: Tailwind v4 descarta los bloques :root
+    sueltos del CSS de usuario (los absorbe en su propio :root de tokens y poda
+    lo que no reconoce), asi que la declaracion no llegaba al build. Las reglas
+    sobre `html` pasan intactas.
+  */
+  --alto-barra: 66px;
+}
+
+@media (min-width: 768px) {
+  html {
+    --alto-barra: 74px;
+  }
 }
 
 body {
@@ -112,9 +130,17 @@ body {
   text-indent: 0;
 }
 
-/* La firma es blanca sobre transparente: como mascara toma el color del
-   texto, asi que se lee tanto sobre el papel claro como sobre el negro. */
+/*
+  La firma es blanca sobre transparente: como mascara toma el color del texto,
+  asi que se lee sobre el papel claro, sobre el tema oscuro y sobre el negro de
+  las paginas de obra.
+
+  La proporcion va aca y no en cada uso: el archivo esta recortado al trazo
+  (345x163), y si algun dia se reemplaza por otra version alcanza con tocar este
+  numero. Quien lo usa solo elige la altura.
+*/
 .firma {
+  aspect-ratio: 345 / 163;
   background-color: currentColor;
   -webkit-mask-image: url("/firma.webp");
   mask-image: url("/firma.webp");
@@ -167,4 +193,14 @@ body {
 
 html[data-theme="dark"] .tema-mitad {
   transform: rotate(180deg);
+}
+
+/* Pista del carrusel: el scroll es real, pero la barra nativa ensucia una
+   pagina cuyo contenido es la obra. */
+.sin-barra {
+  scrollbar-width: none;
+}
+
+.sin-barra::-webkit-scrollbar {
+  display: none;
 }

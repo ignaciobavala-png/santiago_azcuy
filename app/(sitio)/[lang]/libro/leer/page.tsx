@@ -24,7 +24,7 @@ export default async function Leer({ params }: { params: Promise<{ lang: Lang }>
 
   return (
     <div className="bg-papel-alt">
-      <nav className="sticky top-[57px] z-40 border-b border-linea bg-papel-alt/90 backdrop-blur-md">
+      <nav className="sticky top-[var(--alto-barra)] z-30 border-b border-linea bg-papel-alt/90 backdrop-blur-md">
         <div className="mx-auto max-w-3xl overflow-x-auto px-5 py-3">
           <ul className="flex gap-4">
             {caps.map((c) => (

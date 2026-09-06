@@ -47,9 +47,18 @@ export function Cabecera({ lang }: { lang: Lang }) {
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-linea bg-papel/85 backdrop-blur-md">
-        <nav className="mx-auto flex max-w-[1600px] items-center gap-6 px-5 py-4 md:px-10">
-          <Link href={ruta(lang, "/")} className="etiqueta shrink-0 hover:opacity-55">
-            Santiago Azcuy
+        <nav className="mx-auto flex h-[calc(var(--alto-barra)-1px)] max-w-[1600px] items-center gap-6 px-5 md:px-10">
+          {/* La firma dice "Azcuy", no el nombre completo: el nombre viaja en
+              el texto oculto para que el enlace tenga nombre accesible y los
+              buscadores lean la marca. */}
+          <Link
+            href={ruta(lang, "/")}
+            className="shrink-0 transition-opacity hover:opacity-55"
+          >
+            {/* w-fit para que el ancho salga de la proporcion: un bloque con
+                width auto se estira y la relacion terminaria fijando el alto. */}
+            <span className="firma block h-7 w-fit text-tinta md:h-9" aria-hidden />
+            <span className="sr-only">Santiago Azcuy</span>
           </Link>
 
           <ul className="ml-auto hidden gap-8 md:flex">
@@ -105,7 +114,7 @@ export function Cabecera({ lang }: { lang: Lang }) {
             la transicion de ruta en vez de despues. */}
         <nav
           onClick={() => setAbierto(false)}
-          className="flex h-full flex-col justify-between px-5 pt-24 pb-12"
+          className="flex h-full flex-col justify-between px-5 pb-12 pt-[calc(var(--alto-barra)+2rem)]"
         >
           <ul className="flex flex-col gap-2">
             {SECCIONES.map((s, i) => (

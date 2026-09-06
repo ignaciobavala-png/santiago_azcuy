@@ -113,7 +113,7 @@ const es = {
   },
   sobre: { titulo: "Sobre", nota: "Biografía, statement y recorrido. Pendiente de carga." },
   contacto: { titulo: "Contacto", nota: "Formulario de consulta. Pendiente de carga." },
-  cierre: { obra: "Pintura, música,\narquitectura y palabra.", firma: "Firma de Santiago Azcuy" },
+  cierre: { obra: "Pintura, música,\narquitectura y palabra." },
   err: {
     titulo: "404",
     texto: "Esta página no existe.",
@@ -211,7 +211,7 @@ const en: typeof es = {
   },
   sobre: { titulo: "About", nota: "Biography, statement and background. Not loaded yet." },
   contacto: { titulo: "Contact", nota: "Enquiry form. Not loaded yet." },
-  cierre: { obra: "Painting, music,\narchitecture and the word.", firma: "Santiago Azcuy's signature" },
+  cierre: { obra: "Painting, music,\narchitecture and the word." },
   err: {
     titulo: "404",
     texto: "This page doesn't exist.",

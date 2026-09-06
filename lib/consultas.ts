@@ -8,11 +8,13 @@ const CAMPOS =
 export async function obras(filtros: {
   categoria?: Categoria;
   encargo?: boolean;
+  destacadas?: boolean;
   limite?: number;
 } = {}): Promise<Obra[]> {
   let q = supabase.from("obras").select(CAMPOS).order("orden");
   if (filtros.categoria) q = q.eq("categoria", filtros.categoria);
   if (filtros.encargo) q = q.eq("es_encargo", true);
+  if (filtros.destacadas) q = q.eq("destacada", true);
   if (filtros.limite) q = q.limit(filtros.limite);
   const { data, error } = await q;
   if (error) throw error;
