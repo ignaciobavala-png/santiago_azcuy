@@ -71,3 +71,37 @@ body {
   background: var(--color-tinta);
   color: var(--color-papel);
 }
+
+/*
+  Cuerpo de la novela. Medida corta, interlineado alto y sangria de primera
+  linea como en el libro impreso; el primer parrafo de cada capitulo va sin
+  sangria, que es la convencion tipografica.
+*/
+.prosa p {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  text-indent: 1.4em;
+  hyphens: auto;
+}
+
+.prosa p + p {
+  margin-top: 0;
+}
+
+.prosa p:first-child {
+  text-indent: 0;
+}
+
+/* La firma es blanca sobre transparente: como mascara toma el color del
+   texto, asi que se lee tanto sobre el papel claro como sobre el negro. */
+.firma {
+  background-color: currentColor;
+  -webkit-mask-image: url("/firma.webp");
+  mask-image: url("/firma.webp");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
