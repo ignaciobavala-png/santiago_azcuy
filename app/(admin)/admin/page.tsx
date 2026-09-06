@@ -90,18 +90,22 @@ function Tablero({ t }: { t: Awaited<ReturnType<typeof tableroAdmin>> }) {
         </Link>
       </header>
 
-      <section className="mt-8 grid grid-cols-2 gap-px border border-linea bg-linea sm:grid-cols-3 lg:grid-cols-5">
+      <section className="mt-8 grid grid-cols-2 gap-px border border-linea bg-linea sm:grid-cols-3 lg:grid-cols-6">
         <Tarjeta valor={t.publicadas} etiqueta="Obras publicadas" href="/admin/obras" />
-        <Tarjeta valor={t.sinCategoria} etiqueta="Obras sin categoría" href="/admin/obras?categoria=sin" alarma />
-        <Tarjeta valor={t.sinTitulo} etiqueta="Obras sin título propio" href="/admin/obras?sintitulo=1" alarma />
+        <Tarjeta valor={t.sinAnio} etiqueta="Obras sin año" href="/admin/obras?sinanio=1" alarma />
+        <Tarjeta valor={t.sinFicha} etiqueta="Sin técnica o medidas" href="/admin/obras?sinficha=1" alarma />
+        <Tarjeta valor={t.destacadas} etiqueta="Destacadas en la home" href="/admin/obras?destacadas=1" />
         <Tarjeta valor={t.sinLeer} etiqueta="Consultas sin leer" href="/admin/consultas" alarma />
         <Tarjeta valor={t.leads} etiqueta="Mails del libro" href="/admin/libro" />
       </section>
 
       <p className="mt-6 max-w-prose text-sm leading-relaxed text-tinta-media">
-        Las alertas (sin categoría, sin título) son controles de calidad de carga:
-        deberían estar en cero. Lo que se publica sale en vivo, sin esperar la hora
-        de caché del sitio.
+        La galería va de la obra más nueva a la más vieja, cronológica dentro de
+        cada categoría. Las obras sin año quedan al final de su categoría: cada
+        año que se carga acomoda una más en su lugar. Las destacadas son las que
+        rotan en el bloque grande de la home; si no hay ninguna, salen las
+        primeras del orden general. Lo que se publica sale en vivo, sin esperar
+        la hora de caché del sitio.
       </p>
     </main>
   );

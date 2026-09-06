@@ -20,6 +20,9 @@ export async function obrasAdmin(filtros: {
   soloOcultas?: boolean;
   soloEncargos?: boolean;
   sinTitulo?: boolean;
+  sinAnio?: boolean;
+  sinFicha?: boolean;
+  soloDestacadas?: boolean;
 } = {}): Promise<ObraAdmin[]> {
   let q = admin().from("obras").select(OBRAS_ADMIN).order("orden").order("creado_at", { ascending: false });
   if (filtros.q) q = q.ilike("titulo", `%${filtros.q}%`);
@@ -28,6 +31,9 @@ export async function obrasAdmin(filtros: {
   if (filtros.soloOcultas) q = q.eq("publicada", false);
   if (filtros.soloEncargos) q = q.eq("es_encargo", true);
   if (filtros.sinTitulo) q = q.or("titulo.is.null,titulo.eq.\"\"");
+  if (filtros.sinAnio) q = q.is("anio", null);
+  if (filtros.sinFicha) q = q.or("tecnica.is.null,ancho_cm.is.null,alto_cm.is.null");
+  if (filtros.soloDestacadas) q = q.eq("destacada", true);
   const { data, error } = await q;
   if (error) throw error;
   return (data ?? []) as ObraAdmin[];
@@ -184,12 +190,18 @@ export async function tableroAdmin() {
     consulta.then((r) => r.count ?? 0);
 
   const db = admin();
-  const [publicadas, sinCategoria, sinTitulo, sinLeer, leads] = await Promise.all([
+  // Los contadores de "sin categoria" y "sin titulo" que habia aca marcaban
+  // cero por construccion: las dos columnas son NOT NULL y categoria ademas
+  // tiene check constraint, asi que la condicion no puede darse nunca. Un
+  // control de calidad que no puede fallar es peor que no tenerlo: da por
+  // revisado algo que nadie miro. Estos tres si tienen huecos reales.
+  const [publicadas, sinAnio, sinFicha, destacadas, sinLeer, leads] = await Promise.all([
     contar(db.from("obras").select("id", { count: "exact", head: true }).eq("publicada", true)),
-    contar(db.from("obras").select("id", { count: "exact", head: true }).or(`categoria.is.null,categoria.in.("")`)),
-    contar(db.from("obras").select("id", { count: "exact", head: true }).or("titulo.is.null,titulo.eq.\"\"")),
+    contar(db.from("obras").select("id", { count: "exact", head: true }).is("anio", null)),
+    contar(db.from("obras").select("id", { count: "exact", head: true }).or("tecnica.is.null,ancho_cm.is.null,alto_cm.is.null")),
+    contar(db.from("obras").select("id", { count: "exact", head: true }).eq("destacada", true)),
     contar(db.from("consultas").select("id", { count: "exact", head: true }).eq("leida", false)),
     contar(db.from("libro_leads").select("id", { count: "exact", head: true })),
   ]);
-  return { publicadas, sinCategoria, sinTitulo, sinLeer, leads };
+  return { publicadas, sinAnio, sinFicha, destacadas, sinLeer, leads };
 }

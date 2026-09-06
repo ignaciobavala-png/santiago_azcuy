@@ -29,6 +29,9 @@ export default async function Obras({ searchParams }: { searchParams: Promise<P>
   const ocultas = p.ocultas === "1";
   const encargo = p.encargo === "1";
   const sinTitulo = p.sintitulo === "1";
+  const sinAnio = p.sinanio === "1";
+  const sinFicha = p.sinficha === "1";
+  const destacadas = p.destacadas === "1";
   const ok = p.ok === "1";
 
   const lista = await obrasAdmin({
@@ -37,11 +40,23 @@ export default async function Obras({ searchParams }: { searchParams: Promise<P>
     soloOcultas: ocultas || undefined,
     soloEncargos: encargo || undefined,
     sinTitulo: sinTitulo || undefined,
+    sinAnio: sinAnio || undefined,
+    sinFicha: sinFicha || undefined,
+    soloDestacadas: destacadas || undefined,
   });
 
   const href = (cambios: Record<string, string | null>) => {
     const params = new URLSearchParams();
-    const base: Record<string, string> = { q, categoria, ocultas: p.ocultas as string, encargo: p.encargo as string, sintitulo: p.sintitulo as string };
+    const base: Record<string, string> = {
+      q,
+      categoria,
+      ocultas: p.ocultas as string,
+      encargo: p.encargo as string,
+      sintitulo: p.sintitulo as string,
+      sinanio: p.sinanio as string,
+      sinficha: p.sinficha as string,
+      destacadas: p.destacadas as string,
+    };
     for (const [k, val] of Object.entries({ ...base, ...cambios })) {
       if (val && val !== "0") params.set(k, val);
     }
@@ -81,15 +96,16 @@ export default async function Obras({ searchParams }: { searchParams: Promise<P>
       </form>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <Link href={href({ categoria: null, ocultas: null, encargo: null, sintitulo: null })} className={chip(!categoria && !ocultas && !encargo && !sinTitulo)}>
+        <Link href={href({ categoria: null, ocultas: null, encargo: null, sintitulo: null, sinanio: null, sinficha: null, destacadas: null })}
+          className={chip(!categoria && !ocultas && !encargo && !sinTitulo && !sinAnio && !sinFicha && !destacadas)}>
           Todas
         </Link>
         {CATEGORIAS.map((c) => (
-          <Link key={c} href={href({ categoria: c, ocultas: null, encargo: null, sintitulo: null })} className={chip(categoria === c)}>
+          <Link key={c} href={href({ categoria: c, ocultas: null, encargo: null, sintitulo: null, sinanio: null, sinficha: null, destacadas: null })} className={chip(categoria === c)}>
             {c}
           </Link>
         ))}
-        <Link href={href({ categoria: "sin", ocultas: null, encargo: null, sintitulo: null })} className={chip(categoria === "sin")}>
+        <Link href={href({ categoria: "sin", ocultas: null, encargo: null, sintitulo: null, sinanio: null, sinficha: null, destacadas: null })} className={chip(categoria === "sin")}>
           Sin categoría
         </Link>
         <span className="mx-1 h-4 w-px bg-linea" aria-hidden />
@@ -99,6 +115,18 @@ export default async function Obras({ searchParams }: { searchParams: Promise<P>
         <Link href={href({ encargo: encargo ? null : "1" })} className={chip(encargo)}>
           Encargos
         </Link>
+        <Link href={href({ sinanio: sinAnio ? null : "1" })} className={chip(sinAnio)}>
+          Sin año
+        </Link>
+
+        <Link href={href({ sinficha: sinFicha ? null : "1" })} className={chip(sinFicha)}>
+          Sin técnica o medidas
+        </Link>
+
+        <Link href={href({ destacadas: destacadas ? null : "1" })} className={chip(destacadas)}>
+          Destacadas
+        </Link>
+
         <Link href={href({ sintitulo: sinTitulo ? null : "1" })} className={chip(sinTitulo)}>
           Sin título
         </Link>
