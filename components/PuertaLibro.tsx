@@ -1,11 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ruta, t, type Lang } from "@/lib/i18n";
 
 export function PuertaLibro({ lang }: { lang: Lang }) {
-  const router = useRouter();
   const d = t(lang).libro;
   const [email, setEmail] = useState("");
   const [estado, setEstado] = useState<"listo" | "enviando" | "error">("listo");
@@ -20,8 +18,19 @@ export function PuertaLibro({ lang }: { lang: Lang }) {
       body: JSON.stringify({ email, lang }),
     });
     if (r.ok) {
-      router.push(ruta(lang, "/libro/leer"));
-      router.refresh();
+      // Navegacion dura, a proposito. Antes iba un router.push seguido de un
+      // router.refresh en el mismo tick: el refresh vuelve a renderizar la ruta
+      // actual y puede pisar el push pendiente. Resultado observado: el mail se
+      // guardaba, la cookie se emitia, y el visitante se quedaba en la misma
+      // pagina sin ningun aviso de que algo hubiera pasado.
+      //
+      // Una carga completa aplica la cookie sin depender del cache del router
+      // del cliente. Es una sola vez por visitante; no vale la pena ahorrarse
+      // una navegacion a cambio de que a veces no pase nada.
+      window.location.assign(ruta(lang, "/libro/leer"));
+      // Sin volver a "listo": el boton queda deshabilitado hasta que carga la
+      // pagina nueva, en vez de parecer que no hizo nada.
+      return;
     } else {
       const { error } = await r.json().catch(() => ({ error: "No se pudo enviar." }));
       setMensaje(error);
