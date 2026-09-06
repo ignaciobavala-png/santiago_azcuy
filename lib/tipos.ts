@@ -25,6 +25,7 @@ export type Serie = {
   slug: string;
   nombre: string;
   descripcion: string | null;
+  orden: number;
 };
 
 export const CATEGORIAS: Categoria[] = ["figurativo", "abstracto", "dibujo"];

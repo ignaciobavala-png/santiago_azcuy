@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Inter } from "next/font/google";
 import { Cabecera, Pie } from "@/components/Marco";
 import { IDIOMAS, esIdioma, ruta, type Lang } from "@/lib/i18n";
-import "../globals.css";
+import "../../globals.css";
 
 const inter = Inter({
   subsets: ["latin"],

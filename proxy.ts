@@ -23,6 +23,6 @@ export default function proxy(req: NextRequest) {
 }
 
 export const config = {
-  // Todo menos los estaticos y la API, que no tienen idioma.
-  matcher: ["/((?!api|_next|.*\\.[a-z0-9]+$).*)"],
+  // Todo menos los estaticos, la API y el panel, que no tienen idioma.
+  matcher: ["/((?!api|_next|admin|.*\\.[a-z0-9]+$).*)"],
 };
