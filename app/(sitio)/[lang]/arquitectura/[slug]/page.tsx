@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { proyecto, proyectos } from "@/lib/proyectos";
 import { srcSet, url } from "@/lib/media";
-import { IDIOMAS, t, type Lang } from "@/lib/i18n";
+import { IDIOMAS, fmt, type Lang } from "@/lib/i18n";
+import { dic } from "@/lib/textos";
 
 export const revalidate = 3600;
 
@@ -22,7 +23,7 @@ export default async function PaginaProyecto({
   params,
 }: { params: Promise<{ lang: Lang; slug: string }> }) {
   const { lang, slug } = await params;
-  const d = t(lang).arq;
+  const d = (await dic(lang)).arq;
   const p = await proyecto(slug);
   if (!p) notFound();
 
@@ -61,7 +62,7 @@ export default async function PaginaProyecto({
                 src={url(l.imagen, "lg")}
                 srcSet={srcSet(l.imagen)}
                 sizes="(min-width: 1024px) 90vw, 100vw"
-                alt={d.lamina(p.titulo, i + 1)}
+                alt={fmt(d.lamina, { titulo: p.titulo, n: i + 1 })}
                 width={l.imagen_w}
                 height={l.imagen_h}
                 loading={i < 2 ? "eager" : "lazy"}

@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { Filtros } from "@/components/Filtros";
 import { ObraCard } from "@/components/ObraCard";
 import { obras, conteos } from "@/lib/consultas";
-import { t, type Lang } from "@/lib/i18n";
+import { fmt, type Lang } from "@/lib/i18n";
+import { dic } from "@/lib/textos";
 import { CATEGORIAS, type Categoria } from "@/lib/tipos";
 
 export const revalidate = 3600;
@@ -11,7 +12,7 @@ export const revalidate = 3600;
 export async function generateMetadata({
   params,
 }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
-  return { title: t((await params).lang).obras.titulo };
+  return { title: (await dic((await params).lang)).obras.titulo };
 }
 
 const VALIDAS = new Set<string>(CATEGORIAS);
@@ -24,7 +25,7 @@ export default async function Obras({
   searchParams: Promise<{ categoria?: string; encargo?: string }>;
 }) {
   const [{ lang }, p] = await Promise.all([params, searchParams]);
-  const d = t(lang);
+  const d = await dic(lang);
   const categoria = p.categoria && VALIDAS.has(p.categoria) ? (p.categoria as Categoria) : undefined;
   const encargo = p.encargo === "1";
 
@@ -35,7 +36,7 @@ export default async function Obras({
       <header className="flex flex-col gap-8 pt-14 pb-10 md:pt-20">
         <h1 className="display">{d.obras.titulo}</h1>
         <Suspense fallback={<div className="h-9" />}>
-          <Filtros conteos={c} lang={lang} />
+          <Filtros conteos={c} d={d.obras} />
         </Suspense>
       </header>
 
@@ -55,7 +56,7 @@ export default async function Obras({
         </section>
       )}
 
-      <p className="etiqueta mt-16 text-tinta-suave">{d.obras.cuenta(lista.length)}</p>
+      <p className="etiqueta mt-16 text-tinta-suave">{fmt(lista.length === 1 ? d.obras.cuentaUna : d.obras.cuentaVarias, { n: lista.length })}</p>
     </main>
   );
 }

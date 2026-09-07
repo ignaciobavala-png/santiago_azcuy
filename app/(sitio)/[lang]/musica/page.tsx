@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import { YouTube } from "@/components/YouTube";
 import { musica, CANAL_YOUTUBE, SPOTIFY_ARTISTA, type Pista } from "@/lib/musica";
-import { t, type Lang } from "@/lib/i18n";
+import { fmt, type Diccionario, type Lang } from "@/lib/i18n";
+import { dic } from "@/lib/textos";
 
 export const revalidate = 3600;
 
 export async function generateMetadata({
   params,
 }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
-  return { title: t((await params).lang).musica.titulo };
+  return { title: (await dic((await params).lang)).musica.titulo };
 }
 
 /**
@@ -19,7 +20,7 @@ export async function generateMetadata({
  */
 export default async function Musica({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params;
-  const d = t(lang).musica;
+  const d = (await dic(lang)).musica;
   const m = await musica();
 
   return (
@@ -120,7 +121,7 @@ function Ficha({
   prioridad = false,
 }: {
   p: Pista;
-  d: ReturnType<typeof t>["musica"];
+  d: Diccionario["musica"];
   prioridad?: boolean;
 }) {
   return (
@@ -129,7 +130,7 @@ function Ficha({
         id={p.recurso}
         titulo={p.titulo}
         miniatura={p.miniatura}
-        etiqueta={d.reproducir(p.titulo)}
+        etiqueta={fmt(d.reproducir, { titulo: p.titulo })}
         cargando={d.cargando}
         prioridad={prioridad}
       />

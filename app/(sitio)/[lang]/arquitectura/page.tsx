@@ -2,23 +2,24 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { proyectos } from "@/lib/proyectos";
 import { srcSet, url } from "@/lib/media";
-import { ruta, t, type Lang } from "@/lib/i18n";
+import { ruta, type Lang } from "@/lib/i18n";
+import { dic } from "@/lib/textos";
 
 export const revalidate = 3600;
 
 export async function generateMetadata({
   params,
 }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
-  return { title: t((await params).lang).arq.titulo };
+  return { title: (await dic((await params).lang)).arq.titulo };
 }
 
 export default async function Arquitectura({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params;
-  const lista = await proyectos();
+  const [lista, d] = await Promise.all([proyectos(), dic(lang)]);
 
   return (
     <main className="mx-auto max-w-[1600px] px-5 pt-14 md:px-10 md:pt-20">
-      <h1 className="display">{t(lang).arq.titulo}</h1>
+      <h1 className="display">{d.arq.titulo}</h1>
 
       <div className="mt-16 grid gap-16 md:grid-cols-2">
         {lista.map((p) => (

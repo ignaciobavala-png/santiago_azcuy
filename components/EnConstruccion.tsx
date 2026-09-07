@@ -1,14 +1,16 @@
 import Link from "next/link";
-import { ruta, t, type Lang } from "@/lib/i18n";
+import { ruta, type Lang } from "@/lib/i18n";
 
 /** Marcador de seccion: la estructura y la nav ya existen, falta cargar. */
 export function EnConstruccion({
   titulo,
   nota,
+  mientras,
   lang,
 }: {
   titulo: string;
   nota: string;
+  mientras: string;
   lang: Lang;
 }) {
   return (
@@ -19,7 +21,7 @@ export function EnConstruccion({
         href={ruta(lang, "/obras")}
         className="etiqueta mt-8 inline-block underline-offset-8 hover:underline"
       >
-        {t(lang).err.mientras}
+        {mientras}
       </Link>
     </main>
   );

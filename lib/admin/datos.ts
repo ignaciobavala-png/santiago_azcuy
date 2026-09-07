@@ -1,6 +1,9 @@
 import { admin } from "./cliente";
 import type { Obra, Serie, Categoria } from "@/lib/tipos";
 import type { Proyecto } from "@/lib/proyectos";
+import { t } from "@/lib/i18n";
+import { PREFIJO, aplanar } from "@/lib/textos";
+import { SECCIONES, etiquetaDe, huecosDe } from "./catalogo-textos";
 
 /**
  * Lecturas del panel. Usan el cliente con service key a proposito: las paginas
@@ -55,23 +58,82 @@ export async function seriesAdmin(): Promise<Serie[]> {
   return (data ?? []) as Serie[];
 }
 
-export type TextoAdmin = {
+export type CampoTexto = {
+  /** `statement` para los bloques largos, `ui.home.ver` para el resto. */
   clave: string;
-  titulo: string | null;
+  etiqueta: string;
+  /** Lo que sale si el campo queda vacio: el texto del codigo. */
+  porDefecto: { es: string; en: string };
   es: string;
   en: string;
+  huecos: string[];
 };
 
-/** Las claves base con su traduccion al lado, aunque la fila `.en` no exista. */
-export async function textosAdmin(): Promise<TextoAdmin[]> {
+export type GrupoTexto = {
+  id: string;
+  titulo: string;
+  nota?: string;
+  campos: CampoTexto[];
+};
+
+/**
+ * Todo lo escribible del sitio, en grupos que siguen el recorrido de la pagina.
+ *
+ * Son dos familias distintas con la misma tabla detras. Los bloques largos
+ * (biografia, statement, sinopsis) no existen en el codigo: si estan vacios, en
+ * el sitio no hay nada que mostrar. El resto son frases que el codigo ya trae
+ * escritas y la tabla solo pisa, asi que vaciar el campo no borra: devuelve el
+ * texto original.
+ */
+export async function textosAdmin(): Promise<GrupoTexto[]> {
   const { data, error } = await admin().from("textos").select("clave,titulo,contenido");
   if (error) throw error;
   const filas = (data ?? []) as { clave: string; titulo: string | null; contenido: string }[];
-  const es = filas.filter((f) => !f.clave.endsWith(".en"));
-  const en = new Map(filas.filter((f) => f.clave.endsWith(".en")).map((f) => [f.clave, f.contenido]));
-  return es
-    .map((f) => ({ clave: f.clave, titulo: f.titulo, es: f.contenido, en: en.get(`${f.clave}.en`) ?? "" }))
-    .sort((a, b) => a.clave.localeCompare(b.clave, "es"));
+
+  const guardado = new Map(filas.map((f) => [f.clave, f.contenido]));
+  const par = (clave: string) => ({
+    es: guardado.get(clave) ?? "",
+    en: guardado.get(`${clave}.en`) ?? "",
+  });
+
+  const largos = filas
+    .filter((f) => !f.clave.endsWith(".en") && !f.clave.startsWith(PREFIJO))
+    .sort((a, b) => a.clave.localeCompare(b.clave, "es"))
+    .map<CampoTexto>((f) => ({
+      clave: f.clave,
+      etiqueta: f.titulo ?? f.clave,
+      porDefecto: { es: "", en: "" },
+      huecos: [],
+      ...par(f.clave),
+    }));
+
+  const porDefectoEs = aplanar(t("es"));
+  const porDefectoEn = aplanar(t("en"));
+
+  const grupos = SECCIONES.map<GrupoTexto>(({ id, titulo, nota }) => ({
+    id,
+    titulo,
+    nota,
+    campos: Object.keys(porDefectoEs)
+      .filter((ruta) => ruta.startsWith(`${id}.`))
+      .map<CampoTexto>((ruta) => ({
+        clave: `${PREFIJO}${ruta}`,
+        etiqueta: etiquetaDe(ruta),
+        porDefecto: { es: porDefectoEs[ruta], en: porDefectoEn[ruta] },
+        huecos: huecosDe(porDefectoEs[ruta]),
+        ...par(`${PREFIJO}${ruta}`),
+      })),
+  }));
+
+  return [
+    {
+      id: "bloques",
+      titulo: "Bloques largos",
+      nota: "Los textos que no viven en el código: si quedan vacíos, el sitio no muestra nada en su lugar.",
+      campos: largos,
+    },
+    ...grupos,
+  ];
 }
 
 const MUSICA_ADMIN =

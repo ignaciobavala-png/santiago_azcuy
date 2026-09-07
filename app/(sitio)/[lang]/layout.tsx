@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Inter } from "next/font/google";
 import { Cabecera, Pie } from "@/components/Marco";
 import { IDIOMAS, esIdioma, ruta, type Lang } from "@/lib/i18n";
+import { dic } from "@/lib/textos";
 import "../../globals.css";
 
 const inter = Inter({
@@ -22,11 +23,6 @@ export function generateStaticParams() {
   return IDIOMAS.map((lang) => ({ lang }));
 }
 
-const DESCRIPCION: Record<Lang, string> = {
-  es: "Obra de Santiago Azcuy: pintura, dibujo, música, arquitectura y El Aprendiz.",
-  en: "The work of Santiago Azcuy: painting, drawing, music, architecture and The Apprentice.",
-};
-
 export async function generateMetadata({
   params,
 }: {
@@ -34,11 +30,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang } = await params;
   const l: Lang = esIdioma(lang) ? lang : "es";
+  const d = await dic(l);
 
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
     title: { default: "Santiago Azcuy", template: "%s — Santiago Azcuy" },
-    description: DESCRIPCION[l],
+    description: d.meta.descripcion,
     // El español no lleva prefijo, asi que las alternas se escriben a mano.
     alternates: {
       canonical: ruta(l, "/"),
@@ -56,6 +53,7 @@ export default async function RootLayout({
 }) {
   const { lang } = await params;
   if (!esIdioma(lang)) notFound();
+  const d = await dic(lang);
 
   return (
     <html lang={lang} className={inter.variable} suppressHydrationWarning>
@@ -63,9 +61,9 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: TEMA }} />
       </head>
       <body className="min-h-screen antialiased">
-        <Cabecera lang={lang} />
+        <Cabecera lang={lang} nav={d.nav} />
         {children}
-        <Pie lang={lang} />
+        <Pie cierre={d.cierre.obra} />
       </body>
     </html>
   );

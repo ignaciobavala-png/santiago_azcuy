@@ -2,7 +2,8 @@ import Link from "next/link";
 import { CarruselObras } from "@/components/CarruselObras";
 import { ObraCard } from "@/components/ObraCard";
 import { obras, conteos, texto } from "@/lib/consultas";
-import { ruta, t, type Lang } from "@/lib/i18n";
+import { fmt, ruta, type Lang } from "@/lib/i18n";
+import { dic } from "@/lib/textos";
 
 export const revalidate = 3600;
 
@@ -14,7 +15,7 @@ export const revalidate = 3600;
  */
 export default async function Home({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params;
-  const d = t(lang);
+  const d = await dic(lang);
 
   const [lista, elegidas, c, statement] = await Promise.all([
     obras({ limite: 17 }),
@@ -43,7 +44,7 @@ export default async function Home({ params }: { params: Promise<{ lang: Lang }>
             {statement || d.home.statement}
           </p>
           <Link href={ruta(lang, "/obras")} className="etiqueta underline-offset-8 hover:underline">
-            {d.home.verObras(c.total)}
+            {fmt(d.home.verObras, { n: c.total })}
           </Link>
         </div>
       </section>

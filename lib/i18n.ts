@@ -40,7 +40,7 @@ const es = {
   home: {
     statement:
       "Pintura, dibujo, música y arquitectura. Una obra atravesada por lo cósmico y lo místico.",
-    verObras: (n: number) => `Ver las ${n} obras →`,
+    verObras: "Ver las {n} obras →",
     musicaEtiqueta: "Música",
     musicaTitulo: "Discos, videos y shows",
     musicaTexto: "La obra sonora, embebida desde las plataformas donde ya vive.",
@@ -55,7 +55,8 @@ const es = {
   obras: {
     titulo: "Obras",
     vacio: "No hay obras que combinen esos filtros.",
-    cuenta: (n: number) => `${n} ${n === 1 ? "obra" : "obras"}`,
+    cuentaUna: "{n} obra",
+    cuentaVarias: "{n} obras",
     todo: "Todo",
     porEncargo: "Por encargo",
     categoria: "Categoría",
@@ -68,7 +69,7 @@ const es = {
     disponible: "Disponible",
     noDisponible: "No disponible",
     consultar: "Consultar por esta obra",
-    mas: (cat: string) => `Más ${cat.toLowerCase()}`,
+    mas: "Más {categoria}",
     categorias: { figurativo: "Figurativo", abstracto: "Abstracto", dibujo: "Dibujo" },
   },
   musica: {
@@ -82,7 +83,7 @@ const es = {
     temas: "Temas y presentaciones",
     verCanal: "Ver el canal completo en YouTube →",
     verSpotify: "Ver el perfil en Spotify →",
-    reproducir: (t: string) => `Reproducir «${t}»`,
+    reproducir: "Reproducir «{titulo}»",
     cargando: "Cargando el reproductor…",
   },
   libro: {
@@ -90,7 +91,7 @@ const es = {
     subtitulo: "Ciudad Intradorada",
     sinopsis:
       "Una historia fantástica con una enseñanza oculta entre líneas. Algo de magia, algo de ficción y algo de realidad.",
-    ficha: (caps: number, palabras: string) => `${caps} capítulos · ${palabras} palabras`,
+    ficha: "{capitulos} capítulos · {palabras} palabras",
     seguir: "Seguir leyendo →",
     indice: "Índice",
     puertaLabel: "Dejá tu mail y leelo completo",
@@ -109,15 +110,19 @@ const es = {
     anio: "Año",
     estado: "Estado",
     laminas: "Láminas",
-    lamina: (t: string, i: number) => `${t}, lámina ${i}`,
+    lamina: "{titulo}, lámina {n}",
   },
   sobre: { titulo: "Sobre", nota: "Biografía, statement y recorrido. Pendiente de carga." },
   contacto: { titulo: "Contacto", nota: "Formulario de consulta. Pendiente de carga." },
   cierre: { obra: "Pintura, música,\narquitectura y palabra." },
+  meta: {
+    descripcion:
+      "Obra de Santiago Azcuy: pintura, dibujo, música, arquitectura y El Aprendiz.",
+  },
   err: {
     titulo: "404",
     texto: "Esta página no existe.",
-    volver: "Volver al inicio →",
+    volver: "Volver al inicio",
     mientras: "Mientras tanto, ver las obras →",
   },
 };
@@ -139,7 +144,7 @@ const en: typeof es = {
   home: {
     statement:
       "Painting, drawing, music and architecture. A body of work run through by the cosmic and the mystical.",
-    verObras: (n: number) => `See all ${n} works →`,
+    verObras: "See all {n} works →",
     musicaEtiqueta: "Music",
     musicaTitulo: "Albums, videos and shows",
     musicaTexto: "The sound work, embedded from the platforms where it already lives.",
@@ -154,7 +159,8 @@ const en: typeof es = {
   obras: {
     titulo: "Works",
     vacio: "No works match those filters.",
-    cuenta: (n: number) => `${n} ${n === 1 ? "work" : "works"}`,
+    cuentaUna: "{n} work",
+    cuentaVarias: "{n} works",
     todo: "All",
     porEncargo: "Commissioned",
     categoria: "Category",
@@ -167,7 +173,7 @@ const en: typeof es = {
     disponible: "Available",
     noDisponible: "Not available",
     consultar: "Ask about this work",
-    mas: (cat: string) => `More ${cat.toLowerCase()}`,
+    mas: "More {categoria}",
     categorias: { figurativo: "Figurative", abstracto: "Abstract", dibujo: "Drawing" },
   },
   musica: {
@@ -181,7 +187,7 @@ const en: typeof es = {
     temas: "Tracks and appearances",
     verCanal: "See the full channel on YouTube →",
     verSpotify: "See the Spotify profile →",
-    reproducir: (t: string) => `Play “${t}”`,
+    reproducir: "Play “{titulo}”",
     cargando: "Loading the player…",
   },
   libro: {
@@ -189,7 +195,7 @@ const en: typeof es = {
     subtitulo: "Ciudad Intradorada",
     sinopsis:
       "A fantastical story with a teaching hidden between the lines. Some magic, some fiction and some truth. Written in Spanish.",
-    ficha: (caps: number, palabras: string) => `${caps} chapters · ${palabras} words`,
+    ficha: "{capitulos} chapters · {palabras} words",
     seguir: "Keep reading →",
     indice: "Contents",
     puertaLabel: "Leave your email and read it in full",
@@ -207,15 +213,19 @@ const en: typeof es = {
     anio: "Year",
     estado: "Status",
     laminas: "Plates",
-    lamina: (t: string, i: number) => `${t}, plate ${i}`,
+    lamina: "{titulo}, plate {n}",
   },
   sobre: { titulo: "About", nota: "Biography, statement and background. Not loaded yet." },
   contacto: { titulo: "Contact", nota: "Enquiry form. Not loaded yet." },
   cierre: { obra: "Painting, music,\narchitecture and the word." },
+  meta: {
+    descripcion:
+      "The work of Santiago Azcuy: painting, drawing, music, architecture and The Apprentice.",
+  },
   err: {
     titulo: "404",
     texto: "This page doesn't exist.",
-    volver: "Back to the start →",
+    volver: "Back to the start",
     mientras: "In the meantime, see the works →",
   },
 };
@@ -227,3 +237,14 @@ export const t = (lang: Lang): Diccionario => DICC[lang];
 
 /** Formato de miles segun idioma: 70.271 en español, 70,271 en inglés. */
 export const miles = (n: number, lang: Lang) => n.toLocaleString(lang === "es" ? "es-AR" : "en-US");
+
+/**
+ * Rellena los huecos `{clave}` de una plantilla. Las frases con numeros o
+ * titulos adentro se guardan asi, en vez de como funciones, para que Santiago
+ * pueda reescribirlas desde el panel sin tocar codigo: lo unico que tiene que
+ * respetar es dejar el hueco donde va el dato.
+ */
+export const fmt = (plantilla: string, vals: Record<string, string | number>) =>
+  plantilla.replace(/\{(\w+)\}/g, (hueco, clave) =>
+    clave in vals ? String(vals[clave]) : hueco
+  );

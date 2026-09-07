@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { obra, obras } from "@/lib/consultas";
 import { srcSet, url } from "@/lib/media";
-import { IDIOMAS, ruta, t, type Lang } from "@/lib/i18n";
+import { IDIOMAS, fmt, ruta, type Lang } from "@/lib/i18n";
+import { dic } from "@/lib/textos";
 import { ficha } from "@/lib/tipos";
 import { ObraCard } from "@/components/ObraCard";
 
@@ -39,7 +40,7 @@ export default async function PaginaObra({
   params: Promise<{ lang: Lang; slug: string }>;
 }) {
   const { lang, slug } = await params;
-  const d = t(lang);
+  const d = await dic(lang);
   const o = await obra(slug);
   if (!o) notFound();
 
@@ -104,7 +105,7 @@ export default async function PaginaObra({
       {relacionadas.length > 0 && (
         <section className="mx-auto max-w-[1600px] px-5 py-20 md:px-10">
           <h2 className="etiqueta mb-8 text-tinta-suave">
-            {d.obras.mas(d.obras.categorias[o.categoria])}
+            {fmt(d.obras.mas, { categoria: d.obras.categorias[o.categoria].toLowerCase() })}
           </h2>
           <div className="grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-4">
             {relacionadas.map((r) => (

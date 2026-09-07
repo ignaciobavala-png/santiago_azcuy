@@ -3,12 +3,13 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { capitulos } from "@/lib/libro";
-import { ruta, t, type Lang } from "@/lib/i18n";
+import { ruta, type Lang } from "@/lib/i18n";
+import { dic } from "@/lib/textos";
 
 export async function generateMetadata({
   params,
 }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
-  return { title: t((await params).lang).nav.libro, robots: { index: false } };
+  return { title: (await dic((await params).lang)).nav.libro, robots: { index: false } };
 }
 
 /**
@@ -17,7 +18,7 @@ export async function generateMetadata({
  */
 export default async function Leer({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params;
-  const d = t(lang);
+  const d = await dic(lang);
   if ((await cookies()).get("libro")?.value !== "1") redirect(ruta(lang, "/libro"));
 
   const caps = await capitulos();

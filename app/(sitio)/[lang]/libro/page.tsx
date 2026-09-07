@@ -7,18 +7,19 @@ import { srcSet, url } from "@/lib/media";
 import { indice } from "@/lib/libro";
 import { texto } from "@/lib/consultas";
 import { AUDIOLIBRO } from "@/lib/musica";
-import { miles, ruta, t, type Lang } from "@/lib/i18n";
+import { fmt, miles, ruta, type Lang } from "@/lib/i18n";
+import { dic } from "@/lib/textos";
 
 export async function generateMetadata({
   params,
 }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
-  const d = t((await params).lang);
+  const d = await dic((await params).lang);
   return { title: d.nav.libro, description: `${d.libro.subtitulo} — Santiago Azcuy.` };
 }
 
 export default async function Libro({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params;
-  const d = t(lang);
+  const d = await dic(lang);
   const [caps, sinopsis, ck] = await Promise.all([
     indice(),
     texto("libro.sinopsis", lang),
@@ -55,7 +56,7 @@ export default async function Libro({ params }: { params: Promise<{ lang: Lang }
           </p>
 
           <p className="etiqueta mt-8 text-tinta-suave">
-            {d.libro.ficha(caps.length, miles(palabras, lang))}
+            {fmt(d.libro.ficha, { capitulos: caps.length, palabras: miles(palabras, lang) })}
           </p>
 
           <div className="mt-10">
@@ -67,7 +68,7 @@ export default async function Libro({ params }: { params: Promise<{ lang: Lang }
                 {d.libro.seguir}
               </Link>
             ) : (
-              <PuertaLibro lang={lang} />
+              <PuertaLibro lang={lang} d={d.libro} />
             )}
           </div>
         </div>
@@ -90,7 +91,7 @@ export default async function Libro({ params }: { params: Promise<{ lang: Lang }
             id={AUDIOLIBRO.id}
             titulo={`${d.nav.libro} — ${d.libro.audioEtiqueta}`}
             miniatura="maxresdefault"
-            etiqueta={d.musica.reproducir(d.libro.audioEtiqueta)}
+            etiqueta={fmt(d.musica.reproducir, { titulo: d.libro.audioEtiqueta })}
             cargando={d.musica.cargando}
           />
         </div>

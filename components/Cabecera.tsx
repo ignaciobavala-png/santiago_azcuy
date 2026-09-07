@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BotonIdioma, BotonTema } from "@/components/Herramientas";
-import { ruta, t, type Diccionario, type Lang } from "@/lib/i18n";
+import { ruta, type Diccionario, type Lang } from "@/lib/i18n";
 
 const SECCIONES: { href: string; clave: keyof Diccionario["nav"] }[] = [
   { href: "/obras", clave: "obras" },
@@ -23,8 +23,7 @@ const SECCIONES: { href: string; clave: keyof Diccionario["nav"] }[] = [
  * El panel va en z-40, debajo del header en z-50, para que la barra siga
  * arriba y el mismo boton sirva para cerrar.
  */
-export function Cabecera({ lang }: { lang: Lang }) {
-  const d = t(lang);
+export function Cabecera({ lang, nav }: { lang: Lang; nav: Diccionario["nav"] }) {
   const [abierto, setAbierto] = useState(false);
 
   // Con el panel abierto el fondo no debe scrollear detras.
@@ -68,21 +67,21 @@ export function Cabecera({ lang }: { lang: Lang }) {
                   href={ruta(lang, s.href)}
                   className="etiqueta whitespace-nowrap text-tinta-media transition-colors hover:text-tinta"
                 >
-                  {d.nav[s.clave]}
+                  {nav[s.clave]}
                 </Link>
               </li>
             ))}
           </ul>
 
           <div className="ml-auto flex items-center gap-3 md:ml-8 md:gap-4">
-            <BotonTema etiqueta={d.nav.cambiarTema} />
+            <BotonTema etiqueta={nav.cambiarTema} />
             <span className="h-3.5 w-px bg-linea" aria-hidden />
-            <BotonIdioma lang={lang} etiqueta={d.nav.cambiarIdioma} />
+            <BotonIdioma lang={lang} etiqueta={nav.cambiarIdioma} />
 
             <button
               type="button"
               onClick={() => setAbierto((v) => !v)}
-              aria-label={abierto ? d.nav.cerrarMenu : d.nav.abrirMenu}
+              aria-label={abierto ? nav.cerrarMenu : nav.abrirMenu}
               aria-expanded={abierto}
               aria-controls="menu-movil"
               className="grid h-8 w-8 place-items-center md:hidden"
@@ -129,7 +128,7 @@ export function Cabecera({ lang }: { lang: Lang }) {
                       : undefined,
                   }}
                 >
-                  {d.nav[s.clave]}
+                  {nav[s.clave]}
                 </Link>
               </li>
             ))}
@@ -139,7 +138,7 @@ export function Cabecera({ lang }: { lang: Lang }) {
             tabIndex={abierto ? undefined : -1}
             className="etiqueta text-tinta-media"
           >
-            {d.nav.contacto}
+            {nav.contacto}
           </Link>
         </nav>
       </div>

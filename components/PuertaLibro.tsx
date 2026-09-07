@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ruta, t, type Lang } from "@/lib/i18n";
+import { ruta, type Diccionario, type Lang } from "@/lib/i18n";
 
-export function PuertaLibro({ lang }: { lang: Lang }) {
-  const d = t(lang).libro;
+export function PuertaLibro({ lang, d }: { lang: Lang; d: Diccionario["libro"] }) {
   const [email, setEmail] = useState("");
   const [estado, setEstado] = useState<"listo" | "enviando" | "error">("listo");
   const [mensaje, setMensaje] = useState("");
