@@ -35,7 +35,6 @@ const es = {
     contacto: "Contacto",
     abrirMenu: "Abrir el menú",
     cerrarMenu: "Cerrar el menú",
-    cambiarTema: "Cambiar entre claro y oscuro",
     cambiarIdioma: "Read in English",
   },
   home: {
@@ -189,7 +188,6 @@ const en: typeof es = {
     contacto: "Contact",
     abrirMenu: "Open menu",
     cerrarMenu: "Close menu",
-    cambiarTema: "Switch between light and dark",
     cambiarIdioma: "Leer en español",
   },
   home: {

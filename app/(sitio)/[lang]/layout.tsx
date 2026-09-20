@@ -12,13 +12,6 @@ const inter = Inter({
   display: "swap",
 });
 
-/**
- * Lee el tema guardado (o la preferencia del sistema) y lo aplica antes del
- * primer pintado. Si esto viviera en un efecto de React, cada visita en oscuro
- * arrancaria con un destello blanco a pantalla completa.
- */
-const TEMA = `try{var t=localStorage.getItem('tema')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}`;
-
 export function generateStaticParams() {
   return IDIOMAS.map((lang) => ({ lang }));
 }
@@ -56,10 +49,7 @@ export default async function RootLayout({
   const d = await dic(lang);
 
   return (
-    <html lang={lang} className={inter.variable} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: TEMA }} />
-      </head>
+    <html lang={lang} className={inter.variable}>
       <body className="min-h-screen antialiased">
         <Cabecera lang={lang} nav={d.nav} />
         {children}

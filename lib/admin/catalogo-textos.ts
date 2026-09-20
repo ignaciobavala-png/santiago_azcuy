@@ -32,7 +32,6 @@ export const ETIQUETAS: Record<string, string> = {
   "nav.contacto": "Contacto",
   "nav.abrirMenu": "Abrir el menú (lectores de pantalla)",
   "nav.cerrarMenu": "Cerrar el menú (lectores de pantalla)",
-  "nav.cambiarTema": "Botón claro/oscuro (lectores de pantalla)",
   "nav.cambiarIdioma": "Botón de idioma (lectores de pantalla)",
 
   // Portada

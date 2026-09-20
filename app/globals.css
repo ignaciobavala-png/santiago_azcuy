@@ -1,20 +1,19 @@
 @import "tailwindcss";
 
 /*
-  Cascara editorial casi blanca para indices y navegacion; las paginas de obra
-  van a casi negro. El sitio respira claro -> oscuro: la estructura limpia de
-  las referencias, pero dejando entrar la oscuridad donde la obra la pide.
+  El sitio vive solo en oscuro: Santiago pidio sacar la opcion clara. Las
+  paginas de obra ya iban a negro en los dos temas, asi que ahora toda la
+  cascara comparte esa misma oscuridad.
 */
 @theme {
-  --color-papel: #faf9f6;
-  --color-papel-alt: #f2f0eb;
-  --color-tinta: #14110f;
-  --color-tinta-media: #6b645d;
-  --color-tinta-suave: #a09890;
-  --color-linea: #e2ded6;
+  --color-papel: #0e0d0c;
+  --color-papel-alt: #171512;
+  --color-tinta: #f2efe9;
+  --color-tinta-media: #a09890;
+  --color-tinta-suave: #6b645d;
+  --color-linea: #2b2723;
 
-  /* Par fijo, no conmuta: las paginas de obra van a negro en los dos temas,
-     asi que su texto no puede depender de la variable que se invierte. */
+  /* Par fijo: las paginas de obra van a negro sin depender del tema. */
   --color-noche: #0b0a09;
   --color-luz: #faf9f6;
 
@@ -24,25 +23,10 @@
   --text-titular: clamp(1.75rem, 4.2vw, 3.5rem);
 }
 
-/*
-  Tema oscuro. Solo se redefinen los cuatro tokens que se invierten; noche y luz
-  quedan como estan a proposito. El atributo lo pone un script inline en el
-  <head>, antes del primer pintado, para que no haya destello blanco.
-*/
-html[data-theme="dark"] {
-  --color-papel: #0e0d0c;
-  --color-papel-alt: #171512;
-  --color-tinta: #f2efe9;
-  --color-tinta-media: #a09890;
-  --color-tinta-suave: #6b645d;
-  --color-linea: #2b2723;
-  color-scheme: dark;
-}
-
 html {
   -webkit-font-smoothing: antialiased;
   scroll-behavior: smooth;
-  color-scheme: light;
+  color-scheme: dark;
 
   /*
     Alto total de la barra, borde incluido. Vive en una variable porque el
@@ -237,18 +221,6 @@ body {
 @keyframes entrar {
   from { opacity: 0; transform: translateY(0.75rem); }
   to   { opacity: 1; transform: none; }
-}
-
-/* La mitad llena del icono de tema gira cuando el <html> pasa a oscuro. Vive
-   en CSS y no en estado de React para que el server no tenga que adivinar que
-   tema eligio el visitante. */
-.tema-mitad {
-  transform-origin: 10px 10px;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-html[data-theme="dark"] .tema-mitad {
-  transform: rotate(180deg);
 }
 
 /* Pista del carrusel: el scroll es real, pero la barra nativa ensucia una

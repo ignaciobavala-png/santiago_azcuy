@@ -38,7 +38,7 @@ export default async function Home({ params }: { params: Promise<{ lang: Lang }>
         <h1 className="md:col-span-8">
           <span className="sr-only">Santiago Azcuy</span>
           <span
-            className="firma firma-firmando block w-full max-w-[36rem] text-tinta"
+            className="firma firma-firmando block w-full max-w-[27rem] text-tinta"
             aria-hidden
           />
         </h1>

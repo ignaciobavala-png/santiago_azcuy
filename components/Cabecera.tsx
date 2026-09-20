@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { BotonIdioma, BotonTema } from "@/components/Herramientas";
+import { BotonIdioma } from "@/components/Herramientas";
 import { ruta, type Diccionario, type Lang } from "@/lib/i18n";
 
 const SECCIONES: { href: string; clave: keyof Diccionario["nav"] }[] = [
@@ -48,9 +48,12 @@ export function Cabecera({ lang, nav }: { lang: Lang; nav: Diccionario["nav"] })
     <>
       <header className="sticky top-0 z-50 border-b border-linea bg-papel/85 backdrop-blur-md">
         <nav className="mx-auto flex h-[calc(var(--alto-barra)-1px)] max-w-[1600px] items-center gap-6 px-5 md:px-10">
-          {/* Sin marca en la barra: la firma vive en el hero de la home y el
-              nombre no se repite en el chrome. La barra queda solo con el menu
-              y las herramientas. */}
+          {/* La firma repite la del hero para poder volver a la home desde
+              cualquier seccion sin depender del boton "atras". */}
+          <Link href={ruta(lang, "/")} aria-label="Santiago Azcuy">
+            <span className="firma block h-6 text-tinta" aria-hidden />
+          </Link>
+
           <ul className="ml-auto hidden gap-8 md:flex">
             {SECCIONES.map((s) => (
               <li key={s.href}>
@@ -65,8 +68,6 @@ export function Cabecera({ lang, nav }: { lang: Lang; nav: Diccionario["nav"] })
           </ul>
 
           <div className="ml-auto flex items-center gap-3 md:ml-8 md:gap-4">
-            <BotonTema etiqueta={nav.cambiarTema} />
-            <span className="h-3.5 w-px bg-linea" aria-hidden />
             <BotonIdioma lang={lang} etiqueta={nav.cambiarIdioma} />
 
             <button
