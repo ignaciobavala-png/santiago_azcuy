@@ -12,28 +12,58 @@ import { Aviso, Boton } from "@/components/admin/ui";
  * es el texto que sale hoy: mientras nadie escriba encima, eso es lo publicado.
  * Se guarda por grupo y no por campo para que corregir cinco frases de la
  * portada sea un boton y no cinco.
+ *
+ * Solo un grupo esta expandido a la vez (acordeon): antes se pintaban todos
+ * enteros uno debajo del otro y encontrar un campo era un scroll larguisimo.
+ * El link "Ver en la página" de cada grupo es la otra mitad del problema que
+ * marcó Santiago — sin eso, el nombre del grupo era la unica referencia de
+ * donde vive el texto que esta por tocar.
  */
 export function AdminTextos({ grupos }: { grupos: GrupoTexto[] }) {
+  const conCampos = useMemo(() => grupos.filter((g) => g.campos.length > 0), [grupos]);
+  const [abierto, setAbierto] = useState<string | null>(conCampos[0]?.id ?? null);
+
+  const item = (activo: boolean) =>
+    `etiqueta block w-full truncate border-l-2 px-3 py-1.5 text-left transition-colors ${
+      activo ? "border-tinta text-tinta" : "border-linea text-tinta-media hover:border-tinta-suave hover:text-tinta"
+    }`;
+
   return (
-    <>
-      <nav className="mt-8 flex flex-wrap gap-x-4 gap-y-2 border-y border-linea py-3">
-        {grupos.map((g) => (
-          <a
-            key={g.id}
-            href={`#grupo-${g.id}`}
-            className="etiqueta text-tinta-media underline-offset-4 hover:text-tinta hover:underline"
-          >
+    <div className="mt-8 grid gap-8 lg:grid-cols-[14rem_1fr] lg:items-start">
+      <nav className="hidden lg:sticky lg:top-6 lg:flex lg:flex-col lg:gap-0.5">
+        {conCampos.map((g) => (
+          <button key={g.id} type="button" onClick={() => setAbierto(g.id)} className={item(abierto === g.id)}>
             {g.titulo}
-          </a>
+          </button>
         ))}
       </nav>
 
-      <div className="mt-8 grid gap-10">
-        {grupos.map((g) => (
-          <Grupo key={g.id} grupo={g} />
+      <nav className="flex flex-wrap gap-x-4 gap-y-2 border-y border-linea py-3 lg:hidden">
+        {conCampos.map((g) => (
+          <button
+            key={g.id}
+            type="button"
+            onClick={() => setAbierto(g.id)}
+            className={`etiqueta underline-offset-4 ${
+              abierto === g.id ? "text-tinta underline" : "text-tinta-media hover:text-tinta hover:underline"
+            }`}
+          >
+            {g.titulo}
+          </button>
+        ))}
+      </nav>
+
+      <div className="grid gap-4">
+        {conCampos.map((g) => (
+          <Grupo
+            key={g.id}
+            grupo={g}
+            abierto={abierto === g.id}
+            onAbrir={() => setAbierto((actual) => (actual === g.id ? null : g.id))}
+          />
         ))}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -42,7 +72,15 @@ type Borrador = Record<string, { es: string; en: string }>;
 const inicial = (campos: CampoTexto[]): Borrador =>
   Object.fromEntries(campos.map((c) => [c.clave, { es: c.es, en: c.en }]));
 
-function Grupo({ grupo }: { grupo: GrupoTexto }) {
+function Grupo({
+  grupo,
+  abierto,
+  onAbrir,
+}: {
+  grupo: GrupoTexto;
+  abierto: boolean;
+  onAbrir: () => void;
+}) {
   const router = useRouter();
   const guardado = useMemo(() => inicial(grupo.campos), [grupo.campos]);
   const [borrador, setBorrador] = useState<Borrador>(guardado);
@@ -78,39 +116,59 @@ function Grupo({ grupo }: { grupo: GrupoTexto }) {
     }
   }
 
-  if (grupo.campos.length === 0) return null;
-
   return (
     <section id={`grupo-${grupo.id}`} className="scroll-mt-6 border border-linea">
-      <header className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-linea bg-papel-alt px-4 py-3">
-        <h2 className="text-[0.9375rem] font-medium">{grupo.titulo}</h2>
-        {grupo.nota && <p className="max-w-prose text-sm text-tinta-media">{grupo.nota}</p>}
+      <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 bg-papel-alt px-4 py-3">
+        <button type="button" onClick={onAbrir} className="flex flex-1 flex-wrap items-baseline gap-x-3 gap-y-1 text-left">
+          <span aria-hidden className="text-tinta-suave">
+            {abierto ? "▾" : "▸"}
+          </span>
+          <h2 className="text-[0.9375rem] font-medium">{grupo.titulo}</h2>
+          {grupo.nota && <p className="max-w-prose text-sm text-tinta-media">{grupo.nota}</p>}
+          {cambios.length > 0 && (
+            <span className="etiqueta text-tinta">{cambios.length} sin guardar</span>
+          )}
+        </button>
+        {grupo.ruta && (
+          <a
+            href={grupo.ruta}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="etiqueta shrink-0 text-tinta-media underline-offset-4 hover:text-tinta hover:underline"
+          >
+            Ver en la página ↗
+          </a>
+        )}
       </header>
 
-      <div className="divide-y divide-linea">
-        {grupo.campos.map((c) => (
-          <Campo
-            key={c.clave}
-            campo={c}
-            valor={borrador[c.clave]}
-            onEscribir={(idioma, v) => escribir(c.clave, idioma, v)}
-          />
-        ))}
-      </div>
+      {abierto && (
+        <>
+          <div className="divide-y divide-linea">
+            {grupo.campos.map((c) => (
+              <Campo
+                key={c.clave}
+                campo={c}
+                valor={borrador[c.clave]}
+                onEscribir={(idioma, v) => escribir(c.clave, idioma, v)}
+              />
+            ))}
+          </div>
 
-      <footer className="flex flex-wrap items-center gap-4 border-t border-linea px-4 py-3">
-        <Boton onClick={guardar} variante="solido" disabled={cambios.length === 0 || estado === "guardando"}>
-          {estado === "guardando" ? "Guardando…" : "Guardar"}
-        </Boton>
-        <span className="text-sm text-tinta-media">
-          {estado === "hecho" && cambios.length === 0
-            ? "Guardado. Ya está en vivo."
-            : cambios.length === 0
-              ? "Sin cambios."
-              : `${cambios.length} ${cambios.length === 1 ? "cambio" : "cambios"} sin guardar.`}
-        </span>
-        {error && <Aviso tipo="error">{error}</Aviso>}
-      </footer>
+          <footer className="flex flex-wrap items-center gap-4 border-t border-linea px-4 py-3">
+            <Boton onClick={guardar} variante="solido" disabled={cambios.length === 0 || estado === "guardando"}>
+              {estado === "guardando" ? "Guardando…" : "Guardar"}
+            </Boton>
+            <span className="text-sm text-tinta-media">
+              {estado === "hecho" && cambios.length === 0
+                ? "Guardado. Ya está en vivo."
+                : cambios.length === 0
+                  ? "Sin cambios."
+                  : `${cambios.length} ${cambios.length === 1 ? "cambio" : "cambios"} sin guardar.`}
+            </span>
+            {error && <Aviso tipo="error">{error}</Aviso>}
+          </footer>
+        </>
+      )}
     </section>
   );
 }

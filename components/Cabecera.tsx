@@ -1,18 +1,41 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BotonIdioma } from "@/components/Herramientas";
 import { ruta, type Diccionario, type Lang } from "@/lib/i18n";
 
-const SECCIONES: { href: string; clave: keyof Diccionario["nav"] }[] = [
+/**
+ * Encargos va al final y con un carrito: es la unica seccion del menu que es
+ * "comprar" y no "ver", y el orden se lo marca ese matiz.
+ */
+const SECCIONES: { href: string; clave: keyof Diccionario["nav"]; carrito?: boolean }[] = [
   { href: "/galeria", clave: "obras" },
-  { href: "/encargos", clave: "encargos" },
   { href: "/musica", clave: "musica" },
   { href: "/libro", clave: "libro" },
   { href: "/arquitectura", clave: "arquitectura" },
   { href: "/sobre", clave: "sobre" },
+  { href: "/encargos", clave: "encargos", carrito: true },
 ];
+
+/** Un carrito simple, del mismo trazo fino que el resto de los iconos de la barra. */
+function IconoCarrito() {
+  return (
+    <svg viewBox="0 0 20 20" className="h-[0.8em] w-[0.8em]" aria-hidden>
+      <path
+        d="M1.5 2h2l1.9 9.6a1.6 1.6 0 0 0 1.57 1.29h6.6a1.6 1.6 0 0 0 1.57-1.3L17 5.5H4.6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="7.5" cy="16.5" r="1.15" fill="currentColor" />
+      <circle cx="14" cy="16.5" r="1.15" fill="currentColor" />
+    </svg>
+  );
+}
 
 /**
  * Cliente por el menu movil. El panel tiene que quedar FUERA del <header>: un
@@ -26,6 +49,10 @@ const SECCIONES: { href: string; clave: keyof Diccionario["nav"] }[] = [
  */
 export function Cabecera({ lang, nav }: { lang: Lang; nav: Diccionario["nav"] }) {
   const [abierto, setAbierto] = useState(false);
+  // La firma ya esta en el hero de la home: repetirla en su propia barra
+  // duplicaria la marca en la misma pantalla. En el resto de las secciones es
+  // el unico camino de vuelta.
+  const enHome = usePathname() === ruta(lang, "/");
 
   // Con el panel abierto el fondo no debe scrollear detras.
   useEffect(() => {
@@ -49,18 +76,22 @@ export function Cabecera({ lang, nav }: { lang: Lang; nav: Diccionario["nav"] })
       <header className="sticky top-0 z-50 border-b border-linea bg-papel/85 backdrop-blur-md">
         <nav className="mx-auto flex h-[calc(var(--alto-barra)-1px)] max-w-[1600px] items-center gap-6 px-5 md:px-10">
           {/* La firma repite la del hero para poder volver a la home desde
-              cualquier seccion sin depender del boton "atras". */}
-          <Link href={ruta(lang, "/")} aria-label="Santiago Azcuy">
-            <span className="firma block h-6 text-tinta" aria-hidden />
-          </Link>
+              cualquier seccion sin depender del boton "atras"; en la home ya
+              esta en el hero, asi que aca no se repite. */}
+          {!enHome && (
+            <Link href={ruta(lang, "/")} aria-label="Santiago Azcuy">
+              <span className="firma block h-6 text-tinta" aria-hidden />
+            </Link>
+          )}
 
           <ul className="ml-auto hidden gap-8 md:flex">
             {SECCIONES.map((s) => (
               <li key={s.href}>
                 <Link
                   href={ruta(lang, s.href)}
-                  className="etiqueta whitespace-nowrap text-tinta-media transition-colors hover:text-tinta"
+                  className="etiqueta flex items-center gap-1.5 whitespace-nowrap text-tinta-media transition-colors hover:text-tinta"
                 >
+                  {s.carrito && <IconoCarrito />}
                   {nav[s.clave]}
                 </Link>
               </li>
@@ -113,13 +144,14 @@ export function Cabecera({ lang, nav }: { lang: Lang; nav: Diccionario["nav"] })
                 <Link
                   href={ruta(lang, s.href)}
                   tabIndex={abierto ? undefined : -1}
-                  className="titular block py-1.5 hover:opacity-55"
+                  className="titular flex items-center gap-2.5 py-1.5 hover:opacity-55"
                   style={{
                     animation: abierto
                       ? `entrar .5s cubic-bezier(.16,1,.3,1) ${i * 45}ms both`
                       : undefined,
                   }}
                 >
+                  {s.carrito && <IconoCarrito />}
                   {nav[s.clave]}
                 </Link>
               </li>

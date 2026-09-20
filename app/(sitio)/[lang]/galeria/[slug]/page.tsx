@@ -88,7 +88,13 @@ export default async function PaginaObra({
               {o.es_encargo && <Dato termino={d.obras.origen} valor={d.obras.encargo} />}
               <Dato
                 termino={d.obras.estado}
-                valor={o.disponible ? d.obras.disponible : d.obras.noDisponible}
+                valor={
+                  o.estado === "vendido"
+                    ? d.obras.vendido
+                    : o.estado === "disponible"
+                      ? d.obras.disponible
+                      : d.obras.noDisponible
+                }
               />
             </dl>
           </div>

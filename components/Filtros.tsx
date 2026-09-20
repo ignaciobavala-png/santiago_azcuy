@@ -14,7 +14,7 @@ export function Filtros({
   d,
 }: {
   lang: Lang;
-  categoria: Categoria;
+  categoria: Categoria | "encargos";
   encargo: boolean;
   d: Diccionario["obras"];
 }) {

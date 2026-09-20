@@ -134,11 +134,12 @@ body {
   las paginas de obra.
 
   La proporcion va aca y no en cada uso: el archivo esta recortado al trazo
-  (345x163), y si algun dia se reemplaza por otra version alcanza con tocar este
-  numero. Quien lo usa solo elige la altura.
+  (1468x724, la version en alta que mando Santiago), y si algun dia se
+  reemplaza por otra version alcanza con tocar este numero. Quien lo usa solo
+  elige la altura.
 */
 .firma {
-  aspect-ratio: 345 / 163;
+  aspect-ratio: 367 / 181;
   background-color: currentColor;
   -webkit-mask-image: url("/firma.webp");
   mask-image: url("/firma.webp");
@@ -148,28 +149,6 @@ body {
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
   mask-position: center;
-}
-
-/*
-  La firma del hero se dibuja sola, de izquierda a derecha, como si la
-  estuvieran firmando: un clip-path que corre sobre el trazo, CSS puro y sin
-  JS. Con la preferencia de movimiento reducido queda visible de una, entera:
-  la animacion es un adorno, no informacion, asi que no hay motivo para dejarla
-  a medias.
-*/
-@keyframes firmar {
-  from {
-    clip-path: inset(0 100% 0 0);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .firma-firmando {
-    animation: firmar 2.6s cubic-bezier(0.5, 0.05, 0.35, 1) both;
-  }
 }
 
 /*

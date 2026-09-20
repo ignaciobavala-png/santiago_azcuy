@@ -32,15 +32,12 @@ export default async function Home({ params }: { params: Promise<{ lang: Lang }>
   return (
     <main className="mx-auto max-w-[1600px] px-5 md:px-10">
       <section className="grid gap-10 pt-14 pb-16 md:grid-cols-12 md:pt-24 md:pb-20">
-        {/* El nombre en letras se fue al navbar; aca queda la firma, que se
-            dibuja sola al entrar. El texto sigue en el h1 para lectores de
-            pantalla y buscadores: la firma es una mascara, no dice nada. */}
+        {/* El nombre en letras se fue al navbar; aca queda la firma, fija. El
+            texto sigue en el h1 para lectores de pantalla y buscadores: la
+            firma es una mascara, no dice nada. */}
         <h1 className="md:col-span-8">
           <span className="sr-only">Santiago Azcuy</span>
-          <span
-            className="firma firma-firmando block w-full max-w-[27rem] text-tinta"
-            aria-hidden
-          />
+          <span className="firma block w-full max-w-[27rem] text-tinta" aria-hidden />
         </h1>
         <div className="flex flex-col justify-end gap-5 md:col-span-4">
           <p className="max-w-sm text-balance text-[1.0625rem] leading-relaxed text-tinta-media">

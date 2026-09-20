@@ -4,12 +4,16 @@ import { admin } from "./cliente";
 import { exigirAdmin } from "./sesion";
 import { invalidarSitio } from "./revalidar";
 import { borrarTres, firmarTres, type Firma } from "./subida";
-import { CATEGORIAS, type Categoria } from "@/lib/tipos";
+import { CATEGORIAS, ESTADOS_OBRA, type Categoria, type EstadoObra } from "@/lib/tipos";
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 function esCategoria(v: unknown): v is Categoria {
   return typeof v === "string" && (CATEGORIAS as string[]).includes(v);
+}
+
+function esEstadoObra(v: unknown): v is EstadoObra {
+  return typeof v === "string" && (ESTADOS_OBRA as string[]).includes(v);
 }
 
 export type CamposObra = {
@@ -22,7 +26,7 @@ export type CamposObra = {
   serie_id?: string | null;
   es_encargo?: boolean;
   destacada?: boolean;
-  disponible?: boolean;
+  estado?: EstadoObra;
   publicada?: boolean;
   descripcion?: string | null;
   orden?: number;
@@ -57,11 +61,15 @@ function limpiarCampos(campos: CamposObra): Partial<Record<string, unknown>> {
     }
   }
   if (campos.serie_id !== undefined) limpios.serie_id = textoOpc(campos.serie_id);
-  for (const k of ["es_encargo", "destacada", "disponible", "publicada"] as const) {
+  for (const k of ["es_encargo", "destacada", "publicada"] as const) {
     if (campos[k] !== undefined) {
       if (!bool(campos[k])) throw new Error(`${k} no es valido.`);
       limpios[k] = campos[k];
     }
+  }
+  if (campos.estado !== undefined) {
+    if (!esEstadoObra(campos.estado)) throw new Error("Estado no valido.");
+    limpios.estado = campos.estado;
   }
   if (campos.orden !== undefined) {
     if (!Number.isInteger(campos.orden)) throw new Error("El orden tiene que ser un entero.");
@@ -95,7 +103,7 @@ export async function crearObra(datos: {
   serie_id?: string | null;
   es_encargo: boolean;
   destacada: boolean;
-  disponible: boolean;
+  estado: EstadoObra;
   publicada: boolean;
   descripcion?: string | null;
   orden: number;
@@ -108,6 +116,7 @@ export async function crearObra(datos: {
   if (!titulo) throw new Error("El titulo no puede quedar vacio.");
   if (!SLUG.test(datos.slug)) throw new Error("El slug no es valido.");
   if (!esCategoria(datos.categoria)) throw new Error("Elegi una categoria.");
+  if (!esEstadoObra(datos.estado)) throw new Error("Estado no valido.");
 
   const { error } = await admin().from("obras").insert({
     slug: datos.slug,
@@ -120,7 +129,7 @@ export async function crearObra(datos: {
     serie_id: datos.serie_id?.trim() || null,
     es_encargo: datos.es_encargo,
     destacada: datos.destacada,
-    disponible: datos.disponible,
+    estado: datos.estado,
     publicada: datos.publicada,
     descripcion: datos.descripcion?.trim() || null,
     orden: Number.isInteger(datos.orden) ? datos.orden : 0,

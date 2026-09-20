@@ -19,7 +19,7 @@ export function CategoriaCard({
   obras,
   lang,
 }: {
-  categoria: Categoria;
+  categoria: Categoria | "encargos";
   etiqueta: string;
   cuenta: number;
   obras: Obra[];

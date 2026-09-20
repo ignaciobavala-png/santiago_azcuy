@@ -1,5 +1,8 @@
 export type Categoria = "figurativo" | "abstracto" | "dibujo";
 
+export type EstadoObra = "disponible" | "vendido" | "no_disponible";
+export const ESTADOS_OBRA: EstadoObra[] = ["disponible", "vendido", "no_disponible"];
+
 export type Obra = {
   id: string;
   slug: string;
@@ -12,7 +15,7 @@ export type Obra = {
   serie_id: string | null;
   es_encargo: boolean;
   destacada: boolean;
-  disponible: boolean;
+  estado: EstadoObra;
   descripcion: string | null;
   imagen: string;
   imagen_w: number;

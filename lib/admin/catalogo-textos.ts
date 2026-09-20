@@ -7,16 +7,21 @@ import { type Diccionario } from "@/lib/i18n";
  * clave, asi que agregar una frase al diccionario nunca deja el panel roto:
  * como mucho aparece con un nombre feo hasta que se le escribe uno.
  */
-export const SECCIONES: { id: keyof Diccionario; titulo: string; nota?: string }[] = [
-  { id: "home", titulo: "Portada", nota: "El nombre, la bajada y el enlace a la galería." },
-  { id: "obras", titulo: "Galería", nota: "Listado, filtros y la ficha de cada obra." },
-  { id: "encargos", titulo: "Encargos", nota: "Formulario de proyectos por encargo." },
-  { id: "musica", titulo: "Música" },
-  { id: "libro", titulo: "El Aprendiz" },
-  { id: "arq", titulo: "Arquitectura" },
-  { id: "sobre", titulo: "Sobre" },
-  { id: "contacto", titulo: "Contacto" },
-  { id: "nav", titulo: "Menú", nota: "Los nombres de las secciones y los botones de la barra." },
+/**
+ * `ruta` es la pagina real donde vive ese grupo: el panel la ofrece como
+ * enlace ("Ver en la página ↗") para que Santiago pueda mirar el texto en su
+ * lugar antes de tocarlo, en vez de adivinar por el nombre del grupo.
+ */
+export const SECCIONES: { id: keyof Diccionario; titulo: string; nota?: string; ruta?: string }[] = [
+  { id: "home", titulo: "Portada", nota: "El nombre, la bajada y el enlace a la galería.", ruta: "/" },
+  { id: "obras", titulo: "Galería", nota: "Listado, filtros y la ficha de cada obra.", ruta: "/galeria" },
+  { id: "encargos", titulo: "Encargos", nota: "Formulario de proyectos por encargo.", ruta: "/encargos" },
+  { id: "musica", titulo: "Música", ruta: "/musica" },
+  { id: "libro", titulo: "El Aprendiz", ruta: "/libro" },
+  { id: "arq", titulo: "Arquitectura", ruta: "/arquitectura" },
+  { id: "sobre", titulo: "Sobre", ruta: "/sobre" },
+  { id: "contacto", titulo: "Contacto", ruta: "/contacto" },
+  { id: "nav", titulo: "Menú", nota: "Los nombres de las secciones y los botones de la barra.", ruta: "/" },
   { id: "err", titulo: "Página no encontrada", nota: "También el enlace del pie de Sobre y Contacto." },
   { id: "meta", titulo: "Buscadores", nota: "No se ve en la página: es lo que muestra Google." },
 ];
@@ -26,7 +31,7 @@ export const ETIQUETAS: Record<string, string> = {
   "nav.obras": "Galería",
   "nav.encargos": "Encargos",
   "nav.musica": "Música",
-  "nav.libro": "El Aprendiz",
+  "nav.libro": "Novela",
   "nav.arquitectura": "Arquitectura",
   "nav.sobre": "Sobre",
   "nav.contacto": "Contacto",
@@ -53,12 +58,14 @@ export const ETIQUETAS: Record<string, string> = {
   "obras.encargo": "Ficha — valor «por encargo»",
   "obras.estado": "Ficha — estado",
   "obras.disponible": "Ficha — disponible",
+  "obras.vendido": "Ficha — vendido",
   "obras.noDisponible": "Ficha — no disponible",
   "obras.consultar": "Botón de consulta",
   "obras.mas": "Enlace a más obras de la categoría",
   "obras.categorias.figurativo": "Categoría figurativo",
   "obras.categorias.abstracto": "Categoría abstracto",
   "obras.categorias.dibujo": "Categoría dibujo",
+  "obras.categorias.encargos": "Categoría encargos (índice de Galería)",
 
   // Encargos
   "encargos.titulo": "Título de la página",

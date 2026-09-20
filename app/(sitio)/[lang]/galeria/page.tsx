@@ -1,9 +1,10 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { CategoriaCard } from "@/components/CategoriaCard";
 import { Filtros } from "@/components/Filtros";
 import { ObraCard } from "@/components/ObraCard";
 import { obras, conteos } from "@/lib/consultas";
-import { fmt, type Lang } from "@/lib/i18n";
+import { fmt, ruta, type Lang } from "@/lib/i18n";
 import { dic } from "@/lib/textos";
 import { CATEGORIAS, type Categoria } from "@/lib/tipos";
 
@@ -17,6 +18,11 @@ export async function generateMetadata({
 
 const VALIDAS = new Set<string>(CATEGORIAS);
 
+/** La categoria real de la obra (figurativo/abstracto/dibujo), o la seccion
+ *  virtual "encargos": no es un valor de `categoria` en la base, es un cruce
+ *  por `es_encargo` que se muestra como si fuera una categoria mas. */
+type Seccion = Categoria | "encargos";
+
 export default async function Galeria({
   params,
   searchParams,
@@ -26,17 +32,22 @@ export default async function Galeria({
 }) {
   const [{ lang }, p] = await Promise.all([params, searchParams]);
   const d = await dic(lang);
-  const categoria = p.categoria && VALIDAS.has(p.categoria) ? (p.categoria as Categoria) : undefined;
+  const seccion: Seccion | undefined =
+    p.categoria === "encargos" ? "encargos" : p.categoria && VALIDAS.has(p.categoria) ? (p.categoria as Categoria) : undefined;
   const encargo = p.encargo === "1";
 
-  // Sin categoria elegida: un indice de cards, una por categoria, con las
-  // obras de cada una pasando detras del titulo. Santiago prefirio esto a
-  // entrar directo a una grilla mezclada — la categoria se elige antes de ver
-  // las obras, no despues con un filtro encima de todo.
-  if (!categoria) {
+  // Sin seccion elegida: un indice de cards, una por categoria (mas Encargos,
+  // si hay alguna obra taggeada), con las obras de cada una pasando detras del
+  // titulo. Santiago prefirio esto a entrar directo a una grilla mezclada — la
+  // categoria se elige antes de ver las obras, no despues con un filtro
+  // encima de todo.
+  if (!seccion) {
     const c = await conteos();
     const conObras = CATEGORIAS.filter((cat) => c[cat] > 0);
-    const porCategoria = await Promise.all(conObras.map((cat) => obras({ categoria: cat, limite: 6 })));
+    const [porCategoria, obrasEncargos] = await Promise.all([
+      Promise.all(conObras.map((cat) => obras({ categoria: cat, limite: 6 }))),
+      c.encargos > 0 ? obras({ encargo: true, limite: 6 }) : Promise.resolve([]),
+    ]);
 
     return (
       <main className="mx-auto max-w-[1600px] px-5 md:px-10">
@@ -55,18 +66,37 @@ export default async function Galeria({
               lang={lang}
             />
           ))}
+          {c.encargos > 0 && (
+            <CategoriaCard
+              categoria="encargos"
+              etiqueta={d.obras.categorias.encargos}
+              cuenta={c.encargos}
+              obras={obrasEncargos}
+              lang={lang}
+            />
+          )}
         </section>
       </main>
     );
   }
 
-  const lista = await obras({ categoria, encargo });
+  const esEncargos = seccion === "encargos";
+  const lista = await obras(esEncargos ? { encargo: true } : { categoria: seccion, encargo });
 
   return (
     <main className="mx-auto max-w-[1600px] px-5 md:px-10">
       <header className="flex flex-col gap-8 pt-14 pb-10 md:pt-20">
-        <h1 className="display">{d.obras.categorias[categoria]}</h1>
-        <Filtros lang={lang} categoria={categoria} encargo={encargo} d={d.obras} />
+        <h1 className="display">{d.obras.categorias[seccion]}</h1>
+        {esEncargos ? (
+          <Link
+            href={ruta(lang, "/galeria")}
+            className="etiqueta text-tinta-media transition-colors hover:text-tinta"
+          >
+            ‹ {d.obras.todo}
+          </Link>
+        ) : (
+          <Filtros lang={lang} categoria={seccion} encargo={encargo} d={d.obras} />
+        )}
       </header>
 
       {lista.length === 0 ? (

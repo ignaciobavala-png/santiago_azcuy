@@ -3,7 +3,7 @@ import type { Categoria, Obra } from "./tipos";
 import type { Lang } from "./i18n";
 
 const CAMPOS =
-  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,destacada,disponible,descripcion,imagen,imagen_w,imagen_h,blur";
+  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,destacada,estado,descripcion,imagen,imagen_w,imagen_h,blur";
 
 export async function obras(filtros: {
   categoria?: Categoria;
@@ -36,11 +36,13 @@ export async function obra(slug: string): Promise<Obra | null> {
 }
 
 export async function conteos() {
-  const { data } = await supabase.from("obras").select("categoria");
-  const c = { total: 0, figurativo: 0, abstracto: 0, dibujo: 0 } as Record<string, number>;
+  const { data } = await supabase.from("obras").select("categoria,es_encargo");
+  const c = { total: 0, figurativo: 0, abstracto: 0, dibujo: 0, encargos: 0 } as Record<string, number>;
   for (const r of data ?? []) {
+    const fila = r as { categoria: string; es_encargo: boolean };
     c.total++;
-    c[(r as { categoria: string }).categoria]++;
+    c[fila.categoria]++;
+    if (fila.es_encargo) c.encargos++;
   }
   return c;
 }

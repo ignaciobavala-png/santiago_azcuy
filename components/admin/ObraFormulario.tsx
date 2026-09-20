@@ -10,8 +10,14 @@ import {
 import { esHeic, procesarImagen, subirImagenesFirmadas } from "@/lib/imagen-navegador";
 import type { ObraAdmin } from "@/lib/admin/datos";
 import { Aviso, Boton, Campo } from "@/components/admin/ui";
-import { CATEGORIAS, type Categoria, type Serie } from "@/lib/tipos";
+import { CATEGORIAS, ESTADOS_OBRA, type Categoria, type EstadoObra, type Serie } from "@/lib/tipos";
 import { slugDesde } from "@/lib/slug";
+
+const ETIQUETA_ESTADO: Record<EstadoObra, string> = {
+  disponible: "Disponible",
+  vendido: "Vendido",
+  no_disponible: "No disponible",
+};
 
 const fmtComa = (n: number | null) => {
   if (n === null || n === undefined) return "";
@@ -46,7 +52,7 @@ export function ObraFormulario({
   const [serie, setSerie] = useState(obra?.serie_id ?? "");
   const [esEncargo, setEsEncargo] = useState(obra?.es_encargo ?? false);
   const [destacada, setDestacada] = useState(obra?.destacada ?? false);
-  const [disponible, setDisponible] = useState(obra?.disponible ?? true);
+  const [estadoObra, setEstadoObra] = useState<EstadoObra>(obra?.estado ?? "disponible");
   const [publicada, setPublicada] = useState(obra?.publicada ?? true);
   const [descripcion, setDescripcion] = useState(obra?.descripcion ?? "");
   const [orden, setOrden] = useState(String(obra?.orden ?? 0));
@@ -92,7 +98,7 @@ export function ObraFormulario({
       serie_id: serie || null,
       es_encargo: esEncargo,
       destacada,
-      disponible,
+      estado: estadoObra,
       publicada,
       descripcion: descripcion.trim() || null,
       orden: ordenN,
@@ -252,7 +258,6 @@ export function ObraFormulario({
           [
             ["esEncargo", "Por encargo", esEncargo, setEsEncargo],
             ["destacada", "Destacada", destacada, setDestacada],
-            ["disponible", "Disponible", disponible, setDisponible],
             ["publicada", "Publicada", publicada, setPublicada],
           ] as const
         ).map(([k, etiqueta, valor, set]) => (
@@ -261,6 +266,20 @@ export function ObraFormulario({
             <span className="text-sm text-tinta-media">{etiqueta}</span>
           </label>
         ))}
+        <label className="flex items-center gap-1.5">
+          <span className="text-sm text-tinta-media">Estado</span>
+          <select
+            value={estadoObra}
+            onChange={(e) => setEstadoObra(e.target.value as EstadoObra)}
+            className="rounded-md border border-linea bg-papel px-2 py-1.5 text-sm outline-none focus:border-tinta-media"
+          >
+            {ESTADOS_OBRA.map((e) => (
+              <option key={e} value={e}>
+                {ETIQUETA_ESTADO[e]}
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="ml-auto flex items-center gap-1.5">
           <span className="text-sm text-tinta-media">Orden</span>
           <input

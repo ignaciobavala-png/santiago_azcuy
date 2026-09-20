@@ -6,6 +6,13 @@ import { useRouter } from "next/navigation";
 import { actualizarObra } from "@/lib/admin/acciones-obras";
 import type { ObraAdmin } from "@/lib/admin/datos";
 import { url } from "@/lib/media";
+import { ESTADOS_OBRA, type EstadoObra } from "@/lib/tipos";
+
+const ETIQUETA_ESTADO: Record<EstadoObra, string> = {
+  disponible: "Disponible",
+  vendido: "Vendido",
+  no_disponible: "No disponible",
+};
 
 /**
  * Una fila de la lista de obras. Publicada, destacada, disponible y orden se
@@ -40,7 +47,7 @@ export function FilaObra({ obra }: { obra: ObraAdmin }) {
     cambiar({ orden: n });
   }
 
-  const conmutador = (valor: boolean, etiqueta: string, campo: "publicada" | "destacada" | "disponible") => (
+  const conmutador = (valor: boolean, etiqueta: string, campo: "publicada" | "destacada") => (
     <label className="flex cursor-pointer items-center gap-1.5">
       <input
         type="checkbox"
@@ -76,7 +83,20 @@ export function FilaObra({ obra }: { obra: ObraAdmin }) {
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
         {conmutador(obra.publicada, "Publicada", "publicada")}
         {conmutador(obra.destacada, "Destacada", "destacada")}
-        {conmutador(obra.disponible, "Disponible", "disponible")}
+        <label className="flex items-center gap-1.5">
+          <select
+            value={obra.estado}
+            disabled={ocupado}
+            onChange={(e) => cambiar({ estado: e.target.value as EstadoObra })}
+            className="rounded border border-linea bg-papel px-1 py-0.5 text-xs outline-none focus:border-tinta-media"
+          >
+            {ESTADOS_OBRA.map((e) => (
+              <option key={e} value={e}>
+                {ETIQUETA_ESTADO[e]}
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="flex items-center gap-1.5">
           <span className="text-xs text-tinta-media">Orden</span>
           <input

@@ -13,7 +13,7 @@ import { SECCIONES, etiquetaDe, huecosDe } from "./catalogo-textos";
  */
 
 const OBRAS_ADMIN =
-  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,destacada,disponible,publicada,descripcion,imagen,imagen_w,imagen_h,blur,orden";
+  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,destacada,estado,publicada,descripcion,imagen,imagen_w,imagen_h,blur,orden";
 
 export type ObraAdmin = Obra & { publicada: boolean; orden: number };
 
@@ -73,6 +73,7 @@ export type GrupoTexto = {
   id: string;
   titulo: string;
   nota?: string;
+  ruta?: string;
   campos: CampoTexto[];
 };
 
@@ -110,10 +111,11 @@ export async function textosAdmin(): Promise<GrupoTexto[]> {
   const porDefectoEs = aplanar(t("es"));
   const porDefectoEn = aplanar(t("en"));
 
-  const grupos = SECCIONES.map<GrupoTexto>(({ id, titulo, nota }) => ({
+  const grupos = SECCIONES.map<GrupoTexto>(({ id, titulo, nota, ruta }) => ({
     id,
     titulo,
     nota,
+    ruta,
     campos: Object.keys(porDefectoEs)
       .filter((ruta) => ruta.startsWith(`${id}.`))
       .map<CampoTexto>((ruta) => ({
