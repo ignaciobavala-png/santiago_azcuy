@@ -2,20 +2,20 @@ import { type Diccionario } from "@/lib/i18n";
 
 /**
  * Nombres en criollo para el panel. El diccionario del codigo esta organizado
- * para programar (`home.arqEtiqueta`); Santiago necesita leer "Bloque
+ * para programar (`home.statement`); Santiago necesita leer "Bloque
  * arquitectura — volanta". Lo que no figure acá cae en un nombre derivado de la
  * clave, asi que agregar una frase al diccionario nunca deja el panel roto:
  * como mucho aparece con un nombre feo hasta que se le escribe uno.
  */
 export const SECCIONES: { id: keyof Diccionario; titulo: string; nota?: string }[] = [
-  { id: "home", titulo: "Portada", nota: "Lo que se lee al entrar y las tres interrupciones." },
-  { id: "obras", titulo: "Obras", nota: "Listado, filtros y la ficha de cada obra." },
+  { id: "home", titulo: "Portada", nota: "El nombre, la bajada y el enlace a la galería." },
+  { id: "obras", titulo: "Galería", nota: "Listado, filtros y la ficha de cada obra." },
+  { id: "encargos", titulo: "Encargos", nota: "Formulario de proyectos por encargo." },
   { id: "musica", titulo: "Música" },
   { id: "libro", titulo: "El Aprendiz" },
   { id: "arq", titulo: "Arquitectura" },
   { id: "sobre", titulo: "Sobre" },
   { id: "contacto", titulo: "Contacto" },
-  { id: "cierre", titulo: "Pie de página" },
   { id: "nav", titulo: "Menú", nota: "Los nombres de las secciones y los botones de la barra." },
   { id: "err", titulo: "Página no encontrada", nota: "También el enlace del pie de Sobre y Contacto." },
   { id: "meta", titulo: "Buscadores", nota: "No se ve en la página: es lo que muestra Google." },
@@ -23,7 +23,8 @@ export const SECCIONES: { id: keyof Diccionario; titulo: string; nota?: string }
 
 export const ETIQUETAS: Record<string, string> = {
   // Menú
-  "nav.obras": "Obras",
+  "nav.obras": "Galería",
+  "nav.encargos": "Encargos",
   "nav.musica": "Música",
   "nav.libro": "El Aprendiz",
   "nav.arquitectura": "Arquitectura",
@@ -36,17 +37,7 @@ export const ETIQUETAS: Record<string, string> = {
 
   // Portada
   "home.statement": "Bajada del nombre",
-  "home.verObras": "Enlace a las obras",
-  "home.musicaEtiqueta": "Bloque música — volanta",
-  "home.musicaTitulo": "Bloque música — título",
-  "home.musicaTexto": "Bloque música — texto",
-  "home.libroEtiqueta": "Bloque libro — volanta",
-  "home.libroTitulo": "Bloque libro — título",
-  "home.libroTexto": "Bloque libro — texto",
-  "home.arqEtiqueta": "Bloque arquitectura — volanta",
-  "home.arqTitulo": "Bloque arquitectura — título",
-  "home.arqTexto": "Bloque arquitectura — texto",
-  "home.ver": "Enlace de los tres bloques",
+  "home.verObras": "Enlace a la galería",
 
   // Obras
   "obras.titulo": "Título de la página",
@@ -69,6 +60,51 @@ export const ETIQUETAS: Record<string, string> = {
   "obras.categorias.figurativo": "Categoría figurativo",
   "obras.categorias.abstracto": "Categoría abstracto",
   "obras.categorias.dibujo": "Categoría dibujo",
+
+  // Encargos
+  "encargos.titulo": "Título de la página",
+  "encargos.intro": "Bajada",
+  "encargos.evaluacion": "Cómo se evalúan las propuestas",
+  "encargos.recibeTitulo": "Volanta de lo que se recibe",
+  "encargos.recibe": "Lista de lo que se recibe",
+  "encargos.obligatorio": "Aclaración de campos obligatorios",
+  "encargos.campos.nombre": "Campo — nombre y apellido",
+  "encargos.campos.email": "Campo — correo electrónico",
+  "encargos.campos.whatsapp": "Campo — whatsapp",
+  "encargos.campos.ciudad": "Campo — ciudad",
+  "encargos.campos.pais": "Campo — país",
+  "encargos.campos.tipoProyecto": "Campo — tipo de proyecto",
+  "encargos.campos.tipoOtro": "Campo — tipo, «otro»",
+  "encargos.campos.descripcion": "Campo — descripción del proyecto",
+  "encargos.campos.descripcionAyuda": "Ayuda de la descripción",
+  "encargos.campos.destino": "Campo — destino de la obra",
+  "encargos.campos.destinoOtro": "Campo — destino, «otro»",
+  "encargos.campos.referencias": "Campo — referencias",
+  "encargos.campos.adjuntos": "Bloque de adjuntos — título",
+  "encargos.campos.adjuntosAyuda": "Bloque de adjuntos — ayuda",
+  "encargos.campos.elegir": "Opción por defecto de los selectores",
+  "encargos.campos.sumar": "Botón para sumar imágenes",
+  "encargos.campos.quitar": "Botón para quitar una imagen",
+  "encargos.opciones.tipos.pintura": "Tipo de proyecto — pintura",
+  "encargos.opciones.tipos.dibujo": "Tipo de proyecto — dibujo",
+  "encargos.opciones.tipos.diseno": "Tipo de proyecto — diseño",
+  "encargos.opciones.tipos.mural": "Tipo de proyecto — mural",
+  "encargos.opciones.tipos.exposicion": "Tipo de proyecto — exposición",
+  "encargos.opciones.tipos.otro": "Tipo de proyecto — otro",
+  "encargos.opciones.destinos.residencia": "Destino — residencia particular",
+  "encargos.opciones.destinos.comercial": "Destino — espacio comercial",
+  "encargos.opciones.destinos.institucion": "Destino — institución",
+  "encargos.opciones.destinos.publico": "Destino — espacio público",
+  "encargos.opciones.destinos.galeria": "Destino — galería",
+  "encargos.opciones.destinos.otro": "Destino — otro",
+  "encargos.enviar": "Botón de enviar",
+  "encargos.enviando": "Mientras se envía",
+  "encargos.exitoTitulo": "Título del mensaje de éxito",
+  "encargos.exitoTexto": "Texto del mensaje de éxito",
+  "encargos.cierre": "Aclaración del pie",
+  "encargos.errorCorto": "Error — descripción demasiado corta",
+  "encargos.errorMail": "Error — mail inválido",
+  "encargos.errorEnvio": "Error — no se pudo enviar",
 
   // Música
   "musica.titulo": "Título de la página",
@@ -97,7 +133,7 @@ export const ETIQUETAS: Record<string, string> = {
   "libro.audioTitulo": "Audiolibro — título",
   "libro.audioTexto": "Audiolibro — texto",
   "libro.fin": "Final de la lectura",
-  "libro.volverObras": "Enlace a las obras al terminar",
+  "libro.volverObras": "Enlace a la galería al terminar",
 
   // Arquitectura
   "arq.titulo": "Título de la página",
@@ -112,13 +148,12 @@ export const ETIQUETAS: Record<string, string> = {
   "sobre.nota": "Texto provisorio",
   "contacto.titulo": "Título de la página",
   "contacto.nota": "Texto provisorio",
-  "cierre.obra": "Frase de cierre (los saltos de línea se respetan)",
 
   // 404 y buscadores
   "err.titulo": "Número grande",
   "err.texto": "Explicación",
   "err.volver": "Enlace al inicio (se le agrega la flecha)",
-  "err.mientras": "Enlace a las obras (404, Sobre y Contacto)",
+  "err.mientras": "Enlace a la galería (404, Sobre y Contacto)",
   "meta.descripcion": "Descripción del sitio",
 };
 

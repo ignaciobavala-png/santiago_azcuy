@@ -21,11 +21,12 @@ const TEMA = `try{var t=localStorage.getItem('tema')||(matchMedia('(prefers-colo
 
 const SECCIONES = [
   { href: "/admin", etiqueta: "Tablero" },
-  { href: "/admin/obras", etiqueta: "Obras" },
+  { href: "/admin/obras", etiqueta: "Galería" },
   { href: "/admin/series", etiqueta: "Series" },
   { href: "/admin/textos", etiqueta: "Textos" },
   { href: "/admin/musica", etiqueta: "Música" },
   { href: "/admin/arquitectura", etiqueta: "Arquitectura" },
+  { href: "/admin/sobre", etiqueta: "Sobre" },
   { href: "/admin/consultas", etiqueta: "Consultas" },
   { href: "/admin/libro", etiqueta: "Libro" },
 ];

@@ -107,6 +107,39 @@ export async function procesarImagen(file: File): Promise<ImagenLista> {
   return { sm, md, lg, w: lgC.width, h: lgC.height, blur };
 }
 
+export type AdjuntoListo = { blob: Blob; nombre: string; tipo: string; bytes: number };
+
+/**
+ * Un adjunto del formulario publico (una referencia, un boceto): una sola
+ * version WebP, no los tres tamanos del panel. Se baja el lado mayor a 2200 px y
+ * se comprime a 0.82: suficiente para mirar una referencia, y una foto de 12 MB
+ * de celular queda en unos cientos de KB. Solo achica, nunca agranda.
+ */
+export async function procesarAdjunto(file: File, lado = 2200, calidad = 0.82): Promise<AdjuntoListo> {
+  const original = await decodificar(file);
+  const factor = Math.min(1, lado / Math.max(original.width, original.height));
+  const w = Math.max(1, Math.round(original.width * factor));
+  const h = Math.max(1, Math.round(original.height * factor));
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  c.getContext("2d")!.drawImage(original, 0, 0, w, h);
+  const blob = await webpBlob(c, calidad);
+  return {
+    blob,
+    nombre: file.name.replace(/\.[^.]+$/, "") + ".webp",
+    tipo: "image/webp",
+    bytes: blob.size,
+  };
+}
+
+/** Sube un adjunto del formulario al bucket privado `encargos` con su token. */
+export async function subirAdjuntoFirmado(path: string, token: string, blob: Blob): Promise<void> {
+  const sb = supabaseBrowser.storage.from("encargos");
+  const { error } = await sb.uploadToSignedUrl(path, token, blob, { contentType: "image/webp" });
+  if (error) throw new Error(`No se pudo subir ${path}: ${error.message}`);
+}
+
 /**
  * Sube cada blob a la URL firmada que pidio el server. `base` es el path sin
  * sufijo ("obras/pleyades"); los tres archivos se derivan igual que en la

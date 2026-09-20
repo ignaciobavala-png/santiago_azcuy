@@ -7,34 +7,32 @@ import { ruta, type Lang } from "@/lib/i18n";
 import { ficha, type Obra } from "@/lib/tipos";
 
 /**
- * El bloque grande de la home, ahora con varias obras en lugar de una sola.
+ * El bloque central de la home, con las obras destacadas pasando de a una cada
+ * 3 segundos. El listado completo vive en Galeria.
  *
  * El desplazamiento es scroll-snap nativo: el swipe tactil, el arrastre con
- * trackpad y el teclado salen gratis y siguen funcionando sin JS. Los botones
- * y el avance solo son un agregado encima.
+ * trackpad y el teclado salen gratis y siguen funcionando sin JS. Los puntos y
+ * el avance automatico son un agregado encima.
  *
- * El avance automatico se pausa cuando el carrusel no esta a la vista. No es
- * un detalle de cortesia: cada lamina en pantalla completa pesa cientos de KB,
- * y con 5 GB de egress al mes, adelantar obras que nadie esta mirando se paga
- * en ancho de banda. Quien pasa de largo scrolleando solo baja la primera.
+ * El avance solo corre mientras el carrusel esta a la vista, para no adelantar
+ * laminas que nadie mira (cada una pesa cientos de KB). A diferencia de antes,
+ * no se pausa con el mouse encima: el carrusel ocupa casi toda la pantalla, asi
+ * que el puntero esta siempre adentro y la pausa equivalia a apagarlo.
  */
-export function CarruselObras({
-  obras,
-  lang,
-}: {
-  obras: Obra[];
-  lang: Lang;
-}) {
+export function CarruselObras({ obras, lang }: { obras: Obra[]; lang: Lang }) {
   const pista = useRef<HTMLDivElement>(null);
   const [activo, setActivo] = useState(0);
   const [corre, setCorre] = useState(false);
 
-  const irA = useCallback((i: number) => {
-    const el = pista.current;
-    if (!el) return;
-    const n = obras.length;
-    el.scrollTo({ left: el.clientWidth * ((i + n) % n), behavior: "smooth" });
-  }, [obras.length]);
+  const irA = useCallback(
+    (i: number) => {
+      const el = pista.current;
+      if (!el) return;
+      const n = obras.length;
+      el.scrollTo({ left: el.clientWidth * ((i + n) % n), behavior: "smooth" });
+    },
+    [obras.length]
+  );
 
   // El indice activo se lee del scroll y no al reves: asi el swipe manual y los
   // botones comparten una sola fuente de verdad.
@@ -59,47 +57,34 @@ export function CarruselObras({
   useEffect(() => {
     const el = pista.current;
     if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => setCorre(e.isIntersecting),
-      { threshold: 0.5 }
-    );
+    const obs = new IntersectionObserver(([e]) => setCorre(e.isIntersecting), { threshold: 0.25 });
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
 
-  const [quieto, setQuieto] = useState(false);
-
   useEffect(() => {
-    if (!corre || quieto || obras.length < 2) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = setInterval(() => irA(activo + 1), 6500);
+    if (!corre || obras.length < 2) return;
+    const t = setInterval(() => irA(activo + 1), 3000);
     return () => clearInterval(t);
-  }, [corre, quieto, activo, irA, obras.length]);
+  }, [corre, activo, irA, obras.length]);
 
   if (obras.length === 0) return null;
   const actual = obras[Math.min(activo, obras.length - 1)];
 
   return (
-    <section
-      className="mb-24"
-      onPointerEnter={() => setQuieto(true)}
-      onPointerLeave={() => setQuieto(false)}
-      onFocusCapture={() => setQuieto(true)}
-      onBlurCapture={() => setQuieto(false)}
-      aria-roledescription="carrusel"
-    >
+    <section className="carrusel mb-16" aria-roledescription="carrusel">
       <div
         ref={pista}
         // sin-barra: la barra horizontal nativa ensucia una pagina de obra.
-        className="sin-barra flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain"
+        className="carrusel-pista sin-barra flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain"
       >
         {obras.map((o, i) => (
           <div
             key={o.id}
-            className="flex h-[56vh] w-full shrink-0 snap-center items-center justify-center md:h-[74vh]"
+            className="flex w-full shrink-0 snap-center items-center justify-center"
             aria-label={`${i + 1} de ${obras.length}`}
           >
-            <Link href={ruta(lang, `/obras/${o.slug}`)} className="block h-full">
+            <Link href={ruta(lang, `/galeria/${o.slug}`)} className="block max-h-full max-w-full">
               <img
                 src={url(o.imagen, "lg")}
                 srcSet={srcSet(o.imagen)}
@@ -110,7 +95,7 @@ export function CarruselObras({
                 loading={i === 0 ? "eager" : "lazy"}
                 fetchPriority={i === 0 ? "high" : "auto"}
                 decoding="async"
-                className="h-full w-auto object-contain"
+                className="carrusel-imagen max-w-full object-contain"
               />
             </Link>
           </div>
@@ -120,7 +105,7 @@ export function CarruselObras({
       <div className="mt-5 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3">
         {/* La ficha vive fuera de la pista: si viajara con cada lamina, el alto
             cambiaria segun el largo del titulo y el carrusel saltaria. */}
-        <Link href={ruta(lang, `/obras/${actual.slug}`)} className="group">
+        <Link href={ruta(lang, `/galeria/${actual.slug}`)} className="group">
           <h2 className="text-[1.0625rem] tracking-tight group-hover:opacity-55">
             {actual.titulo}
           </h2>

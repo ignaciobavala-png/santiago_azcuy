@@ -30,6 +30,27 @@ export type Serie = {
 
 export const CATEGORIAS: Categoria[] = ["figurativo", "abstracto", "dibujo"];
 
+// ------------------------------------------------------------
+// Proyectos por encargo. Los valores son las claves que viajan a la base; las
+// etiquetas que ve la persona viven en el diccionario (lib/i18n.ts) para poder
+// traducirlas y editarlas desde el panel.
+// ------------------------------------------------------------
+export const TIPOS_ENCARGO = ["pintura", "dibujo", "diseno", "mural", "exposicion", "otro"] as const;
+export type TipoEncargo = (typeof TIPOS_ENCARGO)[number];
+
+export const DESTINOS_ENCARGO = [
+  "residencia",
+  "comercial",
+  "institucion",
+  "publico",
+  "galeria",
+  "otro",
+] as const;
+export type DestinoEncargo = (typeof DESTINOS_ENCARGO)[number];
+
+/** Tope de imagenes de referencia por solicitud. El server lo vuelve a validar. */
+export const MAX_ADJUNTOS = 8;
+
 /** "Acrílico · 130 × 80 cm · 2016", saltando lo que falte. La tecnica la
  *  escribio Santiago en castellano y no se traduce: es el dato, no la etiqueta. */
 export function ficha(o: Obra): string {

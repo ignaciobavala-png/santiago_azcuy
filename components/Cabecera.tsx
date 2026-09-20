@@ -6,7 +6,8 @@ import { BotonIdioma, BotonTema } from "@/components/Herramientas";
 import { ruta, type Diccionario, type Lang } from "@/lib/i18n";
 
 const SECCIONES: { href: string; clave: keyof Diccionario["nav"] }[] = [
-  { href: "/obras", clave: "obras" },
+  { href: "/galeria", clave: "obras" },
+  { href: "/encargos", clave: "encargos" },
   { href: "/musica", clave: "musica" },
   { href: "/libro", clave: "libro" },
   { href: "/arquitectura", clave: "arquitectura" },
@@ -47,19 +48,9 @@ export function Cabecera({ lang, nav }: { lang: Lang; nav: Diccionario["nav"] })
     <>
       <header className="sticky top-0 z-50 border-b border-linea bg-papel/85 backdrop-blur-md">
         <nav className="mx-auto flex h-[calc(var(--alto-barra)-1px)] max-w-[1600px] items-center gap-6 px-5 md:px-10">
-          {/* La firma dice "Azcuy", no el nombre completo: el nombre viaja en
-              el texto oculto para que el enlace tenga nombre accesible y los
-              buscadores lean la marca. */}
-          <Link
-            href={ruta(lang, "/")}
-            className="shrink-0 transition-opacity hover:opacity-55"
-          >
-            {/* w-fit para que el ancho salga de la proporcion: un bloque con
-                width auto se estira y la relacion terminaria fijando el alto. */}
-            <span className="firma block h-7 w-fit text-tinta md:h-9" aria-hidden />
-            <span className="sr-only">Santiago Azcuy</span>
-          </Link>
-
+          {/* Sin marca en la barra: la firma vive en el hero de la home y el
+              nombre no se repite en el chrome. La barra queda solo con el menu
+              y las herramientas. */}
           <ul className="ml-auto hidden gap-8 md:flex">
             {SECCIONES.map((s) => (
               <li key={s.href}>

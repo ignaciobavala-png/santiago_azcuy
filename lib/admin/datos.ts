@@ -59,7 +59,7 @@ export async function seriesAdmin(): Promise<Serie[]> {
 }
 
 export type CampoTexto = {
-  /** `statement` para los bloques largos, `ui.home.ver` para el resto. */
+  /** `statement` para los bloques largos, `ui.home.statement` para el resto. */
   clave: string;
   etiqueta: string;
   /** Lo que sale si el campo queda vacio: el texto del codigo. */
@@ -203,6 +203,31 @@ export async function proyectoAdmin(id: string): Promise<ProyectoAdmin | null> {
   return { ...p, laminas: [...proyecto_imagenes].sort((a, b) => a.orden - b.orden) };
 }
 
+export type SobreMediaAdmin = {
+  id: string;
+  tipo: "foto" | "video";
+  imagen: string | null;
+  imagen_w: number | null;
+  imagen_h: number | null;
+  blur: string | null;
+  video_url: string | null;
+  epigrafe: string | null;
+  publicada: boolean;
+  orden: number;
+};
+
+export async function sobreMediaAdmin(): Promise<SobreMediaAdmin[]> {
+  const { data, error } = await admin()
+    .from("sobre_media")
+    .select("id,tipo,imagen,imagen_w,imagen_h,blur,video_url,epigrafe,publicada,orden")
+    .order("orden")
+    .order("creado_at");
+  if (error) throw error;
+  return (data ?? []) as SobreMediaAdmin[];
+}
+
+export type ArchivoConsulta = { path: string; nombre: string | null; url: string | null };
+
 export type ConsultaAdmin = {
   id: string;
   nombre: string;
@@ -212,20 +237,71 @@ export type ConsultaAdmin = {
   obra_titulo: string | null;
   leida: boolean;
   creado_at: string;
+  // Proyectos por encargo. Null en las consultas generales.
+  clase: string | null;
+  whatsapp: string | null;
+  ciudad: string | null;
+  pais: string | null;
+  tipo_proyecto: string | null;
+  tipo_otro: string | null;
+  destino: string | null;
+  destino_otro: string | null;
+  referencias: string | null;
+  archivos: ArchivoConsulta[];
 };
 
+/**
+ * Bandeja del panel: consultas generales y solicitudes de encargo en la misma
+ * lista. Los adjuntos del encargo viven en un bucket privado, asi que se
+ * resuelven con URLs firmadas (1 hora) al leer la bandeja, no con un enlace
+ * permanente. Si firmar falla, la consulta se muestra igual sin las imagenes.
+ */
 export async function consultasAdmin(): Promise<ConsultaAdmin[]> {
-  const { data, error } = await admin()
+  const db = admin();
+  const { data, error } = await db
     .from("consultas")
-    .select("id,nombre,email,mensaje,obra_id,leida,creado_at,obras(titulo)")
+    .select("*, obras(titulo)")
     .order("creado_at", { ascending: false });
   if (error) throw error;
-  const lista = (data ?? []) as unknown as (Omit<ConsultaAdmin, "obra_titulo"> & {
+
+  const lista = (data ?? []) as unknown as (Omit<ConsultaAdmin, "obra_titulo" | "archivos"> & {
     obras: { titulo: string } | { titulo: string }[] | null;
   })[];
+
+  const ids = lista.map((c) => c.id);
+  const porConsulta = new Map<string, ArchivoConsulta[]>();
+
+  if (ids.length > 0) {
+    const { data: filas } = await db
+      .from("consulta_archivos")
+      .select("consulta_id,path,nombre")
+      .in("consulta_id", ids);
+    const archivos = (filas ?? []) as { consulta_id: string; path: string; nombre: string | null }[];
+
+    const firmadas = new Map<string, string>();
+    if (archivos.length > 0) {
+      try {
+        const { data: urls } = await db.storage
+          .from("encargos")
+          .createSignedUrls(archivos.map((a) => a.path), 3600);
+        for (const u of urls ?? []) {
+          if (u.path && u.signedUrl) firmadas.set(u.path, u.signedUrl);
+        }
+      } catch (e) {
+        console.error("[consultas] no se pudieron firmar los adjuntos:", e);
+      }
+    }
+
+    for (const a of archivos) {
+      const grupo = porConsulta.get(a.consulta_id) ?? [];
+      grupo.push({ path: a.path, nombre: a.nombre, url: firmadas.get(a.path) ?? null });
+      porConsulta.set(a.consulta_id, grupo);
+    }
+  }
+
   return lista.map(({ obras, ...c }) => {
     const fila = Array.isArray(obras) ? obras[0] : obras;
-    return { ...c, obra_titulo: fila?.titulo ?? null };
+    return { ...c, obra_titulo: fila?.titulo ?? null, archivos: porConsulta.get(c.id) ?? [] };
   });
 }
 

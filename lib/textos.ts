@@ -17,7 +17,7 @@ import { t, type Diccionario, type Lang } from "@/lib/i18n";
  */
 export const PREFIJO = "ui.";
 
-/** `{ home: { ver: "Ver →" } }` -> `{ "home.ver": "Ver →" }`. */
+/** `{ home: { statement: "…" } }` -> `{ "home.statement": "…" }`. */
 export function aplanar(nodo: unknown, prefijo = ""): Record<string, string> {
   const salida: Record<string, string> = {};
   for (const [clave, valor] of Object.entries(nodo as Record<string, unknown>)) {

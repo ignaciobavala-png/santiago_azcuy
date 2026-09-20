@@ -11,7 +11,16 @@ export async function obras(filtros: {
   destacadas?: boolean;
   limite?: number;
 } = {}): Promise<Obra[]> {
-  let q = supabase.from("obras").select(CAMPOS).order("orden");
+  // Cronologia cuando el dato existe: primero las obras con año, de la mas
+  // nueva a la mas vieja; las que no tienen año quedan al final, en el orden
+  // manual que ya traian. `orden` sigue siendo el desempate (y el unico
+  // criterio para las obras sin fecha), asi que el panel no pierde el control
+  // de esas filas.
+  let q = supabase
+    .from("obras")
+    .select(CAMPOS)
+    .order("anio", { ascending: false, nullsFirst: false })
+    .order("orden");
   if (filtros.categoria) q = q.eq("categoria", filtros.categoria);
   if (filtros.encargo) q = q.eq("es_encargo", true);
   if (filtros.destacadas) q = q.eq("destacada", true);

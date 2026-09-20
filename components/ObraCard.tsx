@@ -20,7 +20,7 @@ export function ObraCard({
   prioridad?: boolean;
 }) {
   return (
-    <Link href={ruta(lang, `/obras/${obra.slug}`)} className="group block">
+    <Link href={ruta(lang, `/galeria/${obra.slug}`)} className="group block">
       <figure
         className="relative overflow-hidden bg-papel-alt"
         style={{ aspectRatio: `${obra.imagen_w} / ${obra.imagen_h}` }}

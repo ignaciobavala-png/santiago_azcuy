@@ -17,7 +17,7 @@ export async function generateMetadata({
 
 const VALIDAS = new Set<string>(CATEGORIAS);
 
-export default async function Obras({
+export default async function Galeria({
   params,
   searchParams,
 }: {

@@ -77,6 +77,20 @@ body {
   font-weight: 500;
 }
 
+/*
+  Titulo grande dentro de una columna angosta (el encabezado de Encargos, al
+  lado del formulario). `.display` esta calibrado para el ancho completo de la
+  home: ahi "Proyectos" entra holgado, pero en una columna de la grilla desborda
+  sobre las casillas de al lado. Un tope mas bajo mantiene la misma tipografia
+  sin invadir el formulario.
+*/
+.display-col {
+  font-size: clamp(2.25rem, 5.5vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-weight: 500;
+}
+
 .titular {
   font-size: var(--text-titular);
   line-height: 1.02;
@@ -150,6 +164,48 @@ body {
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
   mask-position: center;
+}
+
+/*
+  La firma del hero se dibuja sola, de izquierda a derecha, como si la
+  estuvieran firmando: un clip-path que corre sobre el trazo, CSS puro y sin
+  JS. Con la preferencia de movimiento reducido queda visible de una, entera:
+  la animacion es un adorno, no informacion, asi que no hay motivo para dejarla
+  a medias.
+*/
+@keyframes firmar {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .firma-firmando {
+    animation: firmar 2.6s cubic-bezier(0.5, 0.05, 0.35, 1) both;
+  }
+}
+
+/*
+  Alto del carrusel de la home. La lamina + la ficha + el margen tiene que dar
+  menos de una pantalla: una pintura nunca puede pedir mas que eso, o habria que
+  scrollear para ver el cuadro entero. Se reservan 9rem para la ficha y el
+  margen inferior, y se mide con svh (en el celular vh mide con la barra de URL
+  retraida). Va en una variable para que la pista y la imagen midan lo mismo:
+  con el numero copiado en dos lados, tocarlo en uno solo rompe el ajuste.
+*/
+.carrusel {
+  --alto-slide: calc(100svh - var(--alto-barra) - 9rem);
+}
+
+.carrusel-pista {
+  height: var(--alto-slide);
+}
+
+.carrusel-imagen {
+  max-height: var(--alto-slide);
 }
 
 /* El cambio de tema no deberia parpadear, pero tampoco animar cada hover. */

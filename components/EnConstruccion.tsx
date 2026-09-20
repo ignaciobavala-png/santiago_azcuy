@@ -18,7 +18,7 @@ export function EnConstruccion({
       <h1 className="display">{titulo}</h1>
       <p className="mt-10 max-w-md text-tinta-media">{nota}</p>
       <Link
-        href={ruta(lang, "/obras")}
+        href={ruta(lang, "/galeria")}
         className="etiqueta mt-8 inline-block underline-offset-8 hover:underline"
       >
         {mientras}

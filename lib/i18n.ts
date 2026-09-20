@@ -10,7 +10,7 @@ export type Lang = (typeof IDIOMAS)[number];
 export const esIdioma = (v: string): v is Lang =>
   (IDIOMAS as readonly string[]).includes(v);
 
-/** Prefija una ruta interna con el idioma. `ruta("en", "/obras") -> "/en/obras"` */
+/** Prefija una ruta interna con el idioma. `ruta("en", "/galeria") -> "/en/galeria"` */
 export const ruta = (lang: Lang, path: string) =>
   lang === "es" ? path : path === "/" ? "/en" : `/en${path}`;
 
@@ -26,7 +26,8 @@ export const sinPrefijo = (pathname: string) =>
 
 const es = {
   nav: {
-    obras: "Obras",
+    obras: "Galería",
+    encargos: "Encargos",
     musica: "Música",
     libro: "El Aprendiz",
     arquitectura: "Arquitectura",
@@ -40,20 +41,10 @@ const es = {
   home: {
     statement:
       "Pintura, dibujo, música y arquitectura. Una obra atravesada por lo cósmico y lo místico.",
-    verObras: "Ver las {n} obras →",
-    musicaEtiqueta: "Música",
-    musicaTitulo: "Discos, videos y shows",
-    musicaTexto: "La obra sonora, embebida desde las plataformas donde ya vive.",
-    libroEtiqueta: "El Aprendiz",
-    libroTitulo: "La novela",
-    libroTexto: "Ciudad Intradorada.",
-    arqEtiqueta: "Arquitectura",
-    arqTitulo: "Proyectos",
-    arqTexto: "Templo circular en Chacarita, vivienda en Chapadmalal.",
-    ver: "Ver →",
+    verObras: "Ver la galería ({n} obras) →",
   },
   obras: {
-    titulo: "Obras",
+    titulo: "Galería",
     vacio: "No hay obras que combinen esos filtros.",
     cuentaUna: "{n} obra",
     cuentaVarias: "{n} obras",
@@ -71,6 +62,66 @@ const es = {
     consultar: "Consultar por esta obra",
     mas: "Más {categoria}",
     categorias: { figurativo: "Figurativo", abstracto: "Abstracto", dibujo: "Dibujo" },
+  },
+  encargos: {
+    titulo: "Proyectos por Encargo",
+    intro:
+      "Este formulario está destinado a la recepción de solicitudes para la realización de obras y proyectos artísticos por encargo.",
+    evaluacion:
+      "Cada propuesta se evalúa de manera individual considerando su alcance, características técnicas, dimensiones, plazos de ejecución y requerimientos específicos. Una vez recibida la información, se elabora una propuesta y su correspondiente cotización.",
+    recibeTitulo: "Se reciben solicitudes para la ejecución de",
+    recibe:
+      "Pinturas · Dibujos · Diseño de Marca · Murales · Arte Digital · Proyectos expositivos",
+    obligatorio: "Los campos marcados con * son obligatorios.",
+    campos: {
+      nombre: "Nombre y apellido",
+      email: "Correo electrónico",
+      whatsapp: "Whatsapp de contacto",
+      ciudad: "Ciudad",
+      pais: "País",
+      tipoProyecto: "Tipo de proyecto",
+      tipoOtro: "¿Cuál?",
+      descripcion: "Describí detalladamente el proyecto que querés desarrollar",
+      descripcionAyuda:
+        "Cuanta más información aportes, más precisa será la evaluación. Incluí medidas, temática, técnica y estilo de pintura (abstracto o figurativo).",
+      destino: "Destino de la obra",
+      destinoOtro: "¿Cuál?",
+      referencias: "¿Tenés imágenes, bocetos o referencias visuales del proyecto?",
+      adjuntos: "Adjuntar imágenes",
+      adjuntosAyuda:
+        "Hasta 8 imágenes. Se comprimen solas antes de subir: no hace falta prepararlas.",
+      elegir: "Elegí una opción",
+      sumar: "Sumar imágenes",
+      quitar: "Quitar",
+    },
+    opciones: {
+      tipos: {
+        pintura: "Pintura",
+        dibujo: "Dibujo",
+        diseno: "Diseño",
+        mural: "Mural",
+        exposicion: "Exposición",
+        otro: "Otro",
+      },
+      destinos: {
+        residencia: "Residencia particular",
+        comercial: "Espacio comercial",
+        institucion: "Institución",
+        publico: "Espacio público",
+        galeria: "Galería",
+        otro: "Otro",
+      },
+    },
+    enviar: "Enviar solicitud",
+    enviando: "Enviando…",
+    exitoTitulo: "Recibimos tu solicitud",
+    exitoTexto:
+      "La vamos a evaluar y, si es viable, nos comunicamos para continuar con la propuesta y la cotización.",
+    cierre:
+      "Una vez recibida la solicitud, la información será evaluada y, de ser viable, se establecerá contacto para continuar con el desarrollo de la propuesta y la cotización correspondiente.",
+    errorCorto: "Contá un poco más sobre el proyecto.",
+    errorMail: "Escribí un mail válido.",
+    errorEnvio: "No se pudo enviar la solicitud. Probá de nuevo en un momento.",
   },
   musica: {
     titulo: "Música",
@@ -102,7 +153,7 @@ const es = {
     audioTexto:
       "La novela entera, leída en voz alta. Se reproduce desde YouTube, sin dejar el mail.",
     fin: "Fin.",
-    volverObras: "Ver la obra plástica →",
+    volverObras: "Ver la galería →",
   },
   arq: {
     titulo: "Arquitectura",
@@ -114,7 +165,6 @@ const es = {
   },
   sobre: { titulo: "Sobre", nota: "Biografía, statement y recorrido. Pendiente de carga." },
   contacto: { titulo: "Contacto", nota: "Formulario de consulta. Pendiente de carga." },
-  cierre: { obra: "Pintura, música,\narquitectura y palabra." },
   meta: {
     descripcion:
       "Obra de Santiago Azcuy: pintura, dibujo, música, arquitectura y El Aprendiz.",
@@ -123,14 +173,15 @@ const es = {
     titulo: "404",
     texto: "Esta página no existe.",
     volver: "Volver al inicio",
-    mientras: "Mientras tanto, ver las obras →",
+    mientras: "Mientras tanto, ver la galería →",
   },
 };
 
 /** El inglés replica la forma del español; TypeScript avisa si falta una clave. */
 const en: typeof es = {
   nav: {
-    obras: "Works",
+    obras: "Gallery",
+    encargos: "Commissions",
     musica: "Music",
     libro: "The Apprentice",
     arquitectura: "Architecture",
@@ -144,20 +195,10 @@ const en: typeof es = {
   home: {
     statement:
       "Painting, drawing, music and architecture. A body of work run through by the cosmic and the mystical.",
-    verObras: "See all {n} works →",
-    musicaEtiqueta: "Music",
-    musicaTitulo: "Albums, videos and shows",
-    musicaTexto: "The sound work, embedded from the platforms where it already lives.",
-    libroEtiqueta: "The Apprentice",
-    libroTitulo: "The novel",
-    libroTexto: "Ciudad Intradorada.",
-    arqEtiqueta: "Architecture",
-    arqTitulo: "Projects",
-    arqTexto: "A circular temple in Chacarita, a house in Chapadmalal.",
-    ver: "See →",
+    verObras: "See the gallery ({n} works) →",
   },
   obras: {
-    titulo: "Works",
+    titulo: "Gallery",
     vacio: "No works match those filters.",
     cuentaUna: "{n} work",
     cuentaVarias: "{n} works",
@@ -175,6 +216,65 @@ const en: typeof es = {
     consultar: "Ask about this work",
     mas: "More {categoria}",
     categorias: { figurativo: "Figurative", abstracto: "Abstract", dibujo: "Drawing" },
+  },
+  encargos: {
+    titulo: "Commissions",
+    intro:
+      "This form is for requests to create commissioned artworks and art projects.",
+    evaluacion:
+      "Each proposal is reviewed individually, considering its scope, technical features, dimensions, timeline and specific requirements. Once the information is received, a proposal and its corresponding quote are prepared.",
+    recibeTitulo: "Requests are received for",
+    recibe: "Paintings · Drawings · Brand Design · Murals · Digital Art · Exhibition projects",
+    obligatorio: "Fields marked with * are required.",
+    campos: {
+      nombre: "Full name",
+      email: "Email",
+      whatsapp: "WhatsApp",
+      ciudad: "City",
+      pais: "Country",
+      tipoProyecto: "Project type",
+      tipoOtro: "Which?",
+      descripcion: "Describe in detail the project you want to develop",
+      descripcionAyuda:
+        "The more information you provide, the more precise the review. Include dimensions, theme, technique and painting style (abstract or figurative).",
+      destino: "Destination of the work",
+      destinoOtro: "Which?",
+      referencias: "Do you have images, sketches or visual references for the project?",
+      adjuntos: "Attach images",
+      adjuntosAyuda:
+        "Up to 8 images. They are compressed automatically before uploading, so no need to prepare them.",
+      elegir: "Choose an option",
+      sumar: "Add images",
+      quitar: "Remove",
+    },
+    opciones: {
+      tipos: {
+        pintura: "Painting",
+        dibujo: "Drawing",
+        diseno: "Design",
+        mural: "Mural",
+        exposicion: "Exhibition",
+        otro: "Other",
+      },
+      destinos: {
+        residencia: "Private residence",
+        comercial: "Commercial space",
+        institucion: "Institution",
+        publico: "Public space",
+        galeria: "Gallery",
+        otro: "Other",
+      },
+    },
+    enviar: "Send request",
+    enviando: "Sending…",
+    exitoTitulo: "We received your request",
+    exitoTexto:
+      "We'll review it and, if viable, get in touch to continue with the proposal and the quote.",
+    cierre:
+      "Once the request is received, the information will be reviewed and, if viable, we will get in touch to continue developing the proposal and its corresponding quote.",
+    errorCorto: "Tell us a bit more about the project.",
+    errorMail: "Please enter a valid email.",
+    errorEnvio: "We couldn't send your request. Please try again shortly.",
   },
   musica: {
     titulo: "Music",
@@ -205,7 +305,7 @@ const en: typeof es = {
     audioTitulo: "Rather listen to it?",
     audioTexto: "The whole novel, read aloud. Plays from YouTube, no email needed.",
     fin: "The end.",
-    volverObras: "See the paintings →",
+    volverObras: "See the gallery →",
   },
   arq: {
     titulo: "Architecture",
@@ -217,7 +317,6 @@ const en: typeof es = {
   },
   sobre: { titulo: "About", nota: "Biography, statement and background. Not loaded yet." },
   contacto: { titulo: "Contact", nota: "Enquiry form. Not loaded yet." },
-  cierre: { obra: "Painting, music,\narchitecture and the word." },
   meta: {
     descripcion:
       "The work of Santiago Azcuy: painting, drawing, music, architecture and The Apprentice.",
@@ -226,7 +325,7 @@ const en: typeof es = {
     titulo: "404",
     texto: "This page doesn't exist.",
     volver: "Back to the start",
-    mientras: "In the meantime, see the works →",
+    mientras: "In the meantime, see the gallery →",
   },
 };
 

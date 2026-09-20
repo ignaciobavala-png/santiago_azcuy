@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Inter } from "next/font/google";
-import { Cabecera, Pie } from "@/components/Marco";
+import { Cabecera } from "@/components/Cabecera";
 import { IDIOMAS, esIdioma, ruta, type Lang } from "@/lib/i18n";
 import { dic } from "@/lib/textos";
 import "../../globals.css";
@@ -63,7 +63,6 @@ export default async function RootLayout({
       <body className="min-h-screen antialiased">
         <Cabecera lang={lang} nav={d.nav} />
         {children}
-        <Pie cierre={d.cierre.obra} />
       </body>
     </html>
   );

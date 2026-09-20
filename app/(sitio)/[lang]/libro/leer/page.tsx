@@ -67,7 +67,7 @@ export default async function Leer({ params }: { params: Promise<{ lang: Lang }>
         <footer className="border-t border-linea pt-10 text-center">
           <p className="text-tinta-media">{d.libro.fin}</p>
           <Link
-            href={ruta(lang, "/obras")}
+            href={ruta(lang, "/galeria")}
             className="etiqueta mt-6 inline-block underline-offset-8 hover:underline"
           >
             {d.libro.volverObras}

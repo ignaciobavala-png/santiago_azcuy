@@ -41,8 +41,8 @@ export function BotonTema({ etiqueta }: { etiqueta: string }) {
 }
 
 /**
- * Conserva la pagina al cambiar de idioma: quien esta en /obras/pleyades pasa a
- * /en/obras/pleyades, no a la home. Los slugs no se traducen.
+ * Conserva la pagina al cambiar de idioma: quien esta en /galeria/pleyades pasa
+ * a /en/galeria/pleyades, no a la home. Los slugs no se traducen.
  */
 export function BotonIdioma({ lang, etiqueta }: { lang: Lang; etiqueta: string }) {
   const pathname = usePathname() ?? "/";

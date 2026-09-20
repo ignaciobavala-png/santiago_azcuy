@@ -17,7 +17,7 @@ export default async function ObraFicha({ params }: { params: Promise<{ id: stri
     <main className="mx-auto max-w-[1600px] px-5 py-10 md:px-8">
       <nav className="mb-4">
         <Link href="/admin/obras" className="etiqueta text-tinta-suave hover:text-tinta">
-          ← Obras
+          ← Galería
         </Link>
       </nav>
 

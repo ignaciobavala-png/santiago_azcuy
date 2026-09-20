@@ -72,7 +72,7 @@ export default async function Obras({ searchParams }: { searchParams: Promise<P>
   return (
     <main className="mx-auto max-w-[1600px] px-5 py-10 md:px-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
-        <h1 className="titular">Obras</h1>
+        <h1 className="titular">Galería</h1>
         <Link href="/admin/obras/nueva" className="etiqueta border border-linea px-4 py-2 hover:border-tinta-media">
           Nueva obra +
         </Link>

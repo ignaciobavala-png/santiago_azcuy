@@ -8,14 +8,26 @@ import { NextResponse, type NextRequest } from "next/server";
  * un salto extra en cada visita en español, que es la mayoria.
  *
  * /es/... explicito si redirige, para que la misma pagina no viva en dos URLs.
+ *
+ * "Obras" paso a llamarse "Galería": la ruta vieja redirige con 308 para no
+ * romper los enlaces ya compartidos ni perder lo que Google tenga indexado.
  */
+function aGaleria(pathname: string): string | null {
+  const m = pathname.match(/^(\/en)?\/obras(\/.*)?$/);
+  if (!m) return null;
+  return `${m[1] ?? ""}/galeria${m[2] ?? ""}`;
+}
+
 export default function proxy(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
 
   if (pathname === "/es" || pathname.startsWith("/es/")) {
     const limpio = pathname.slice(3) || "/";
-    return NextResponse.redirect(new URL(limpio + search, req.url), 308);
+    return NextResponse.redirect(new URL((aGaleria(limpio) ?? limpio) + search, req.url), 308);
   }
+
+  const galeria = aGaleria(pathname);
+  if (galeria) return NextResponse.redirect(new URL(galeria + search, req.url), 308);
 
   if (pathname === "/en" || pathname.startsWith("/en/")) return NextResponse.next();
 
