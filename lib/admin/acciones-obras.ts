@@ -26,6 +26,7 @@ export type CamposObra = {
   serie_id?: string | null;
   es_encargo?: boolean;
   destacada?: boolean;
+  en_carrusel?: boolean;
   estado?: EstadoObra;
   publicada?: boolean;
   descripcion?: string | null;
@@ -61,7 +62,7 @@ function limpiarCampos(campos: CamposObra): Partial<Record<string, unknown>> {
     }
   }
   if (campos.serie_id !== undefined) limpios.serie_id = textoOpc(campos.serie_id);
-  for (const k of ["es_encargo", "destacada", "publicada"] as const) {
+  for (const k of ["es_encargo", "destacada", "en_carrusel", "publicada"] as const) {
     if (campos[k] !== undefined) {
       if (!bool(campos[k])) throw new Error(`${k} no es valido.`);
       limpios[k] = campos[k];
@@ -103,6 +104,7 @@ export async function crearObra(datos: {
   serie_id?: string | null;
   es_encargo: boolean;
   destacada: boolean;
+  en_carrusel: boolean;
   estado: EstadoObra;
   publicada: boolean;
   descripcion?: string | null;
@@ -129,6 +131,7 @@ export async function crearObra(datos: {
     serie_id: datos.serie_id?.trim() || null,
     es_encargo: datos.es_encargo,
     destacada: datos.destacada,
+    en_carrusel: datos.en_carrusel,
     estado: datos.estado,
     publicada: datos.publicada,
     descripcion: datos.descripcion?.trim() || null,

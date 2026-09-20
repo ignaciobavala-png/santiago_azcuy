@@ -3,12 +3,12 @@ import type { Categoria, Obra } from "./tipos";
 import type { Lang } from "./i18n";
 
 const CAMPOS =
-  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,destacada,estado,descripcion,imagen,imagen_w,imagen_h,blur";
+  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,destacada,en_carrusel,estado,descripcion,imagen,imagen_w,imagen_h,blur";
 
 export async function obras(filtros: {
   categoria?: Categoria;
   encargo?: boolean;
-  destacadas?: boolean;
+  enCarrusel?: boolean;
   limite?: number;
 } = {}): Promise<Obra[]> {
   // Cronologia cuando el dato existe: primero las obras con año, de la mas
@@ -23,7 +23,7 @@ export async function obras(filtros: {
     .order("orden");
   if (filtros.categoria) q = q.eq("categoria", filtros.categoria);
   if (filtros.encargo) q = q.eq("es_encargo", true);
-  if (filtros.destacadas) q = q.eq("destacada", true);
+  if (filtros.enCarrusel) q = q.eq("en_carrusel", true);
   if (filtros.limite) q = q.limit(filtros.limite);
   const { data, error } = await q;
   if (error) throw error;

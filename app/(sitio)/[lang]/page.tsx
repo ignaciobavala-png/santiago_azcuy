@@ -19,14 +19,15 @@ export default async function Home({ params }: { params: Promise<{ lang: Lang }>
 
   const [lista, elegidas, c, statement] = await Promise.all([
     obras({ limite: 17 }),
-    obras({ destacadas: true, limite: 6 }),
+    obras({ enCarrusel: true, limite: 6 }),
     conteos(),
     texto("statement", lang),
   ]);
 
-  // Las destacadas mandan el carrusel; hasta que Santiago marque alguna desde
-  // el panel, arranca con las primeras del orden general. Asi la home nunca
-  // queda vacia por una decision que todavia no se tomo.
+  // Las obras marcadas "en el carrusel" mandan el carrusel; hasta que
+  // Santiago elija alguna desde el panel, arranca con las primeras del orden
+  // general. Asi la home nunca queda vacia por una decision que todavia no
+  // se tomo.
   const carrusel = elegidas.length >= 2 ? elegidas : lista.slice(0, 5);
 
   return (

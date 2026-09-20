@@ -13,7 +13,7 @@ import { SECCIONES, etiquetaDe, huecosDe } from "./catalogo-textos";
  */
 
 const OBRAS_ADMIN =
-  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,destacada,estado,publicada,descripcion,imagen,imagen_w,imagen_h,blur,orden";
+  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,destacada,en_carrusel,estado,publicada,descripcion,imagen,imagen_w,imagen_h,blur,orden";
 
 export type ObraAdmin = Obra & { publicada: boolean; orden: number };
 
@@ -26,6 +26,7 @@ export async function obrasAdmin(filtros: {
   sinAnio?: boolean;
   sinFicha?: boolean;
   soloDestacadas?: boolean;
+  soloEnCarrusel?: boolean;
 } = {}): Promise<ObraAdmin[]> {
   let q = admin().from("obras").select(OBRAS_ADMIN).order("orden").order("creado_at", { ascending: false });
   if (filtros.q) q = q.ilike("titulo", `%${filtros.q}%`);
@@ -37,6 +38,7 @@ export async function obrasAdmin(filtros: {
   if (filtros.sinAnio) q = q.is("anio", null);
   if (filtros.sinFicha) q = q.or("tecnica.is.null,ancho_cm.is.null,alto_cm.is.null");
   if (filtros.soloDestacadas) q = q.eq("destacada", true);
+  if (filtros.soloEnCarrusel) q = q.eq("en_carrusel", true);
   const { data, error } = await q;
   if (error) throw error;
   return (data ?? []) as ObraAdmin[];
@@ -335,13 +337,13 @@ export async function tableroAdmin() {
   // tiene check constraint, asi que la condicion no puede darse nunca. Un
   // control de calidad que no puede fallar es peor que no tenerlo: da por
   // revisado algo que nadie miro. Estos tres si tienen huecos reales.
-  const [publicadas, sinAnio, sinFicha, destacadas, sinLeer, leads] = await Promise.all([
+  const [publicadas, sinAnio, sinFicha, enCarrusel, sinLeer, leads] = await Promise.all([
     contar(db.from("obras").select("id", { count: "exact", head: true }).eq("publicada", true)),
     contar(db.from("obras").select("id", { count: "exact", head: true }).is("anio", null)),
     contar(db.from("obras").select("id", { count: "exact", head: true }).or("tecnica.is.null,ancho_cm.is.null,alto_cm.is.null")),
-    contar(db.from("obras").select("id", { count: "exact", head: true }).eq("destacada", true)),
+    contar(db.from("obras").select("id", { count: "exact", head: true }).eq("en_carrusel", true)),
     contar(db.from("consultas").select("id", { count: "exact", head: true }).eq("leida", false)),
     contar(db.from("libro_leads").select("id", { count: "exact", head: true })),
   ]);
-  return { publicadas, sinAnio, sinFicha, destacadas, sinLeer, leads };
+  return { publicadas, sinAnio, sinFicha, enCarrusel, sinLeer, leads };
 }

@@ -94,7 +94,7 @@ function Tablero({ t }: { t: Awaited<ReturnType<typeof tableroAdmin>> }) {
         <Tarjeta valor={t.publicadas} etiqueta="Obras publicadas" href="/admin/obras" />
         <Tarjeta valor={t.sinAnio} etiqueta="Obras sin año" href="/admin/obras?sinanio=1" alarma />
         <Tarjeta valor={t.sinFicha} etiqueta="Sin técnica o medidas" href="/admin/obras?sinficha=1" alarma />
-        <Tarjeta valor={t.destacadas} etiqueta="Destacadas en la home" href="/admin/obras?destacadas=1" />
+        <Tarjeta valor={t.enCarrusel} etiqueta="En el carrusel del home" href="/admin/obras?carrusel=1" />
         <Tarjeta valor={t.sinLeer} etiqueta="Consultas sin leer" href="/admin/consultas" alarma />
         <Tarjeta valor={t.leads} etiqueta="Mails del libro" href="/admin/libro" />
       </section>
@@ -102,10 +102,12 @@ function Tablero({ t }: { t: Awaited<ReturnType<typeof tableroAdmin>> }) {
       <p className="mt-6 max-w-prose text-sm leading-relaxed text-tinta-media">
         La galería va de la obra más nueva a la más vieja, cronológica dentro de
         cada categoría. Las obras sin año quedan al final de su categoría: cada
-        año que se carga acomoda una más en su lugar. Las destacadas son las que
-        rotan en el bloque grande de la home; si no hay ninguna, salen las
-        primeras del orden general. Lo que se publica sale en vivo, sin esperar
-        la hora de caché del sitio.
+        año que se carga acomoda una más en su lugar. Las obras marcadas
+        &ldquo;en el carrusel&rdquo; son las que rotan en el bloque grande de
+        la home; si no hay ninguna, salen las primeras del orden general.
+        &ldquo;Destacada&rdquo; es otra cosa — un tag propio, no decide qué se
+        ve en la home. Lo que se publica sale en vivo, sin esperar la hora de
+        caché del sitio.
       </p>
     </main>
   );

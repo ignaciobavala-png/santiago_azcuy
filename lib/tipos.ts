@@ -15,6 +15,7 @@ export type Obra = {
   serie_id: string | null;
   es_encargo: boolean;
   destacada: boolean;
+  en_carrusel: boolean;
   estado: EstadoObra;
   descripcion: string | null;
   imagen: string;

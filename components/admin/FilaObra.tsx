@@ -15,8 +15,9 @@ const ETIQUETA_ESTADO: Record<EstadoObra, string> = {
 };
 
 /**
- * Una fila de la lista de obras. Publicada, destacada, disponible y orden se
- * editan aca mismo; el resto (ficha completa) vive en la pagina de la obra.
+ * Una fila de la lista de obras. Publicada, destacada, en el carrusel, estado
+ * y orden se editan aca mismo; el resto (ficha completa) vive en la pagina de
+ * la obra.
  * Cada cambio dispara una Server Action y refresca la lista, que es la que
  * decide si la fila sigue entrando en el filtro activo.
  */
@@ -47,7 +48,7 @@ export function FilaObra({ obra }: { obra: ObraAdmin }) {
     cambiar({ orden: n });
   }
 
-  const conmutador = (valor: boolean, etiqueta: string, campo: "publicada" | "destacada") => (
+  const conmutador = (valor: boolean, etiqueta: string, campo: "publicada" | "destacada" | "en_carrusel") => (
     <label className="flex cursor-pointer items-center gap-1.5">
       <input
         type="checkbox"
@@ -83,6 +84,7 @@ export function FilaObra({ obra }: { obra: ObraAdmin }) {
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
         {conmutador(obra.publicada, "Publicada", "publicada")}
         {conmutador(obra.destacada, "Destacada", "destacada")}
+        {conmutador(obra.en_carrusel, "En el carrusel", "en_carrusel")}
         <label className="flex items-center gap-1.5">
           <select
             value={obra.estado}

@@ -52,6 +52,7 @@ export function ObraFormulario({
   const [serie, setSerie] = useState(obra?.serie_id ?? "");
   const [esEncargo, setEsEncargo] = useState(obra?.es_encargo ?? false);
   const [destacada, setDestacada] = useState(obra?.destacada ?? false);
+  const [enCarrusel, setEnCarrusel] = useState(obra?.en_carrusel ?? false);
   const [estadoObra, setEstadoObra] = useState<EstadoObra>(obra?.estado ?? "disponible");
   const [publicada, setPublicada] = useState(obra?.publicada ?? true);
   const [descripcion, setDescripcion] = useState(obra?.descripcion ?? "");
@@ -98,6 +99,7 @@ export function ObraFormulario({
       serie_id: serie || null,
       es_encargo: esEncargo,
       destacada,
+      en_carrusel: enCarrusel,
       estado: estadoObra,
       publicada,
       descripcion: descripcion.trim() || null,
@@ -258,6 +260,7 @@ export function ObraFormulario({
           [
             ["esEncargo", "Por encargo", esEncargo, setEsEncargo],
             ["destacada", "Destacada", destacada, setDestacada],
+            ["enCarrusel", "En el carrusel del home", enCarrusel, setEnCarrusel],
             ["publicada", "Publicada", publicada, setPublicada],
           ] as const
         ).map(([k, etiqueta, valor, set]) => (

@@ -133,13 +133,15 @@ body {
   asi que se lee sobre el papel claro, sobre el tema oscuro y sobre el negro de
   las paginas de obra.
 
-  La proporcion va aca y no en cada uso: el archivo esta recortado al trazo
-  (1468x724, la version en alta que mando Santiago), y si algun dia se
-  reemplaza por otra version alcanza con tocar este numero. Quien lo usa solo
-  elige la altura.
+  La proporcion va aca y no en cada uso: el archivo (1528x788, la version en
+  alta que mando Santiago) deja un margen chico alrededor del trazo a
+  proposito — sin el, la punta de alguna letra quedaba justo en el borde del
+  contenedor y el redondeo de `mask-size: contain` se la comia. Si algun dia
+  se reemplaza por otra version alcanza con tocar este numero. Quien lo usa
+  solo elige la altura.
 */
 .firma {
-  aspect-ratio: 367 / 181;
+  aspect-ratio: 382 / 197;
   background-color: currentColor;
   -webkit-mask-image: url("/firma.webp");
   mask-image: url("/firma.webp");
