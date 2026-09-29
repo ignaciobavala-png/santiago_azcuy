@@ -3,11 +3,13 @@ import type { Categoria, Obra } from "./tipos";
 import type { Lang } from "./i18n";
 
 const CAMPOS =
-  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,destacada,en_carrusel,estado,descripcion,imagen,imagen_w,imagen_h,blur";
+  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,ofrecer_encargo,destacada,en_carrusel,estado,descripcion,imagen,imagen_w,imagen_h,blur";
 
 export async function obras(filtros: {
   categoria?: Categoria;
   encargo?: boolean;
+  /** true: solo las que Santiago ofrece por encargo; false: todas menos esas. */
+  ofrecidas?: boolean;
   enCarrusel?: boolean;
   limite?: number;
 } = {}): Promise<Obra[]> {
@@ -23,6 +25,7 @@ export async function obras(filtros: {
     .order("orden");
   if (filtros.categoria) q = q.eq("categoria", filtros.categoria);
   if (filtros.encargo) q = q.eq("es_encargo", true);
+  if (filtros.ofrecidas !== undefined) q = q.eq("ofrecer_encargo", filtros.ofrecidas);
   if (filtros.enCarrusel) q = q.eq("en_carrusel", true);
   if (filtros.limite) q = q.limit(filtros.limite);
   const { data, error } = await q;
@@ -36,13 +39,15 @@ export async function obra(slug: string): Promise<Obra | null> {
 }
 
 export async function conteos() {
-  const { data } = await supabase.from("obras").select("categoria,es_encargo");
+  // Las ofrecidas por encargo cuentan solo en Encargos: no se mezclan con las
+  // categorias, igual que en la galeria.
+  const { data } = await supabase.from("obras").select("categoria,ofrecer_encargo");
   const c = { total: 0, figurativo: 0, abstracto: 0, dibujo: 0, encargos: 0 } as Record<string, number>;
   for (const r of data ?? []) {
-    const fila = r as { categoria: string; es_encargo: boolean };
+    const fila = r as { categoria: string; ofrecer_encargo: boolean };
     c.total++;
-    c[fila.categoria]++;
-    if (fila.es_encargo) c.encargos++;
+    if (fila.ofrecer_encargo) c.encargos++;
+    else c[fila.categoria]++;
   }
   return c;
 }

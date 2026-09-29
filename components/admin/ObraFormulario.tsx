@@ -51,6 +51,7 @@ export function ObraFormulario({
   const [alto, setAlto] = useState(fmtComa(obra?.alto_cm ?? null));
   const [serie, setSerie] = useState(obra?.serie_id ?? "");
   const [esEncargo, setEsEncargo] = useState(obra?.es_encargo ?? false);
+  const [ofrecerEncargo, setOfrecerEncargo] = useState(obra?.ofrecer_encargo ?? false);
   const [destacada, setDestacada] = useState(obra?.destacada ?? false);
   const [enCarrusel, setEnCarrusel] = useState(obra?.en_carrusel ?? false);
   const [estadoObra, setEstadoObra] = useState<EstadoObra>(obra?.estado ?? "disponible");
@@ -98,6 +99,7 @@ export function ObraFormulario({
       alto_cm: mAlto.valor,
       serie_id: serie || null,
       es_encargo: esEncargo,
+      ofrecer_encargo: ofrecerEncargo,
       destacada,
       en_carrusel: enCarrusel,
       estado: estadoObra,
@@ -258,7 +260,8 @@ export function ObraFormulario({
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 md:col-span-2">
         {(
           [
-            ["esEncargo", "Por encargo", esEncargo, setEsEncargo],
+            ["esEncargo", "Hecha por encargo", esEncargo, setEsEncargo],
+            ["ofrecerEncargo", "Ofrecer por encargo", ofrecerEncargo, setOfrecerEncargo],
             ["destacada", "Destacada", destacada, setDestacada],
             ["enCarrusel", "En el carrusel del home", enCarrusel, setEnCarrusel],
             ["publicada", "Publicada", publicada, setPublicada],

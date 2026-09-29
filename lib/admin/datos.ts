@@ -13,7 +13,7 @@ import { SECCIONES, etiquetaDe, huecosDe } from "./catalogo-textos";
  */
 
 const OBRAS_ADMIN =
-  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,destacada,en_carrusel,estado,publicada,descripcion,imagen,imagen_w,imagen_h,blur,orden";
+  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,ofrecer_encargo,destacada,en_carrusel,estado,publicada,descripcion,imagen,imagen_w,imagen_h,blur,orden";
 
 export type ObraAdmin = Obra & { publicada: boolean; orden: number };
 
@@ -22,6 +22,7 @@ export async function obrasAdmin(filtros: {
   categoria?: Categoria | "sin";
   soloOcultas?: boolean;
   soloEncargos?: boolean;
+  soloOfrecidas?: boolean;
   sinTitulo?: boolean;
   sinAnio?: boolean;
   sinFicha?: boolean;
@@ -34,6 +35,7 @@ export async function obrasAdmin(filtros: {
   if (filtros.categoria === "sin") q = q.or(`categoria.is.null,categoria.in.("")`);
   if (filtros.soloOcultas) q = q.eq("publicada", false);
   if (filtros.soloEncargos) q = q.eq("es_encargo", true);
+  if (filtros.soloOfrecidas) q = q.eq("ofrecer_encargo", true);
   if (filtros.sinTitulo) q = q.or("titulo.is.null,titulo.eq.\"\"");
   if (filtros.sinAnio) q = q.is("anio", null);
   if (filtros.sinFicha) q = q.or("tecnica.is.null,ancho_cm.is.null,alto_cm.is.null");

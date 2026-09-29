@@ -19,8 +19,9 @@ export async function generateMetadata({
 const VALIDAS = new Set<string>(CATEGORIAS);
 
 /** La categoria real de la obra (figurativo/abstracto/dibujo), o la seccion
- *  virtual "encargos": no es un valor de `categoria` en la base, es un cruce
- *  por `es_encargo` que se muestra como si fuera una categoria mas. */
+ *  virtual "encargos": no es un valor de `categoria` en la base, son las obras
+ *  que Santiago marco para ofrecer por encargo (`ofrecer_encargo`). Esas viven
+ *  solo ahi: las categorias las excluyen para que no se mezclen. */
 type Seccion = Categoria | "encargos";
 
 export default async function Galeria({
@@ -45,8 +46,8 @@ export default async function Galeria({
     const c = await conteos();
     const conObras = CATEGORIAS.filter((cat) => c[cat] > 0);
     const [porCategoria, obrasEncargos] = await Promise.all([
-      Promise.all(conObras.map((cat) => obras({ categoria: cat, limite: 6 }))),
-      c.encargos > 0 ? obras({ encargo: true, limite: 6 }) : Promise.resolve([]),
+      Promise.all(conObras.map((cat) => obras({ categoria: cat, ofrecidas: false, limite: 6 }))),
+      c.encargos > 0 ? obras({ ofrecidas: true, limite: 6 }) : Promise.resolve([]),
     ]);
 
     return (
@@ -81,7 +82,9 @@ export default async function Galeria({
   }
 
   const esEncargos = seccion === "encargos";
-  const lista = await obras(esEncargos ? { encargo: true } : { categoria: seccion, encargo });
+  const lista = await obras(
+    esEncargos ? { ofrecidas: true } : { categoria: seccion, encargo, ofrecidas: false },
+  );
 
   return (
     <main className="mx-auto max-w-[1600px] px-5 md:px-10">

@@ -18,7 +18,7 @@ export default async function Home({ params }: { params: Promise<{ lang: Lang }>
   const d = await dic(lang);
 
   const [lista, elegidas, c, statement] = await Promise.all([
-    obras({ limite: 17 }),
+    obras({ ofrecidas: false, limite: 17 }),
     obras({ enCarrusel: true, limite: 6 }),
     conteos(),
     texto("statement", lang),

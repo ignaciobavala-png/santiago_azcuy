@@ -14,6 +14,7 @@ export type Obra = {
   categoria: Categoria;
   serie_id: string | null;
   es_encargo: boolean;
+  ofrecer_encargo: boolean;
   destacada: boolean;
   en_carrusel: boolean;
   estado: EstadoObra;

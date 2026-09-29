@@ -44,7 +44,15 @@ export default async function PaginaObra({
   const o = await obra(slug);
   if (!o) notFound();
 
-  const relacionadas = (await obras({ categoria: o.categoria, limite: 5 }))
+  // Las relacionadas salen del mismo grupo que la obra: si esta ofrecida por
+  // encargo, de Encargos; si no, de su categoria sin las ofrecidas.
+  const relacionadas = (
+    await obras(
+      o.ofrecer_encargo
+        ? { ofrecidas: true, limite: 5 }
+        : { categoria: o.categoria, ofrecidas: false, limite: 5 },
+    )
+  )
     .filter((r) => r.id !== o.id)
     .slice(0, 4);
 
@@ -111,7 +119,7 @@ export default async function PaginaObra({
       {relacionadas.length > 0 && (
         <section className="mx-auto max-w-[1600px] px-5 py-20 md:px-10">
           <h2 className="etiqueta mb-8 text-tinta-suave">
-            {fmt(d.obras.mas, { categoria: d.obras.categorias[o.categoria].toLowerCase() })}
+            {fmt(d.obras.mas, { categoria: d.obras.categorias[o.ofrecer_encargo ? "encargos" : o.categoria].toLowerCase() })}
           </h2>
           <div className="grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-4">
             {relacionadas.map((r) => (
