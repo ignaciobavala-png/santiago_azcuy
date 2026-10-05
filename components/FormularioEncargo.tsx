@@ -42,6 +42,7 @@ export function FormularioEncargo({ lang, d }: { lang: Lang; d: Diccionario["enc
   const [website, setWebsite] = useState("");
 
   const [estado, setEstado] = useState<Estado>("editando");
+  const [avisoEmail, setAvisoEmail] = useState(false);
   const [paso, setPaso] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -73,7 +74,8 @@ export function FormularioEncargo({ lang, d }: { lang: Lang; d: Diccionario["enc
     setError(null);
 
     if (!nombre.trim()) return setError(d.campos.nombre);
-    if (!EMAIL.test(email.trim())) return setError(d.errorMail);
+    if (!whatsapp.trim()) return setError(d.campos.whatsapp);
+    if (email.trim() && !EMAIL.test(email.trim())) return setError(d.errorMail);
     if (descripcion.trim().length < 20) return setError(d.errorCorto);
     if (!tipoProyecto) return setError(d.campos.tipoProyecto);
     if (!destino) return setError(d.campos.destino);
@@ -139,6 +141,7 @@ export function FormularioEncargo({ lang, d }: { lang: Lang; d: Diccionario["enc
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? d.errorEnvio);
 
+      setAvisoEmail(Boolean(data.avisoEmail));
       setEstado("ok");
       setPaso(null);
     } catch (err) {
@@ -153,6 +156,7 @@ export function FormularioEncargo({ lang, d }: { lang: Lang; d: Diccionario["enc
       <div role="status" className="border-t border-linea pt-8">
         <h2 className="titular">{d.exitoTitulo}</h2>
         <p className="mt-4 max-w-md leading-relaxed text-tinta-media">{d.exitoTexto}</p>
+        {avisoEmail && <p className="mt-4 max-w-md text-sm text-amber-200">{lang === "es" ? "La solicitud quedó registrada, pero el aviso automático por email tuvo un problema. No hace falta enviarla de nuevo." : "Your request was saved, but the automatic email alert could not be sent. You do not need to send it again."}</p>}
       </div>
     );
   }
@@ -176,10 +180,10 @@ export function FormularioEncargo({ lang, d }: { lang: Lang; d: Diccionario["enc
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="block">
           <span className={label}>{d.campos.nombre} *</span>
-          <input className={entrada} value={nombre} onChange={(e) => setNombre(e.target.value)} autoComplete="name" />
+          <input required className={entrada} value={nombre} onChange={(e) => setNombre(e.target.value)} autoComplete="name" />
         </label>
         <label className="block">
-          <span className={label}>{d.campos.email} *</span>
+          <span className={label}>{d.campos.email}</span>
           <input
             type="email"
             className={entrada}
@@ -189,8 +193,8 @@ export function FormularioEncargo({ lang, d }: { lang: Lang; d: Diccionario["enc
           />
         </label>
         <label className="block">
-          <span className={label}>{d.campos.whatsapp}</span>
-          <input className={entrada} value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} autoComplete="tel" />
+          <span className={label}>{d.campos.whatsapp} *</span>
+          <input required className={entrada} value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} autoComplete="tel" />
         </label>
         <label className="block">
           <span className={label}>{d.campos.ciudad}</span>

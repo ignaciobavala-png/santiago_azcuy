@@ -28,6 +28,7 @@ const SECCIONES = [
   { href: "/admin/arquitectura", etiqueta: "Arquitectura" },
   { href: "/admin/sobre", etiqueta: "Sobre" },
   { href: "/admin/consultas", etiqueta: "Consultas" },
+  { href: "/admin/market", etiqueta: "Market" },
   { href: "/admin/libro", etiqueta: "Libro" },
 ];
 

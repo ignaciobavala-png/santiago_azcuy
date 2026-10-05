@@ -17,3 +17,7 @@ pnpm dev
 ```
 
 Variables de entorno en `.env.local` (ver Vercel para los valores de produccion).
+
+## Market
+
+La tienda crea solicitudes de compra; no procesa pagos ni reserva una obra hasta que Santiago confirma la seña. Aplicar la migración `supabase/migrations/20261005120000_market.sql` antes de habilitar la sección. Para avisos, configurar `RESEND_API_KEY`, `RESEND_FROM_EMAIL` (remitente verificado en Resend) y cargar los destinatarios en `/admin/market`.

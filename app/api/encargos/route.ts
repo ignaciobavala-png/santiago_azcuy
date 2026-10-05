@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { admin } from "@/lib/admin/cliente";
 import { DESTINOS_ENCARGO, MAX_ADJUNTOS, TIPOS_ENCARGO } from "@/lib/tipos";
+import { enviarAvisoMarket } from "@/lib/market-email";
 
 export const runtime = "nodejs";
 
@@ -76,10 +77,11 @@ export async function POST(req: Request) {
   const tipoProyecto = txt(cuerpo.tipoProyecto, 40);
   const destino = txt(cuerpo.destino, 40);
 
-  if (!nombre || !descripcion || !tipoProyecto || !destino) {
+  const telefono = opcional(cuerpo.whatsapp, 40);
+  if (!nombre || !telefono || !descripcion || !tipoProyecto || !destino) {
     return NextResponse.json({ error: t.requerido }, { status: 400 });
   }
-  if (!EMAIL.test(email)) {
+  if (email && !EMAIL.test(email)) {
     return NextResponse.json({ error: t.mail }, { status: 400 });
   }
   if (!(TIPOS_ENCARGO as readonly string[]).includes(tipoProyecto)) {
@@ -101,9 +103,9 @@ export async function POST(req: Request) {
       .insert({
         clase: "encargo",
         nombre,
-        email,
+        email: email || null,
         mensaje: descripcion,
-        whatsapp: opcional(cuerpo.whatsapp, 40),
+        whatsapp: telefono,
         ciudad: opcional(cuerpo.ciudad, 120),
         pais: opcional(cuerpo.pais, 120),
         tipo_proyecto: tipoProyecto,
@@ -124,7 +126,30 @@ export async function POST(req: Request) {
       if (errorArchivos) throw new Error(errorArchivos.message);
     }
 
-    return NextResponse.json({ ok: true });
+    const { error: marketPedidoError } = await db.from("market_pedidos").insert({
+      nombre,
+      email: email || null,
+      telefono,
+      ciudad: opcional(cuerpo.ciudad, 120),
+      pais: opcional(cuerpo.pais, 120),
+      mensaje: [`Tipo: ${tipoProyecto}${cuerpo.tipoOtro ? ` · ${txt(cuerpo.tipoOtro, 160)}` : ""}`, `Destino: ${destino}${cuerpo.destinoOtro ? ` · ${txt(cuerpo.destinoOtro, 160)}` : ""}`, `Descripción: ${descripcion}`, opcional(cuerpo.referencias, 2000) ? `Referencias: ${txt(cuerpo.referencias, 2000)}` : "", `Adjuntos: ${adjuntos.length}`].filter(Boolean).join("\n"),
+      origen: "encargo",
+      total: 0,
+      senia_total: 0,
+      moneda: "USD",
+    });
+    if (marketPedidoError) console.error("[market] no se pudo registrar el pedido de encargo:", marketPedidoError.message);
+
+    const { data: marketConfig } = await db.from("market_config").select("emails_aviso,instrucciones_pago,porcentajes_senia").eq("id", true).maybeSingle();
+    let avisoEmail = false;
+    if (marketConfig) {
+      const pct = Number((marketConfig.porcentajes_senia as Record<string, number>).encargos ?? 30);
+      const resumen = [`Nueva solicitud de encargo`, `Nombre: ${nombre}`, `Email: ${email || "No informado"}`, `Teléfono: ${telefono}`, `Ubicación: ${[opcional(cuerpo.ciudad, 120), opcional(cuerpo.pais, 120)].filter(Boolean).join(", ") || "No informada"}`, `Tipo: ${tipoProyecto}${cuerpo.tipoOtro ? ` · ${txt(cuerpo.tipoOtro,160)}` : ""}`, `Destino: ${destino}${cuerpo.destinoOtro ? ` · ${txt(cuerpo.destinoOtro,160)}` : ""}`, `Seña configurable actual para encargos: ${pct}%`, `Adjuntos: ${adjuntos.length}`, "", `Descripción: ${descripcion}`, txt(cuerpo.referencias, 2000) ? `\nReferencias: ${txt(cuerpo.referencias, 2000)}` : ""].filter(Boolean).join("\n");
+      try { await enviarAvisoMarket({ config: marketConfig, asunto: "Nueva solicitud de encargo", texto: resumen, replyTo: email }); }
+      catch (e) { avisoEmail = true; console.error("[market] no se pudo enviar el aviso de encargo:", e); }
+    }
+    else avisoEmail = true;
+    return NextResponse.json({ ok: true, avisoEmail });
   } catch (e) {
     console.error("[encargos] no se pudo guardar la solicitud:", e);
     // Rollback: los adjuntos ya subidos no deben quedar sin su fila.

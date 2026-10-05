@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Inter } from "next/font/google";
 import { Cabecera } from "@/components/Cabecera";
+import { ProveedorCarrito } from "@/components/market/Carrito";
 import { IDIOMAS, esIdioma, ruta, type Lang } from "@/lib/i18n";
 import { dic } from "@/lib/textos";
 import "../../globals.css";
@@ -51,8 +52,10 @@ export default async function RootLayout({
   return (
     <html lang={lang} className={inter.variable}>
       <body className="min-h-screen antialiased">
+        <ProveedorCarrito>
         <Cabecera lang={lang} nav={d.nav} />
         {children}
+        </ProveedorCarrito>
       </body>
     </html>
   );

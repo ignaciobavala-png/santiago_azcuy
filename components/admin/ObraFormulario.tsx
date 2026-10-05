@@ -55,6 +55,9 @@ export function ObraFormulario({
   const [destacada, setDestacada] = useState(obra?.destacada ?? false);
   const [enCarrusel, setEnCarrusel] = useState(obra?.en_carrusel ?? false);
   const [estadoObra, setEstadoObra] = useState<EstadoObra>(obra?.estado ?? "disponible");
+  const [paraVenta, setParaVenta] = useState(obra?.para_venta ?? false);
+  const [precio, setPrecio] = useState(obra?.precio == null ? "" : String(obra.precio));
+  const [moneda, setMoneda] = useState<"USD" | "ARS">(obra?.moneda ?? "USD");
   const [publicada, setPublicada] = useState(obra?.publicada ?? true);
   const [descripcion, setDescripcion] = useState(obra?.descripcion ?? "");
   const [orden, setOrden] = useState(String(obra?.orden ?? 0));
@@ -87,6 +90,9 @@ export function ObraFormulario({
     if (mAncho.error || mAlto.error) return setError(mAncho.error ?? mAlto.error ?? "");
     const anioN = anio.trim() ? Number(anio.trim()) : null;
     if (anioN !== null && !Number.isInteger(anioN)) return setError("El anio tiene que ser un entero.");
+    const precioN = precio.trim() ? Number(precio.trim().replace(",", ".")) : null;
+    if (precioN !== null && (!Number.isFinite(precioN) || precioN <= 0)) return setError("El precio debe ser mayor que cero.");
+    if (paraVenta && precioN === null) return setError("Cargá un precio para ofrecer esta obra.");
     const ordenN = Number(orden);
     if (!Number.isInteger(ordenN)) return setError("El orden tiene que ser un entero.");
 
@@ -103,6 +109,9 @@ export function ObraFormulario({
       destacada,
       en_carrusel: enCarrusel,
       estado: estadoObra,
+      para_venta: paraVenta,
+      precio: precioN,
+      moneda,
       publicada,
       descripcion: descripcion.trim() || null,
       orden: ordenN,
@@ -242,6 +251,22 @@ export function ObraFormulario({
           className="w-full rounded-md border border-linea bg-papel px-3 py-2 text-sm outline-none focus:border-tinta-media"
         />
       </Campo>
+
+      <section className="grid gap-4 border-y border-linea py-4 md:col-span-2 md:grid-cols-3">
+        <label className="flex items-center gap-2 text-sm md:col-span-3">
+          <input type="checkbox" checked={paraVenta} onChange={(e) => setParaVenta(e.target.checked)} className="h-4 w-4 accent-tinta" />
+          Ofrecer en el market
+        </label>
+        <Campo etiqueta="Precio">
+          <input type="text" inputMode="decimal" value={precio} onChange={(e) => setPrecio(e.target.value)} onWheel={(e) => e.currentTarget.blur()} placeholder="1200" className="w-full rounded-md border border-linea bg-papel px-3 py-2 text-sm outline-none focus:border-tinta-media" />
+        </Campo>
+        <Campo etiqueta="Moneda">
+          <select value={moneda} onChange={(e) => setMoneda(e.target.value as "USD" | "ARS")} className="w-full rounded-md border border-linea bg-papel px-3 py-2 text-sm outline-none focus:border-tinta-media">
+            <option value="USD">Dólares (USD)</option><option value="ARS">Pesos (ARS)</option>
+          </select>
+        </Campo>
+        <p className="self-end pb-2 text-xs leading-relaxed text-tinta-suave">El envío se cotiza aparte. La obra debe estar publicada y disponible para aparecer en el market.</p>
+      </section>
 
       {esNueva && (
         <Campo etiqueta="Imagen (JPEG, PNG o WebP)" className="md:col-span-2">

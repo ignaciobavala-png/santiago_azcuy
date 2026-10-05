@@ -13,9 +13,41 @@ import { SECCIONES, etiquetaDe, huecosDe } from "./catalogo-textos";
  */
 
 const OBRAS_ADMIN =
-  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,ofrecer_encargo,destacada,en_carrusel,estado,publicada,descripcion,imagen,imagen_w,imagen_h,blur,orden";
+  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,ofrecer_encargo,destacada,en_carrusel,estado,para_venta,precio,moneda,publicada,descripcion,imagen,imagen_w,imagen_h,blur,orden";
 
 export type ObraAdmin = Obra & { publicada: boolean; orden: number };
+
+export type MarketConfig = {
+  emails_aviso: string;
+  instrucciones_pago: string;
+  porcentajes_senia: Record<string, number>;
+};
+
+export async function marketConfigAdmin(): Promise<MarketConfig> {
+  const { data, error } = await admin().from("market_config").select("emails_aviso,instrucciones_pago,porcentajes_senia").eq("id", true).single();
+  if (error) throw error;
+  return data as MarketConfig;
+}
+
+export type PedidoMarket = {
+  id: string; codigo: string; nombre: string; email: string | null; telefono: string;
+  ciudad: string | null; pais: string | null; mensaje: string | null; origen: "carrito" | "encargo";
+  estado: string; total: number; senia_total: number; moneda: string; creado_at: string;
+  items: { titulo: string; categoria: string; precio: number; moneda: string; slug: string | null; porcentaje_senia: number; importe_senia: number }[];
+};
+
+export async function pedidosMarketAdmin(): Promise<PedidoMarket[]> {
+  const db = admin();
+  const { data, error } = await db.from("market_pedidos").select("id,codigo,nombre,email,telefono,ciudad,pais,mensaje,origen,estado,total,senia_total,moneda,creado_at").order("creado_at", { ascending: false }).limit(100);
+  if (error) throw error;
+  const rows = data ?? [];
+  if (!rows.length) return [];
+  const { data: items, error: itemError } = await db.from("market_pedido_items").select("pedido_id,titulo,categoria,precio,moneda,slug,porcentaje_senia,importe_senia").in("pedido_id", rows.map((r) => r.id));
+  if (itemError) throw itemError;
+  const porPedido = new Map<string, PedidoMarket["items"]>();
+  for (const item of items ?? []) porPedido.set(item.pedido_id, [...(porPedido.get(item.pedido_id) ?? []), item]);
+  return rows.map((r) => ({ ...r, items: porPedido.get(r.id) ?? [] })) as PedidoMarket[];
+}
 
 export async function obrasAdmin(filtros: {
   q?: string;

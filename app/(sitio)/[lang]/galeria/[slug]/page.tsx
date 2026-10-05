@@ -7,6 +7,7 @@ import { IDIOMAS, fmt, ruta, type Lang } from "@/lib/i18n";
 import { dic } from "@/lib/textos";
 import { ficha } from "@/lib/tipos";
 import { ObraCard } from "@/components/ObraCard";
+import { BotonCarrito } from "@/components/market/Carrito";
 
 export const revalidate = 3600;
 
@@ -107,12 +108,17 @@ export default async function PaginaObra({
             </dl>
           </div>
 
-          <Link
+          {o.para_venta && o.estado === "disponible" && o.precio != null ? (
+            <div className="mt-12 flex flex-wrap items-center gap-5">
+              <p className="titular text-2xl">{new Intl.NumberFormat(lang === "es" ? "es-AR" : "en-US", { style: "currency", currency: o.moneda, maximumFractionDigits: 0 }).format(Number(o.precio))} <span className="etiqueta text-luz/50">{o.moneda}</span></p>
+              <BotonCarrito obra={o} />
+            </div>
+          ) : <Link
             href={ruta(lang, "/contacto")}
             className="etiqueta mt-12 inline-block border border-luz/25 px-6 py-3 transition-colors hover:bg-luz hover:text-noche"
           >
             {d.obras.consultar}
-          </Link>
+          </Link>}
         </div>
       </article>
 

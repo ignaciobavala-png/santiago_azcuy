@@ -3,7 +3,7 @@ import type { Categoria, Obra } from "./tipos";
 import type { Lang } from "./i18n";
 
 const CAMPOS =
-  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,ofrecer_encargo,destacada,en_carrusel,estado,descripcion,imagen,imagen_w,imagen_h,blur";
+  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,ofrecer_encargo,destacada,en_carrusel,estado,para_venta,precio,moneda,descripcion,imagen,imagen_w,imagen_h,blur";
 
 export async function obras(filtros: {
   categoria?: Categoria;

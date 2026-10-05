@@ -28,6 +28,7 @@ const es = {
   nav: {
     obras: "Galería",
     encargos: "Encargos",
+    carrito: "Carrito",
     musica: "Música",
     libro: "Novela",
     arquitectura: "Arquitectura",
@@ -182,6 +183,7 @@ const en: typeof es = {
   nav: {
     obras: "Gallery",
     encargos: "Commissions",
+    carrito: "Cart",
     musica: "Music",
     libro: "Novel",
     arquitectura: "Architecture",

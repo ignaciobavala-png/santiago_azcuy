@@ -53,6 +53,7 @@ export function ObraCard({
         <span className="etiqueta shrink-0 text-tinta-suave">{obra.anio ?? ""}</span>
       </figcaption>
       <p className="mt-0.5 text-[0.8125rem] text-tinta-media">{ficha(obra)}</p>
+      {obra.para_venta && obra.estado === "disponible" && obra.precio != null && <p className="mt-2 etiqueta text-tinta">{new Intl.NumberFormat(lang === "es" ? "es-AR" : "en-US", { style: "currency", currency: obra.moneda, maximumFractionDigits: 0 }).format(Number(obra.precio))} {obra.moneda}</p>}
     </Link>
   );
 }

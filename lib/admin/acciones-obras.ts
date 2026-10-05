@@ -29,6 +29,9 @@ export type CamposObra = {
   destacada?: boolean;
   en_carrusel?: boolean;
   estado?: EstadoObra;
+  para_venta?: boolean;
+  precio?: number | null;
+  moneda?: "USD" | "ARS";
   publicada?: boolean;
   descripcion?: string | null;
   orden?: number;
@@ -63,11 +66,19 @@ function limpiarCampos(campos: CamposObra): Partial<Record<string, unknown>> {
     }
   }
   if (campos.serie_id !== undefined) limpios.serie_id = textoOpc(campos.serie_id);
-  for (const k of ["es_encargo", "ofrecer_encargo", "destacada", "en_carrusel", "publicada"] as const) {
+  for (const k of ["es_encargo", "ofrecer_encargo", "destacada", "en_carrusel", "publicada", "para_venta"] as const) {
     if (campos[k] !== undefined) {
       if (!bool(campos[k])) throw new Error(`${k} no es valido.`);
       limpios[k] = campos[k];
     }
+  }
+  if (campos.precio !== undefined) {
+    if (campos.precio !== null && (typeof campos.precio !== "number" || !Number.isFinite(campos.precio) || campos.precio <= 0)) throw new Error("El precio debe ser mayor que cero.");
+    limpios.precio = campos.precio;
+  }
+  if (campos.moneda !== undefined) {
+    if (campos.moneda !== "USD" && campos.moneda !== "ARS") throw new Error("Moneda no válida.");
+    limpios.moneda = campos.moneda;
   }
   if (campos.estado !== undefined) {
     if (!esEstadoObra(campos.estado)) throw new Error("Estado no valido.");
@@ -108,6 +119,9 @@ export async function crearObra(datos: {
   destacada: boolean;
   en_carrusel: boolean;
   estado: EstadoObra;
+  para_venta: boolean;
+  precio: number | null;
+  moneda: "USD" | "ARS";
   publicada: boolean;
   descripcion?: string | null;
   orden: number;
@@ -121,6 +135,8 @@ export async function crearObra(datos: {
   if (!SLUG.test(datos.slug)) throw new Error("El slug no es valido.");
   if (!esCategoria(datos.categoria)) throw new Error("Elegi una categoria.");
   if (!esEstadoObra(datos.estado)) throw new Error("Estado no valido.");
+  if (datos.para_venta && (!Number.isFinite(datos.precio) || Number(datos.precio) <= 0)) throw new Error("Cargá un precio mayor que cero para ofrecer esta obra.");
+  if (datos.moneda !== "USD" && datos.moneda !== "ARS") throw new Error("Moneda no válida.");
 
   const { error } = await admin().from("obras").insert({
     slug: datos.slug,
@@ -136,6 +152,9 @@ export async function crearObra(datos: {
     destacada: datos.destacada,
     en_carrusel: datos.en_carrusel,
     estado: datos.estado,
+    para_venta: datos.para_venta,
+    precio: datos.precio,
+    moneda: datos.moneda,
     publicada: datos.publicada,
     descripcion: datos.descripcion?.trim() || null,
     orden: Number.isInteger(datos.orden) ? datos.orden : 0,

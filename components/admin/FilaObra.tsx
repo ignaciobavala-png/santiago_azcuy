@@ -77,6 +77,7 @@ export function FilaObra({ obra }: { obra: ObraAdmin }) {
         </Link>
         <p className="truncate text-xs text-tinta-suave">
           {obra.categoria}
+          {obra.para_venta && obra.precio != null ? ` · En venta ${obra.moneda} ${obra.precio}` : ""}
           {obra.es_encargo ? " · hecha por encargo" : ""}
           {obra.anio ? ` · ${obra.anio}` : ""}
         </p>

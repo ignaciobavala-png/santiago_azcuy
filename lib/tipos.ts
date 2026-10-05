@@ -18,6 +18,9 @@ export type Obra = {
   destacada: boolean;
   en_carrusel: boolean;
   estado: EstadoObra;
+  para_venta: boolean;
+  precio: number | null;
+  moneda: "USD" | "ARS";
   descripcion: string | null;
   imagen: string;
   imagen_w: number;
