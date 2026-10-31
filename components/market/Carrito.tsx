@@ -7,8 +7,9 @@ import type { Obra } from "@/lib/tipos";
 import type { Lang } from "@/lib/i18n";
 import { ruta } from "@/lib/i18n";
 import { url } from "@/lib/media";
+import { dinero, type LineaPago, type Region } from "@/lib/market-pagos";
 
-export type ItemCarrito = Pick<Obra, "id" | "slug" | "titulo" | "imagen" | "imagen_w" | "imagen_h" | "categoria" | "precio" | "moneda">;
+export type ItemCarrito = Pick<Obra, "id" | "slug" | "titulo" | "imagen" | "imagen_w" | "imagen_h" | "categoria" | "precio" | "moneda" | "pago_nacional" | "pago_internacional">;
 type Contexto = { items: ItemCarrito[]; agregar: (obra: ItemCarrito) => void; quitar: (id: string) => void; vaciar: () => void };
 const CarritoContext = createContext<Contexto | null>(null);
 const STORAGE = "santi-art-carrito-v1";
@@ -58,7 +59,7 @@ export function useCarrito() {
 export function BotonCarrito({ obra, texto = "Agregar al carrito" }: { obra: Obra; texto?: string }) {
   const { items, agregar, quitar } = useCarrito();
   const enCarrito = items.some((i) => i.id === obra.id);
-  const item: ItemCarrito = { id: obra.id, slug: obra.slug, titulo: obra.titulo, imagen: obra.imagen, imagen_w: obra.imagen_w, imagen_h: obra.imagen_h, categoria: obra.categoria, precio: obra.precio, moneda: obra.moneda };
+  const item: ItemCarrito = { id: obra.id, slug: obra.slug, titulo: obra.titulo, imagen: obra.imagen, imagen_w: obra.imagen_w, imagen_h: obra.imagen_h, categoria: obra.categoria, precio: obra.precio, moneda: obra.moneda, pago_nacional: obra.pago_nacional, pago_internacional: obra.pago_internacional };
   return <button type="button" onClick={() => enCarrito ? quitar(obra.id) : agregar(item)} className="etiqueta border border-luz/35 px-5 py-3 transition-colors hover:bg-luz hover:text-noche active:translate-y-px">{enCarrito ? "Quitar del carrito" : texto}</button>;
 }
 
@@ -72,28 +73,47 @@ export function EnlaceCarrito({ lang, nav, className }: { lang: Lang; nav: strin
 
 const fmt = (n: number, moneda: string, lang: Lang) => new Intl.NumberFormat(lang === "es" ? "es-AR" : "en-US", { style: "currency", currency: moneda, maximumFractionDigits: 0 }).format(n);
 
-export function PaginaCarrito({ lang }: { lang: Lang }) {
+type Pago = { region: Region; lineas: LineaPago[]; moneda: string; monto: number | null; total: number | null };
+export type OpcionesPago = { nacional: boolean; internacional: boolean };
+const TX = {
+  es: { region: "¿Desde dónde vas a pagar?", nacional: "Argentina (transferencia)", internacional: "Exterior (transferencia internacional)", ninguna: "Por ahora no hay formas de pago habilitadas. Escribinos desde Contacto y lo resolvemos.", noObra: "no se ofrece con esta forma de pago", ok: "Gracias, recibimos tu solicitud.", senia: "Seña a transferir", datos: "Datos para la transferencia", ref: "Indicá el código del pedido en la referencia y enviá el comprobante a Santiago (por WhatsApp o respondiendo el mail). La obra queda reservada cuando confirme la seña. El envío se cotiza aparte.", mixtas: "Los montos están en monedas distintas; Santiago te confirma el total." },
+  en: { region: "Where will you pay from?", nacional: "Argentina (bank transfer)", internacional: "Abroad (international transfer)", ninguna: "No payment options are available right now. Please write to us from Contact.", noObra: "is not offered with this payment option", ok: "Thank you, we received your request.", senia: "Deposit to transfer", datos: "Bank transfer details", ref: "Include the order code in the transfer reference and send the receipt to Santiago (WhatsApp or by replying to the email). The artwork is reserved once he confirms the deposit. Shipping is quoted separately.", mixtas: "Amounts are in different currencies; Santiago will confirm the total." },
+} as const;
+
+export function PaginaCarrito({ lang, opciones = { nacional: true, internacional: true } }: { lang: Lang; opciones?: OpcionesPago }) {
   const { items, quitar, vaciar } = useCarrito();
   const [estado, setEstado] = useState<"idle" | "enviando" | "ok">("idle");
   const [error, setError] = useState("");
   const [avisoEmail, setAvisoEmail] = useState(false);
   const [codigoPedido, setCodigoPedido] = useState("");
+  const [pago, setPago] = useState<Pago | null>(null);
+  const [region, setRegion] = useState<Region | "">(opciones.nacional && !opciones.internacional ? "nacional" : !opciones.nacional && opciones.internacional ? "internacional" : "");
+  const tx = TX[lang];
+  const sinOpcion = region ? items.filter((i) => !(region === "nacional" ? i.pago_nacional !== false : i.pago_internacional !== false)) : [];
   const [form, setForm] = useState({ nombre: "", telefono: "", email: "", ciudad: "", pais: "", mensaje: "" });
   const monedas = [...new Set(items.map((i) => i.moneda))];
   const totales = monedas.map((moneda) => ({ moneda, total: items.filter((i) => i.moneda === moneda).reduce((s, i) => s + Number(i.precio ?? 0), 0) }));
   async function enviar(e: React.FormEvent) {
-    e.preventDefault(); setError(""); setEstado("enviando");
+    e.preventDefault(); setError("");
+    if (!region) return setError(tx.region);
+    if (sinOpcion.length) return setError(`${sinOpcion.map((i) => i.titulo).join(", ")} ${tx.noObra}.`);
+    setEstado("enviando");
     const website = ((e.currentTarget as HTMLFormElement).elements.namedItem("website") as HTMLInputElement | null)?.value ?? "";
     try {
-      const res = await fetch("/api/market/pedidos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, website, obras: items.map((i) => i.id), precios: items.map((i) => ({ id: i.id, precio: i.precio, moneda: i.moneda })), lang }) });
+      const res = await fetch("/api/market/pedidos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, region, website, obras: items.map((i) => i.id), precios: items.map((i) => ({ id: i.id, precio: i.precio, moneda: i.moneda })), lang }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "No se pudo enviar la solicitud.");
       setAvisoEmail(Boolean(data.aviso));
       setCodigoPedido(data.codigo ?? "");
+      setPago(data.pago ?? null);
       setEstado("ok"); vaciar();
     } catch (e) { setEstado("idle"); setError(e instanceof Error ? e.message : "No se pudo enviar la solicitud."); }
   }
-  if (estado === "ok") return <main className="mx-auto max-w-3xl px-5 py-20 md:px-10"><p className="etiqueta text-tinta-suave">Solicitud enviada{codigoPedido ? ` · ${codigoPedido}` : ""}</p><h1 className="titular mt-4">Gracias, recibimos tu consulta.</h1><p className="mt-5 leading-relaxed text-tinta-media">Santiago se va a contactar para confirmar disponibilidad, acordar la seña y cotizar el envío. La obra no queda reservada hasta que se confirme el pago de la seña.</p>{avisoEmail && <p className="mt-4 text-sm text-amber-200">La solicitud quedó registrada, pero el aviso automático por email tuvo un problema. No hace falta enviarla de nuevo.</p>}<Link href={ruta(lang, "/galeria")} className="etiqueta mt-10 inline-block border border-linea px-5 py-3 hover:border-tinta-media">Volver a la galería</Link></main>;
+  if (estado === "ok") return <main className="mx-auto max-w-3xl px-5 py-20 md:px-10"><p className="etiqueta text-tinta-suave">Solicitud enviada{codigoPedido ? ` · ${codigoPedido}` : ""}</p><h1 className="titular mt-4">{tx.ok}</h1>{pago ? <section className="mt-8 border border-linea p-6">
+      <p className="text-lg">{pago.monto != null ? <>{tx.senia}: <strong>{dinero(pago.monto, pago.moneda, lang)}</strong></> : tx.mixtas}</p>
+      <h2 className="etiqueta mt-6 text-tinta-suave">{tx.datos}</h2>
+      <dl className="mt-3 grid gap-2 text-sm">{pago.lineas.map((l) => <div key={l.etiqueta} className="grid gap-1 sm:grid-cols-[200px_1fr]"><dt className="text-tinta-suave">{l.etiqueta}</dt><dd className="whitespace-pre-wrap break-all select-all">{l.valor}</dd></div>)}</dl>
+      <p className="mt-6 text-sm leading-relaxed text-tinta-media">{tx.ref}</p></section> : <p className="mt-5 leading-relaxed text-tinta-media">Santiago se va a contactar para confirmar disponibilidad, acordar la seña y cotizar el envío. La obra no queda reservada hasta que se confirme el pago de la seña.</p>}{avisoEmail && <p className="mt-4 text-sm text-amber-200">La solicitud quedó registrada, pero el aviso automático por email tuvo un problema. No hace falta enviarla de nuevo.</p>}<Link href={ruta(lang, "/galeria")} className="etiqueta mt-10 inline-block border border-linea px-5 py-3 hover:border-tinta-media">Volver a la galería</Link></main>;
   return <main className="mx-auto max-w-[1400px] px-5 py-14 md:px-10 md:py-20">
     <p className="etiqueta text-tinta-suave">Market · Solicitud de compra</p><h1 className="display mt-4">Tu selección</h1>
     {!items.length ? <div className="mt-12 border-t border-linea py-10"><p className="text-tinta-media">{lang === "es" ? "Tu carrito está vacío." : "Your cart is empty."}</p><Link href={ruta(lang, "/galeria")} className="etiqueta mt-6 inline-block underline underline-offset-4">{lang === "es" ? "Explorar la galería" : "Explore the gallery"}</Link></div> : <div className="mt-12 grid gap-14 border-t border-linea pt-8 lg:grid-cols-12">
@@ -106,6 +126,11 @@ export function PaginaCarrito({ lang }: { lang: Lang }) {
       {totales.map((t) => <p key={t.moneda} className="mt-5 text-right text-lg">Subtotal {t.moneda}: {fmt(t.total, t.moneda, lang)}</p>)}
       <p className="mt-6 text-xs leading-relaxed text-tinta-suave">El envío se cotiza aparte. Esta solicitud no reserva la obra; la reserva comienza cuando Santiago confirma la recepción de la seña.</p></section>
       <form onSubmit={enviar} className="grid content-start gap-5 lg:col-span-5">
+        <fieldset className="grid gap-2 text-sm"><legend className="titular mb-2 text-2xl">{tx.region}</legend>
+          {!opciones.nacional && !opciones.internacional && <p className="text-tinta-media">{tx.ninguna}</p>}
+          {(["nacional", "internacional"] as const).filter((r) => opciones[r]).map((r) => <label key={r} className="flex items-center gap-2"><input type="radio" name="region" required checked={region === r} onChange={() => setRegion(r)} className="h-4 w-4 accent-tinta" />{tx[r]}</label>)}
+          {sinOpcion.length > 0 && <p role="alert" className="text-sm text-amber-200">{sinOpcion.map((i) => i.titulo).join(", ")} {tx.noObra}.</p>}
+        </fieldset>
         <h2 className="titular text-2xl">¿Cómo te contactamos?</h2>
         <label className="grid gap-2 text-sm">Nombre y apellido *<input required maxLength={120} value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="rounded border border-linea bg-papel px-3 py-2.5 outline-none focus:border-tinta-media" /></label>
         <label className="grid gap-2 text-sm">Teléfono / WhatsApp *<input required maxLength={40} type="tel" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} className="rounded border border-linea bg-papel px-3 py-2.5 outline-none focus:border-tinta-media" /></label>
@@ -114,7 +139,7 @@ export function PaginaCarrito({ lang }: { lang: Lang }) {
         <label className="grid gap-2 text-sm">Mensaje o consulta<textarea rows={3} maxLength={2000} value={form.mensaje} onChange={(e) => setForm({ ...form, mensaje: e.target.value })} className="rounded border border-linea bg-papel px-3 py-2.5 outline-none focus:border-tinta-media" /></label>
         <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
         {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
-        <button disabled={estado === "enviando"} className="etiqueta w-fit border border-tinta bg-tinta px-6 py-3 text-papel transition-opacity hover:opacity-80 disabled:opacity-50">{estado === "enviando" ? "Enviando…" : "Enviar solicitud"}</button>
+        <button disabled={estado === "enviando" || (!opciones.nacional && !opciones.internacional)} className="etiqueta w-fit border border-tinta bg-tinta px-6 py-3 text-papel transition-opacity hover:opacity-80 disabled:opacity-50">{estado === "enviando" ? "Enviando…" : "Enviar solicitud"}</button>
       </form>
     </div>}
   </main>;

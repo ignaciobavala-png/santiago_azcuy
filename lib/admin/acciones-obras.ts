@@ -32,6 +32,8 @@ export type CamposObra = {
   para_venta?: boolean;
   precio?: number | null;
   moneda?: "USD" | "ARS";
+  pago_nacional?: boolean;
+  pago_internacional?: boolean;
   publicada?: boolean;
   descripcion?: string | null;
   orden?: number;
@@ -66,7 +68,7 @@ function limpiarCampos(campos: CamposObra): Partial<Record<string, unknown>> {
     }
   }
   if (campos.serie_id !== undefined) limpios.serie_id = textoOpc(campos.serie_id);
-  for (const k of ["es_encargo", "ofrecer_encargo", "destacada", "en_carrusel", "publicada", "para_venta"] as const) {
+  for (const k of ["es_encargo", "ofrecer_encargo", "destacada", "en_carrusel", "publicada", "para_venta", "pago_nacional", "pago_internacional"] as const) {
     if (campos[k] !== undefined) {
       if (!bool(campos[k])) throw new Error(`${k} no es valido.`);
       limpios[k] = campos[k];
@@ -122,6 +124,8 @@ export async function crearObra(datos: {
   para_venta: boolean;
   precio: number | null;
   moneda: "USD" | "ARS";
+  pago_nacional: boolean;
+  pago_internacional: boolean;
   publicada: boolean;
   descripcion?: string | null;
   orden: number;
@@ -137,6 +141,7 @@ export async function crearObra(datos: {
   if (!esEstadoObra(datos.estado)) throw new Error("Estado no valido.");
   if (datos.para_venta && (!Number.isFinite(datos.precio) || Number(datos.precio) <= 0)) throw new Error("Cargá un precio mayor que cero para ofrecer esta obra.");
   if (datos.moneda !== "USD" && datos.moneda !== "ARS") throw new Error("Moneda no válida.");
+  if (datos.para_venta && !datos.pago_nacional && !datos.pago_internacional) throw new Error("Activá al menos una opción de pago para ofrecer esta obra.");
 
   const { error } = await admin().from("obras").insert({
     slug: datos.slug,
@@ -155,6 +160,8 @@ export async function crearObra(datos: {
     para_venta: datos.para_venta,
     precio: datos.precio,
     moneda: datos.moneda,
+    pago_nacional: datos.pago_nacional !== false,
+    pago_internacional: datos.pago_internacional !== false,
     publicada: datos.publicada,
     descripcion: datos.descripcion?.trim() || null,
     orden: Number.isInteger(datos.orden) ? datos.orden : 0,

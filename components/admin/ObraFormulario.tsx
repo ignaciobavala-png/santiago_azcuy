@@ -58,6 +58,8 @@ export function ObraFormulario({
   const [paraVenta, setParaVenta] = useState(obra?.para_venta ?? false);
   const [precio, setPrecio] = useState(obra?.precio == null ? "" : String(obra.precio));
   const [moneda, setMoneda] = useState<"USD" | "ARS">(obra?.moneda ?? "USD");
+  const [pagoNacional, setPagoNacional] = useState(obra?.pago_nacional ?? true);
+  const [pagoInternacional, setPagoInternacional] = useState(obra?.pago_internacional ?? true);
   const [publicada, setPublicada] = useState(obra?.publicada ?? true);
   const [descripcion, setDescripcion] = useState(obra?.descripcion ?? "");
   const [orden, setOrden] = useState(String(obra?.orden ?? 0));
@@ -93,6 +95,7 @@ export function ObraFormulario({
     const precioN = precio.trim() ? Number(precio.trim().replace(",", ".")) : null;
     if (precioN !== null && (!Number.isFinite(precioN) || precioN <= 0)) return setError("El precio debe ser mayor que cero.");
     if (paraVenta && precioN === null) return setError("Cargá un precio para ofrecer esta obra.");
+    if (paraVenta && !pagoNacional && !pagoInternacional) return setError("Activá al menos una opción de pago para ofrecer esta obra.");
     const ordenN = Number(orden);
     if (!Number.isInteger(ordenN)) return setError("El orden tiene que ser un entero.");
 
@@ -112,6 +115,8 @@ export function ObraFormulario({
       para_venta: paraVenta,
       precio: precioN,
       moneda,
+      pago_nacional: pagoNacional,
+      pago_internacional: pagoInternacional,
       publicada,
       descripcion: descripcion.trim() || null,
       orden: ordenN,
@@ -265,7 +270,13 @@ export function ObraFormulario({
             <option value="USD">Dólares (USD)</option><option value="ARS">Pesos (ARS)</option>
           </select>
         </Campo>
-        <p className="self-end pb-2 text-xs leading-relaxed text-tinta-suave">El envío se cotiza aparte. La obra debe estar publicada y disponible para aparecer en el market.</p>
+        <fieldset className="grid gap-2 md:col-span-3">
+          <legend className="etiqueta mb-1 text-tinta-suave">Opciones de pago de esta obra</legend>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={pagoNacional} onChange={(e) => setPagoNacional(e.target.checked)} className="h-4 w-4 accent-tinta" />Pago nacional (transferencia desde Argentina)</label>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={pagoInternacional} onChange={(e) => setPagoInternacional(e.target.checked)} className="h-4 w-4 accent-tinta" />Pago internacional (transferencia desde el exterior)</label>
+          <p className="text-xs text-tinta-suave">Además hay que tener activo el método en Market → Datos bancarios.</p>
+        </fieldset>
+        <p className="self-end pb-2 text-xs leading-relaxed text-tinta-suave md:col-span-3">El envío se cotiza aparte. La obra debe estar publicada y disponible para aparecer en el market.</p>
       </section>
 
       {esNueva && (

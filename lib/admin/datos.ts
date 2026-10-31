@@ -2,6 +2,7 @@ import { admin } from "./cliente";
 import type { Obra, Serie, Categoria } from "@/lib/tipos";
 import type { Proyecto } from "@/lib/proyectos";
 import { t } from "@/lib/i18n";
+import { limpiarDatos, type DatosPago } from "@/lib/market-pagos";
 import { PREFIJO, aplanar } from "@/lib/textos";
 import { SECCIONES, etiquetaDe, huecosDe } from "./catalogo-textos";
 
@@ -13,7 +14,7 @@ import { SECCIONES, etiquetaDe, huecosDe } from "./catalogo-textos";
  */
 
 const OBRAS_ADMIN =
-  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,ofrecer_encargo,destacada,en_carrusel,estado,para_venta,precio,moneda,publicada,descripcion,imagen,imagen_w,imagen_h,blur,orden";
+  "id,slug,titulo,anio,tecnica,ancho_cm,alto_cm,categoria,serie_id,es_encargo,ofrecer_encargo,destacada,en_carrusel,estado,para_venta,precio,moneda,pago_nacional,pago_internacional,publicada,descripcion,imagen,imagen_w,imagen_h,blur,orden";
 
 export type ObraAdmin = Obra & { publicada: boolean; orden: number };
 
@@ -21,24 +22,27 @@ export type MarketConfig = {
   emails_aviso: string;
   instrucciones_pago: string;
   porcentajes_senia: Record<string, number>;
+  datos_nacional: DatosPago;
+  datos_internacional: DatosPago;
+  mail_pago_confirmado: boolean;
 };
 
 export async function marketConfigAdmin(): Promise<MarketConfig> {
-  const { data, error } = await admin().from("market_config").select("emails_aviso,instrucciones_pago,porcentajes_senia").eq("id", true).single();
+  const { data, error } = await admin().from("market_config").select("emails_aviso,instrucciones_pago,porcentajes_senia,datos_nacional,datos_internacional,mail_pago_confirmado").eq("id", true).single();
   if (error) throw error;
-  return data as MarketConfig;
+  return { ...data, datos_nacional: limpiarDatos("nacional", data.datos_nacional), datos_internacional: limpiarDatos("internacional", data.datos_internacional) } as MarketConfig;
 }
 
 export type PedidoMarket = {
   id: string; codigo: string; nombre: string; email: string | null; telefono: string;
   ciudad: string | null; pais: string | null; mensaje: string | null; origen: "carrito" | "encargo";
-  estado: string; total: number; senia_total: number; moneda: string; creado_at: string;
+  estado: string; region: "nacional" | "internacional" | null; total: number; senia_total: number; moneda: string; creado_at: string;
   items: { titulo: string; categoria: string; precio: number; moneda: string; slug: string | null; porcentaje_senia: number; importe_senia: number }[];
 };
 
 export async function pedidosMarketAdmin(): Promise<PedidoMarket[]> {
   const db = admin();
-  const { data, error } = await db.from("market_pedidos").select("id,codigo,nombre,email,telefono,ciudad,pais,mensaje,origen,estado,total,senia_total,moneda,creado_at").order("creado_at", { ascending: false }).limit(100);
+  const { data, error } = await db.from("market_pedidos").select("id,codigo,nombre,email,telefono,ciudad,pais,mensaje,origen,estado,region,total,senia_total,moneda,creado_at").order("creado_at", { ascending: false }).limit(100);
   if (error) throw error;
   const rows = data ?? [];
   if (!rows.length) return [];

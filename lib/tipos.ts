@@ -21,6 +21,8 @@ export type Obra = {
   para_venta: boolean;
   precio: number | null;
   moneda: "USD" | "ARS";
+  pago_nacional: boolean;
+  pago_internacional: boolean;
   descripcion: string | null;
   imagen: string;
   imagen_w: number;
